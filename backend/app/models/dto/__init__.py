@@ -1,2 +1,2 @@
 # Internal modules
-from .tactics import TacticDTO
+from .puzzle import PuzzleDTO
