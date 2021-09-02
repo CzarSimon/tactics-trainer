@@ -2,10 +2,14 @@
 from typing import List
 
 # Internal modules
-from app import csvutil
+from app.csvutil import get_reader
 from app.models.dto import PuzzleDTO
 
 
-def read_puzzles() -> List[PuzzleDTO]:
-    rows = csvutil.read("../lichess_db_puzzle.csv")
-    return [PuzzleDTO.from_dict(row) for row in rows]
+def import_puzzles() -> None:
+    with get_reader("../lichess_db_puzzle.csv") as reader:
+        for row in reader:
+            print(PuzzleDTO.from_dict(row))
+
+
+import_puzzles()
