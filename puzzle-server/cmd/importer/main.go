@@ -49,7 +49,11 @@ func setupPuzzleRepository() repository.PuzzleRepository {
 	cfg := getDBConfig()
 	db := dbutil.MustConnect(cfg)
 	migrationsPath := environ.MustGet("MIGRATIONS_PATH")
-	dbutil.Upgrade(migrationsPath, cfg.Driver(), db)
+	err := dbutil.Upgrade(migrationsPath, cfg.Driver(), db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return repository.NewPuzzleRepository(db)
 }
 
