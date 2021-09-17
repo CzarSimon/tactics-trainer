@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 lichess_db_puzzle.csv
 .vscode
+
+puzzle-server/cmd/lichess-importer/lichess-importer
+puzzle-server/resources/db.sql
