@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -25,20 +24,6 @@ type Puzzle struct {
 	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
-// EncodeMoves converts moves into a string.
-func (p Puzzle) EncodeMoves() string {
-	return strings.Join(p.Moves, separator)
-}
-
-// EncodeThemes converts movves into a string.
-func (p Puzzle) EncodeThemes() string {
-	themes := make([]string, len(p.Themes))
-	for i, theme := range p.Themes {
-		themes[i] = encodeTheme(theme)
-	}
-	return strings.Join(themes, separator)
-}
-
 func (p Puzzle) String() string {
 	return fmt.Sprintf(
 		"Puzzle(id=%s, externalId=%s, rating=%d, popularity=%d)",
@@ -47,8 +32,4 @@ func (p Puzzle) String() string {
 		p.Rating,
 		p.Popularity,
 	)
-}
-
-func encodeTheme(theme string) string {
-	return fmt.Sprintf("[%s]", theme)
 }

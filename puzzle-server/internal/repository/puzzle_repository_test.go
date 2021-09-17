@@ -65,3 +65,55 @@ func Test_puzzleRepo_Save(t *testing.T) {
 	assert.Error(err)
 	assert.True(errors.Is(err, context.Canceled))
 }
+
+func Test_puzzleRepo_Find(t *testing.T) {
+	assert := assert.New(t)
+	db := testutil.InMemoryDB(true, "../../resources/db/sqlite")
+	repo := repository.NewPuzzleRepository(db)
+	ctx := context.Background()
+
+	puzzle := models.Puzzle{
+		ID:         "puzzle-0",
+		ExternalID: "ext-id-0",
+		FEN:        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+		Moves: []string{
+			"e2e4",
+			"e7e5",
+			"g1f3",
+		},
+		Rating:          1500,
+		RatingDeviation: 100,
+		Popularity:      10,
+		Themes: []string{
+			"mateIn2",
+			"short",
+			"sacrifice",
+		},
+		GameURL:   "https://some.url/some/id",
+		CreatedAt: timeutil.Now(),
+		UpdatedAt: timeutil.Now(),
+	}
+
+	_, found, err := repo.Find(ctx, puzzle.ID)
+	assert.NoError(err)
+	assert.False(found)
+
+	err = repo.Save(ctx, puzzle)
+	assert.NoError(err)
+
+	p, found, err := repo.Find(ctx, puzzle.ID)
+	assert.NoError(err)
+	assert.True(found)
+	assert.Equal(puzzle, p)
+
+	_, found, err = repo.Find(ctx, "other-id")
+	assert.NoError(err)
+	assert.False(found)
+
+	ctx, cancel := context.WithCancel(ctx)
+	cancel()
+
+	_, _, err = repo.Find(ctx, puzzle.ID)
+	assert.Error(err)
+	assert.True(errors.Is(err, context.Canceled))
+}
