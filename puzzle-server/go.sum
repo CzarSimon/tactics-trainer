@@ -37,6 +37,8 @@ github.com/CzarSimon/httputil v0.0.0-20210716191007-4f0e5742681e h1:lBOGPjWC31sB
 github.com/CzarSimon/httputil v0.0.0-20210716191007-4f0e5742681e/go.mod h1:w6Yb3CuxRYG9kgFmoinULoT4vMNrh1j51iZBmdjtzmA=
 github.com/CzarSimon/httputil v0.0.0-20210917172014-6c4991c6bcf7 h1:aSa/8kK25GFPjIzADzbKVdvmZT+9ElN9WfyaqHdfdOE=
 github.com/CzarSimon/httputil v0.0.0-20210917172014-6c4991c6bcf7/go.mod h1:URZW8EtuwxXhA59nZaHhvgLkd2C4vJY0zOf1/R9zNAc=
+github.com/CzarSimon/httputil v0.0.0-20210920075731-4734d626ac44 h1:uq5u7kbMLcWUKDAEjZTocDmx4l1K8c+P1mlZJwgZ/D8=
+github.com/CzarSimon/httputil v0.0.0-20210920075731-4734d626ac44/go.mod h1:2MslDFFj0eMBB1SRfMdZwwS48aqUZy0v2/mS/QSex7c=
 github.com/Masterminds/goutils v1.1.0/go.mod h1:8cTjp+g8YejhMuvIA5y2vz3BpJxksy863GQaJW2MFNU=
 github.com/Masterminds/semver v1.5.0/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/Masterminds/sprig v2.22.0+incompatible/go.mod h1:y6hNFY5UBTIWBxnzTeuNhlNS5hqE0NB0E6fgfo2Br3o=
@@ -439,6 +441,8 @@ golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a/go.mod h1:LzIPMQfyMNhhGPh
 golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.0.0-20210915214749-c084706c2272 h1:3erb+vDS8lU1sxfDHF4/hhWyaXnhIaO+7RgL4fDZORA=
 golang.org/x/crypto v0.0.0-20210915214749-c084706c2272/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
+golang.org/x/crypto v0.0.0-20210920023735-84f357641f63 h1:kETrAMYZq6WVGPa8IIixL0CaEcIUNi+1WX7grUoi3y8=
+golang.org/x/crypto v0.0.0-20210920023735-84f357641f63/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190306152737-a1d7652674e8/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
 golang.org/x/exp v0.0.0-20190510132918-efd6b22b2522/go.mod h1:ZjyILWgesfNpC6sMxTJOJm9Kp84zZh5NQWvqDGG3Qr8=

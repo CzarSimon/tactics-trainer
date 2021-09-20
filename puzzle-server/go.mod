@@ -3,7 +3,7 @@ module github.com/CzarSimon/tactics-trainer/puzzle-server
 go 1.16
 
 require (
-	github.com/CzarSimon/httputil v0.0.0-20210917172014-6c4991c6bcf7
+	github.com/CzarSimon/httputil v0.0.0-20210920075731-4734d626ac44
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/coreos/go-etcd v2.0.0+incompatible // indirect
 	github.com/cpuguy83/go-md2man v1.0.10 // indirect
@@ -23,6 +23,7 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/tools v0.0.0-20190618225709-2cfd321de3ee // indirect
 	go.uber.org/zap v1.19.1 // indirect
+	golang.org/x/crypto v0.0.0-20210920023735-84f357641f63 // indirect
 	golang.org/x/sys v0.0.0-20210917161153-d61c044b1678 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
