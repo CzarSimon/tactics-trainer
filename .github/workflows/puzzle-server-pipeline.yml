@@ -68,3 +68,23 @@ jobs:
           ignore-unfixed: true
           format: "table"
           exit-code: "1"
+
+  build-image:
+    name: build-image
+    needs:
+      - parse-version
+      - run-tests
+      - scan-dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Docker build
+        run: |
+          echo "Package version: ${{needs.parse-version.outputs.full-package-name}}"
+          export IMAGE_NAME="docker.pkg.github.com/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}}"
+          docker build -t $IMAGE_NAME .
+          docker login https://docker.pkg.github.com --username $GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }}
+          docker push $IMAGE_NAME
