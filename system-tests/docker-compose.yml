@@ -1,0 +1,24 @@
+networks:
+  tactics-trainer:
+    name: tactics-trainer
+
+services:
+  puzzle-server:
+    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.1.0
+    ports:
+      - 18081:8080
+    environment:
+      DB_TYPE: sqlite
+      DB_FILENAME: /var/lib/puzzle-server/db.sql
+      MIGRATIONS_PATH: /etc/puzzle-server/migrations/sqlite
+    volumes:
+      - ../puzzle-server/resources/db.sql:/var/lib/puzzle-server/db.sql
+    networks:
+      - tactics-trainer
+
+  httplogger:
+    image: czarsimon/httplogger:0.8
+    ports:
+      - 18080:8080
+    environment:
+      JAEGER_DISABLED: "true"
