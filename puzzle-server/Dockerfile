@@ -11,7 +11,6 @@ RUN go mod download
 WORKDIR /app/puzzle-server/cmd/server
 RUN GOOS=linux GOARCH=amd64 go build
 
-# hadolint ignore=DL3006
 FROM gcr.io/distroless/base-debian10
 
 # Set user to non root
