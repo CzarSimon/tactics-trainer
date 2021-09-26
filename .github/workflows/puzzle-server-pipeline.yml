@@ -85,7 +85,7 @@ jobs:
       - scan-dependencies
       - scan-dockerfile
     runs-on: ubuntu-latest
-    step
+    steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 2
