@@ -132,3 +132,5 @@ lichess_db_puzzle.csv
 
 puzzle-server/cmd/lichess-importer/lichess-importer
 puzzle-server/resources/db.sql
+puzzle-server/db.sql
+puzzle-server/cmd/server/puzzle-server
