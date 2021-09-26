@@ -11,17 +11,21 @@ RUN go mod download
 WORKDIR /app/puzzle-server/cmd/server
 RUN GOOS=linux GOARCH=amd64 go build
 
-FROM alpine:3.14 AS run
+# hadolint ignore=DL3006
+FROM gcr.io/distroless/base-debian10
 
+# Set user to non root
+RUN adduser -D appuser
+
+# Copy migrations
 WORKDIR /etc/puzzle-server/migrations
 COPY ./resources/db/ .
 
-# Set user to non root
-ENV USER appuser
-ENV HOME /home/$USER
-USER $USER
-
+# Copy binary from buid step
 WORKDIR /opt/app
 COPY --from=build /app/puzzle-server/cmd/server/server puzzle-server
+
+# Prepare runtime
 ENV GIN_MODE release
+USER appuser
 CMD ["./puzzle-server"]

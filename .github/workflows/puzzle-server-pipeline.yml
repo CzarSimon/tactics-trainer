@@ -20,10 +20,8 @@ jobs:
       package-name: ${{ steps.parse.outputs.package-name }}
       full-package-name: ${{ steps.parse.outputs.full-package-name }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - id: parse
-        name: Parse version info
+      - uses: actions/checkout@v2
+      - name: Parse version info
         run: |
           NAME=$(cat package.json | jq .name --raw-output)
           VERSION=$(cat package.json | jq .version --raw-output)
@@ -37,13 +35,12 @@ jobs:
     name: run-tests
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.16
+      - name: Set up Go 1.17
         uses: actions/setup-go@v1
         with:
-          go-version: 1.16
+          go-version: 1.17
         id: go
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - name: Get dependencies
         run: go mod download
       - name: Check code style
@@ -59,8 +56,7 @@ jobs:
     name: scan-dependencies
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@master
         with:
@@ -69,22 +65,44 @@ jobs:
           format: "table"
           exit-code: "1"
 
+  scan-dockerfile:
+    name: scan-dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Scan dockerfile using hadolint
+        uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: Dockerfile
+
   build-image:
     name: build-image
+    if:
+      branch: main
     needs:
       - parse-version
       - run-tests
       - scan-dependencies
+      - scan-dockerfile
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    step
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 2
       - name: Docker build
         run: |
           echo "Package version: ${{needs.parse-version.outputs.full-package-name}}"
-          export IMAGE_NAME="docker.pkg.github.com/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}}"
+          export IMAGE_NAME="ghcr.io/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}}"
           docker build -t $IMAGE_NAME .
-          docker login https://docker.pkg.github.com --username $GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Trivy vulnerability scanner on image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "image"
+          image-ref: "$IMAGE_NAME"
+          ignore-unfixed: true
+          format: "table"
+          exit-code: "1"
+      - name: Docker push
+        run: |
+          docker login https://ghcr.io --username $GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }}
           docker push $IMAGE_NAME
