@@ -70,12 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: List directory
-        run: ls
       - name: Scan dockerfile using hadolint
-        uses: hadolint/hadolint-action@v1.6.0
-        with:
-          dockerfile: Dockerfile
+        run: docker run --rm -i hadolint/hadolint:latest-alpine < Dockerfile
 
   build-image:
     name: build-image
