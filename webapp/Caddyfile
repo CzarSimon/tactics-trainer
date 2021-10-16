@@ -1,0 +1,19 @@
+:28080
+
+route /health {
+    respond "{\"status\": \"OK\"}" 200
+}
+
+route /* {
+    reverse_proxy :3000
+}
+
+route /api/puzzle-server/* {
+    uri strip_prefix /api/puzzle-server
+    reverse_proxy :18081
+}
+
+route /api/httplogger/* {
+    uri strip_prefix /api/httplogger
+    reverse_proxy :18080
+}
