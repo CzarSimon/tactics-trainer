@@ -16,6 +16,18 @@ export interface Puzzle {
   updatedAt: string;
 }
 
+// Chess types
+export type Color = "black" | "white"
+
+// Hook types
+export interface UsePuzzleStateResult {
+  fen: string;
+  move: (move: string) => void;
+  computerMove: string;
+  correctMove: string;
+  done: boolean;
+}
+
 // Client
 export interface Client {
   id: string;
