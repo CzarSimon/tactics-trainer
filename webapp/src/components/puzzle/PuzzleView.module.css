@@ -1,0 +1,22 @@
+.PuzzleView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.Title {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0px !important;
+}
+
+.Success {
+  height: 200px;
+}
+
+.PuzzleDetails {
+  margin-top: 30px;
+  margin-bottom: 30px;
+  width: 560px;
+}

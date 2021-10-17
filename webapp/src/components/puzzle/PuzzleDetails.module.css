@@ -1,0 +1,14 @@
+.PuzzleDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.BasicInfo {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+}
+
+p {
+  margin-right: 20px;
+}

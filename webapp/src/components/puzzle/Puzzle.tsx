@@ -1,11 +1,16 @@
 import React, { useEffect } from 'react';
 import Chessboard from 'chessboardjsx';
 import { ChessInstance } from 'chess.js';
+import { Typography, Result } from 'antd';
 import { Color, Puzzle } from '../../types';
 import { PuzzleDetails } from './PuzzleDetails';
 import { usePuzzleState } from '../../hooks';
 
+import styles from './PuzzleView.module.css';
+
 const Chess = require("chess.js");
+
+const { Title } = Typography;
 
 interface Props {
   puzzle: Puzzle;
@@ -32,16 +37,18 @@ export function PuzzleView({ puzzle }: Props) {
   }
 
   return (
-    <div>
-      <h1>{color} to move</h1>
-      {done && <p>Solved!! 🎉</p>}
+    <div className={styles.PuzzleView}>
+      {!done && <Title className={styles.Title}>{color} to move</Title>}
+      {done && <Result className={styles.Success} status='success' title='Puzzle solved!! 🎉' />}
       <Chessboard
         position={fen}
         orientation={color}
         onDrop={handleMove}
         draggable={!done}
       />
-      <PuzzleDetails puzzle={puzzle} />
+      <div className={styles.PuzzleDetails}>
+        <PuzzleDetails puzzle={puzzle} />
+      </div>
     </div>
   )
 };
