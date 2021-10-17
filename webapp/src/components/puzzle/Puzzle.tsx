@@ -1,4 +1,5 @@
 import React from 'react';
+import Chessboard from 'chessboardjsx';
 import { Puzzle } from '../../types';
 import { PuzzleDetails } from './PuzzleDetails';
 
@@ -7,11 +8,12 @@ interface Props {
 }
 
 export function PuzzleView({ puzzle }: Props) {
-  const { id, fen } = puzzle;
+  const { fen } = puzzle;
+
   return (
     <div>
-      <h2>Puzzle ID: {id}</h2>
-      <p>Position: {fen}</p>
+      <h1>Black to move</h1>
+      <Chessboard position={fen} orientation="black" />
       <PuzzleDetails puzzle={puzzle} />
     </div>
   )
