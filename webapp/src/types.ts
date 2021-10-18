@@ -1,3 +1,7 @@
+import * as ChessJS from 'chess.js';
+
+export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
+
 // Util
 export type Optional<T> = T | undefined;
 

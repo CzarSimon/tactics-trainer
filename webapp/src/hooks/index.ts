@@ -2,10 +2,8 @@ import { useQuery } from 'react-query';
 import { ChessInstance } from 'chess.js';
 import log from '@czarsimon/remotelogger';
 import { getPuzzle } from '../api/puzzleApi';
-import { Puzzle, Optional, UsePuzzleStateResult } from '../types';
+import { Chess, Puzzle, Optional, UsePuzzleStateResult } from '../types';
 import { useState } from 'react';
-
-const Chess = require('chess.js');
 
 const IMMUTABLE_QUERY_OPTIONS = {
   retry: 0,
@@ -27,7 +25,7 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
   const [correctMove, setCorrectMove] = useState<string>(moves[1]);
 
   const [position, setPosition] = useState<string>(fen);
-  const chess: ChessInstance = new Chess(position);
+  const chess: ChessInstance = new Chess(fen);
 
   const updatePosition = (move: string) => {
     log.debug(`Move: ${move}`);

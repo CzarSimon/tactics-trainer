@@ -4,7 +4,7 @@ import { CLIENT_ID_KEY, DEV_MODE, APP_NAME, APP_VERSION } from '../constants';
 import { Client } from '../types';
 import { initHttpclient } from '../api/httpclient';
 
-export function initLoggerAndHttpclient() {
+export function initLoggerAndHttpclient(): void {
   const client = getClientInfo();
   const handlers = getLogHandlers(client);
   initHttpclient(client, handlers);
@@ -29,7 +29,7 @@ function getLogHandlers(client: Client): Handlers {
   };
 }
 
-export function teardown() {
+export function teardown(): void {
   log.info('closed application');
 }
 

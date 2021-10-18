@@ -2,13 +2,11 @@ import React, { useEffect } from 'react';
 import Chessboard from 'chessboardjsx';
 import { ChessInstance } from 'chess.js';
 import { Typography, Result } from 'antd';
-import { Color, Puzzle } from '../../types';
+import { Chess, Color, Puzzle } from '../../types';
 import { PuzzleDetails } from './PuzzleDetails';
 import { usePuzzleState } from '../../hooks';
 
 import styles from './PuzzleView.module.css';
-
-const Chess = require('chess.js');
 
 const { Title } = Typography;
 
