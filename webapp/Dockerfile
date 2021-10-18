@@ -16,7 +16,7 @@ COPY src src
 # Build application
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged AS runtime
+FROM nginxinc/nginx-unprivileged:1.20-alpine AS runtime
 COPY --from=build /app/web-app/build /usr/share/nginx/html
 COPY nginx /etc/nginx/conf.d/
 CMD ["nginx", "-g", "daemon off;"]
