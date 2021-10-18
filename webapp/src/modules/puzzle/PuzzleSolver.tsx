@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams } from "react-router-dom";
+import { useParams } from 'react-router-dom';
 import { PuzzleView } from '../../components/puzzle/Puzzle';
 import { usePuzzle } from '../../hooks';
 
@@ -12,8 +12,8 @@ export function PuzzlePage() {
 
   const puzzle = usePuzzle(puzzleId);
   if (!puzzle) {
-    return <p>Loading...</p>
+    return <p>Loading...</p>;
   }
 
-  return <PuzzleView puzzle={puzzle} />
+  return <PuzzleView puzzle={puzzle} />;
 }

@@ -2,7 +2,7 @@ import { httpclient } from './httpclient';
 import { Puzzle } from '../types';
 import { wrapAndLogError } from './util';
 
-const PUZZLE_URL = '/api/puzzle-server/v1/puzzles'
+const PUZZLE_URL = '/api/puzzle-server/v1/puzzles';
 
 export async function getPuzzle(id: string): Promise<Puzzle> {
   const { body, error, metadata } = await httpclient.get<Puzzle>({ url: `${PUZZLE_URL}/${id}` });
@@ -216,10 +216,8 @@ export function getRandomPuzzleID(): string {
     'd353182b-579d-492f-9a58-0144ffe047e0',
     '9fcb0f9f-6d79-4ed0-8e5c-1d63f6c1e65a',
     '5f1f5a2a-5f71-4ba7-bc67-bcd0e4e27a4e',
-  ]
+  ];
 
   const randomIdx = Math.floor(Math.random() * ids.length);
   return ids[randomIdx];
 }
-
-

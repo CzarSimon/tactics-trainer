@@ -5,20 +5,20 @@ import { getPuzzle } from '../api/puzzleApi';
 import { Puzzle, Optional, UsePuzzleStateResult } from '../types';
 import { useState } from 'react';
 
-const Chess = require("chess.js");
+const Chess = require('chess.js');
 
 const IMMUTABLE_QUERY_OPTIONS = {
   retry: 0,
   refetchOnWindowFocus: false,
   refetchIntervalInBackground: false,
   refetchOnMount: false,
-  refetchOnReconnect: false
+  refetchOnReconnect: false,
 };
 
 export function usePuzzle(id: string): Optional<Puzzle> {
   const { data } = useQuery<Puzzle, Error>(['puzzle', id], () => getPuzzle(id), IMMUTABLE_QUERY_OPTIONS);
   return data;
-};
+}
 
 export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
   const [done, setDone] = useState<boolean>(false);
@@ -30,14 +30,14 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
   const chess: ChessInstance = new Chess(position);
 
   const updatePosition = (move: string) => {
-    log.debug(`Move: ${move}`)
+    log.debug(`Move: ${move}`);
     const validMove = chess.move(move, { sloppy: true });
     if (!validMove) {
       return;
     }
 
-    if (move !== correctMove && move !== computerMove) {
-      log.info("Wrong move!");
+    if (move !== correctMove && move !== computerMove) {
+      log.info('Wrong move!');
       return;
     }
 
@@ -49,14 +49,14 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
       const [nextComputerMove, nextCorrectMove] = nextMoves(nextIndex, moves);
       if (!nextComputerMove) {
         setDone(true);
-        log.info("Puzzle done!");
+        log.info('Puzzle done!');
         return;
       }
 
       setComputerMove(nextComputerMove);
       setCorrectMove(nextCorrectMove);
     }
-  }
+  };
 
   return {
     fen: position,
@@ -64,8 +64,8 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
     computerMove,
     correctMove,
     done,
-  }
-};
+  };
+}
 
 function nextMoves(idx: number, moves: string[]): string[] {
   if (idx >= moves.length) {
@@ -73,6 +73,6 @@ function nextMoves(idx: number, moves: string[]): string[] {
   }
 
   const nextComputerMove = moves[idx];
-  const nextCorrectMove = moves[idx+1];
-  return [nextComputerMove, nextCorrectMove]
+  const nextCorrectMove = moves[idx + 1];
+  return [nextComputerMove, nextCorrectMove];
 }

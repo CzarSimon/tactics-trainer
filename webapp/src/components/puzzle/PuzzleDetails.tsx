@@ -20,7 +20,7 @@ const themeColums = [
 
 export function PuzzleDetails({ puzzle }: Props) {
   const { id, rating, popularity, themes, gameUrl } = puzzle;
-  const themeTableData = themes.map(theme => ({ theme, key: `${id}:${theme}` }));
+  const themeTableData = themes.map((theme) => ({ theme, key: `${id}:${theme}` }));
 
   return (
     <Collapse className={styles.Collapse}>
@@ -31,15 +31,9 @@ export function PuzzleDetails({ puzzle }: Props) {
             <p>Popularity: {popularity}</p>
             <a href={gameUrl}>Link to game</a>
           </div>
-          <Table
-            dataSource={themeTableData}
-            columns={themeColums}
-            pagination={false}
-          />
+          <Table dataSource={themeTableData} columns={themeColums} pagination={false} />
         </div>
       </Panel>
-
     </Collapse>
-
-  )
-};
+  );
+}

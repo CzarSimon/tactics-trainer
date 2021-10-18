@@ -1,6 +1,6 @@
-import { Fetch, HttpClient } from "@czarsimon/httpclient";
-import { Handlers } from "@czarsimon/remotelogger";
-import { Client } from "../types";
+import { Fetch, HttpClient } from '@czarsimon/httpclient';
+import { Handlers } from '@czarsimon/remotelogger';
+import { Client } from '../types';
 
 export let httpclient = new HttpClient({
   baseHeaders: {
@@ -17,7 +17,7 @@ export function initHttpclient(client: Client, handlers: Handlers) {
       'X-Session-ID': client.sessionId,
     },
     transport: new Fetch(),
-  })
+  });
 }
 
 export function setHeader(name: string, value: string) {

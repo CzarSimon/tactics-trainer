@@ -1,5 +1,5 @@
 import React from 'react';
-import { useHistory } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
 import { Button, Typography } from 'antd';
 import { getRandomPuzzleID } from '../../api/puzzleApi';
 
@@ -13,7 +13,7 @@ export function Home() {
   const gotoRandomPuzzle = () => {
     const puzzleId = getRandomPuzzleID();
     location.push(`puzzles/${puzzleId}`);
-  }
+  };
 
   return (
     <div className={styles.Home}>
@@ -22,5 +22,5 @@ export function Home() {
         Get random puzzle
       </Button>
     </div>
-  )
+  );
 }

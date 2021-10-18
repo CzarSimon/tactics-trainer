@@ -17,7 +17,7 @@ export interface Puzzle {
 }
 
 // Chess types
-export type Color = "black" | "white"
+export type Color = 'black' | 'white';
 
 // Hook types
 export interface UsePuzzleStateResult {

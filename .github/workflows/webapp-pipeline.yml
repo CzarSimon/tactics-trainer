@@ -1,0 +1,82 @@
+name: webapp-pipeline
+
+defaults:
+  run:
+    working-directory: webapp
+
+on:
+  push:
+    paths:
+      - webapp/**
+      - .github/workflows/webapp-pipeline.yml
+
+jobs:
+  parse-version:
+    name: parse-version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse.outputs.version }}
+      tag-name: ${{ steps.parse.outputs.tag-name }}
+      package-name: ${{ steps.parse.outputs.package-name }}
+      full-package-name: ${{ steps.parse.outputs.full-package-name }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: parse
+        name: Parse version info
+        run: |
+          NAME=$(cat package.json | jq .name --raw-output)
+          VERSION=$(cat package.json | jq .version --raw-output)
+          COMMIT_ID=${GITHUB_SHA:0:7}
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=tag-name::$NAME/$VERSION"
+          echo "::set-output name=package-name::$NAME:$VERSION"
+          echo "::set-output name=full-package-name::$NAME:$VERSION-$COMMIT_ID"
+
+  run-tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.18.1
+      - run: npm install
+      - run: npm run check-format
+
+  scan-dockerfile:
+    name: scan-dockerfile
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Scan dockerfile using hadolint
+        run: docker run --rm -i hadolint/hadolint:latest-alpine < Dockerfile
+
+  build-image:
+    name: build-image
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - parse-version
+      - run-tests
+      - scan-dockerfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Docker build
+        run: |
+          echo "Package version: ${{needs.parse-version.outputs.full-package-name}}"
+          docker build -t ghcr.io/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}} .
+      - name: Run Trivy vulnerability scanner on image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "image"
+          image-ref: "ghcr.io/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}}"
+          ignore-unfixed: true
+          format: "table"
+          exit-code: "1"
+      - name: Docker push
+        run: |
+          docker login https://ghcr.io --username $GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }}
+          docker push ghcr.io/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}}

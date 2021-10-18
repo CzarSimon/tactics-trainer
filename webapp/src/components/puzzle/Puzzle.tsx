@@ -8,7 +8,7 @@ import { usePuzzleState } from '../../hooks';
 
 import styles from './PuzzleView.module.css';
 
-const Chess = require("chess.js");
+const Chess = require('chess.js');
 
 const { Title } = Typography;
 
@@ -27,33 +27,28 @@ export function PuzzleView({ puzzle }: Props) {
 
   useEffect(() => {
     setTimeout(() => {
-      move(computerMove)
+      move(computerMove);
     }, 300);
   }, [computerMove]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleMove = ({sourceSquare, targetSquare}: Move) => {
+  const handleMove = ({ sourceSquare, targetSquare }: Move) => {
     const moveStr = `${sourceSquare}${targetSquare}`;
     move(moveStr);
-  }
+  };
 
   return (
     <div className={styles.PuzzleView}>
       {!done && <Title className={styles.Title}>{color} to move</Title>}
-      {done && <Result className={styles.Success} status='success' title='Puzzle solved!! 🎉' />}
-      <Chessboard
-        position={fen}
-        orientation={color}
-        onDrop={handleMove}
-        draggable={!done}
-      />
+      {done && <Result className={styles.Success} status="success" title="Puzzle solved!! 🎉" />}
+      <Chessboard position={fen} orientation={color} onDrop={handleMove} draggable={!done} />
       <div className={styles.PuzzleDetails}>
         <PuzzleDetails puzzle={puzzle} />
       </div>
     </div>
-  )
-};
+  );
+}
 
 function getInitalTurn(fen: string): Color {
   const chess: ChessInstance = new Chess(fen);
-  return (chess.turn() === chess.BLACK) ? "white" : "black";
+  return chess.turn() === chess.BLACK ? 'white' : 'black';
 }
