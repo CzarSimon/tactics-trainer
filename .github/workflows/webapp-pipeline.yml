@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.parse.outputs.version }}
+      full-version: ${{ steps.parse.outputs.full-version }}
       tag-name: ${{ steps.parse.outputs.tag-name }}
       package-name: ${{ steps.parse.outputs.package-name }}
       full-package-name: ${{ steps.parse.outputs.full-package-name }}
@@ -28,6 +29,7 @@ jobs:
           VERSION=$(cat package.json | jq .version --raw-output)
           COMMIT_ID=${GITHUB_SHA:0:7}
           echo "::set-output name=version::$VERSION"
+          echo "::set-output name=full-version::$VERSION-$COMMIT_ID"
           echo "::set-output name=tag-name::$NAME/$VERSION"
           echo "::set-output name=package-name::$NAME:$VERSION"
           echo "::set-output name=full-package-name::$NAME:$VERSION-$COMMIT_ID"
