@@ -7,4 +7,5 @@ test('renders home page', () => {
   const title = screen.getByRole('heading', { name: /^tactics trainer$/i });
   expect(title).toBeInTheDocument();
   const button = screen.getByRole('button', { name: /^get random puzzle$/i });
+  expect(button).toBeInTheDocument();
 });
