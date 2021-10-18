@@ -40,9 +40,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 14.18.1
-      - run: npm install
+      - run: npm ci
       - run: npm run check-format
       - run: npm run check-linting
+      - run: npm test
 
   scan-dockerfile:
     name: scan-dockerfile
