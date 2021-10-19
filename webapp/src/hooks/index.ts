@@ -25,17 +25,19 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
   const [correctMove, setCorrectMove] = useState<string>(moves[1]);
 
   const [position, setPosition] = useState<string>(fen);
-  const chess: ChessInstance = new Chess(fen);
 
   const updatePosition = (move: string) => {
     log.debug(`Move: ${move}`);
-    const validMove = chess.move(move, { sloppy: true });
-    if (!validMove) {
+    if (move !== correctMove && move !== computerMove) {
+      log.info('Wrong move!');
       return;
     }
 
-    if (move !== correctMove && move !== computerMove) {
-      log.info('Wrong move!');
+    const chess: ChessInstance = new Chess(position);
+    const validMove = chess.move(move, { sloppy: true });
+
+    if (!validMove) {
+      log.error('Invalid move!');
       return;
     }
 
@@ -47,7 +49,6 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
       const [nextComputerMove, nextCorrectMove] = nextMoves(nextIndex, moves);
       if (!nextComputerMove) {
         setDone(true);
-        log.info('Puzzle done!');
         return;
       }
 

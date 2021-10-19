@@ -7,7 +7,7 @@ import log, { ConsoleHandler, level } from '@czarsimon/remotelogger';
 const logHandlers = { console: new ConsoleHandler(level.DEBUG) };
 log.configure(logHandlers);
 
-function render(ui, { locale = 'en-US', ...renderOptions } = {}) {
+export function render(ui, { ...renderOptions } = {}) {
   function Wrapper({ children }) {
     return <Router>{children}</Router>;
   }
@@ -17,9 +17,3 @@ function render(ui, { locale = 'en-US', ...renderOptions } = {}) {
   };
   return rtlRender(ui, { wrapper: Wrapper, ...renderOptions });
 }
-
-// re-export everything
-export * from '@testing-library/react';
-
-// override render method
-export { render };

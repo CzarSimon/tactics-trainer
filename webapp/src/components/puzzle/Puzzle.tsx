@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Chessboard from 'chessboardjsx';
 import { ChessInstance } from 'chess.js';
 import { Typography, Result } from 'antd';
@@ -9,6 +9,7 @@ import { usePuzzleState } from '../../hooks';
 import styles from './PuzzleView.module.css';
 
 const { Title } = Typography;
+const COMPUTER_MOVE_DELAY_MS = 200;
 
 interface Props {
   puzzle: Puzzle;
@@ -21,12 +22,13 @@ interface Move {
 
 export function PuzzleView({ puzzle }: Props) {
   const color = getInitalTurn(puzzle.fen);
+  const [draggable, setDraggable] = useState<boolean>(true);
   const { fen, move, computerMove, done } = usePuzzleState(puzzle);
 
   useEffect(() => {
     setTimeout(() => {
       move(computerMove);
-    }, 300);
+    }, COMPUTER_MOVE_DELAY_MS);
   }, [computerMove]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMove = ({ sourceSquare, targetSquare }: Move) => {
@@ -34,11 +36,15 @@ export function PuzzleView({ puzzle }: Props) {
     move(moveStr);
   };
 
+  if (draggable && done) {
+    setTimeout(() => setDraggable(false), COMPUTER_MOVE_DELAY_MS);
+  }
+
   return (
     <div className={styles.PuzzleView}>
       {!done && <Title className={styles.Title}>{color} to move</Title>}
       {done && <Result className={styles.Success} status="success" title="Puzzle solved!! 🎉" />}
-      <Chessboard position={fen} orientation={color} onDrop={handleMove} draggable={!done} />
+      <Chessboard position={fen} orientation={color} onDrop={handleMove} draggable={draggable} />
       <div className={styles.PuzzleDetails}>
         <PuzzleDetails puzzle={puzzle} />
       </div>
