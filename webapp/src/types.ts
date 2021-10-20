@@ -2,8 +2,10 @@ import * as ChessJS from 'chess.js';
 
 export const Chess = typeof ChessJS === 'function' ? ChessJS : ChessJS.Chess;
 
-// Util
+// Utility types
 export type Optional<T> = T | undefined;
+
+export type TypedMap<T> = Record<string, T>;
 
 // Puzzle
 export interface Puzzle {
