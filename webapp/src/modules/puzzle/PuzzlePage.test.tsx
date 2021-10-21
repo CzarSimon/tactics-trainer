@@ -52,12 +52,18 @@ test('renders puzzle page', async () => {
   expect(puzzleDetailsCollapse).toBeInTheDocument();
 
   // Check that puzzle details are not visible
-  const rating = screen.queryByText(/^rating: 1215$/i);
-  expect(rating).toBeNull();
-  const themesHeading = screen.queryByRole('heading', { name: /^themes$/i });
-  expect(themesHeading).toBeNull();
-  const aTheme = screen.queryByText(/^crushing$/i);
-  expect(aTheme).toBeNull();
+  expect(screen.queryByText(/^rating: 1215$/i)).toBeNull();
+  expect(screen.queryByText(/^themes$/i)).toBeNull();
+  for (const theme of puzzle.themes) {
+    expect(screen.queryByText(theme)).toBeNull();
+  }
 
-  // userEvent.click(puzzleDetailsCollapse);
+  await act(async () => userEvent.click(puzzleDetailsCollapse));
+
+  // Check that puzzle details are now visible
+  expect(screen.getByText(/^rating: 1215$/i)).toBeInTheDocument();
+  expect(screen.getByText(/^themes$/i)).toBeInTheDocument();
+  for (const theme of puzzle.themes) {
+    expect(screen.getByText(theme)).toBeInTheDocument();
+  }
 });
