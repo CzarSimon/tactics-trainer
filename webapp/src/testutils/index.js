@@ -8,8 +8,9 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 const logHandlers = { console: new ConsoleHandler(level.DEBUG) };
 log.configure(logHandlers);
 
+// eslint-disable-next-line no-undef
 global.matchMedia =
-  global.matchMedia ||
+  global.matchMedia || // eslint-disable-line no-undef
   function () {
     return {
       addListener: jest.fn(),
