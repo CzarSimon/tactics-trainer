@@ -68,7 +68,7 @@ jobs:
           scan-type: "config"
           format: "table"
           exit-code: "1"
-          skip-dirs: "webapp,puzzle-server"
+          scan-ref: "."
           hide-progress: false
           ignore-unfixed: true
       - name: Scan code
