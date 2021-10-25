@@ -46,33 +46,33 @@ jobs:
         run: go mod download
       - name: Check code style
         run: go vet ./...
-      - name: Run security scan
-        run: |
-          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.8.1
-          $(go env GOPATH)/bin/gosec ./...
       - name: Test
         run: go test ./...
 
-  scan-dependencies:
-    name: scan-dependencies
+  security-scans:
+    name: security-scans
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run Trivy vulnerability scanner in repo mode
+      - name: Scan dependencies
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "fs"
           ignore-unfixed: true
           format: "table"
           exit-code: "1"
-
-  scan-dockerfile:
-    name: scan-dockerfile
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Scan dockerfile using hadolint
-        run: docker run --rm -i hadolint/hadolint:latest-alpine < Dockerfile
+          skip-dirs: "webapp,puzzle-server"
+      - name: Scan configuration
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "config"
+          format: "table"
+          exit-code: "1"
+          skip-dirs: "webapp,puzzle-server"
+      - name: Scan code
+        run: |
+          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.8.1
+          $(go env GOPATH)/bin/gosec ./...
 
   build-image:
     name: build-image
@@ -80,8 +80,7 @@ jobs:
     needs:
       - parse-version
       - run-tests
-      - scan-dependencies
-      - scan-dockerfile
+      - security-scans
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
