@@ -61,14 +61,14 @@ jobs:
           ignore-unfixed: true
           format: "table"
           exit-code: "1"
-          skip-dirs: "webapp,puzzle-server"
+          scan-ref: "iam-server"
       - name: Scan configuration
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "config"
           format: "table"
           exit-code: "1"
-          scan-ref: "."
+          scan-ref: "iam-server"
           hide-progress: false
           ignore-unfixed: true
       - name: Scan code
