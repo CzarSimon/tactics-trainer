@@ -1,14 +1,14 @@
-name: iam-service-pipeline
+name: iam-server-pipeline
 
 defaults:
   run:
-    working-directory: iam-service
+    working-directory: iam-server
 
 on:
   push:
     paths:
-      - iam-service/**
-      - .github/workflows/iam-service-pipeline.yml
+      - iam-server/**
+      - .github/workflows/iam-server-pipeline.yml
 
 jobs:
   parse-version:
