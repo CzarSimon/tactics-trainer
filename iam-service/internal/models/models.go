@@ -18,12 +18,18 @@ const (
 	KeyStateDeactivated = "DEACTIVATED"
 )
 
+// User roles
+const (
+	UserRole = "USER"
+)
+
 var errIncorrectKeyString = errors.New("incorrectly formated key encryption key string")
 
 // User account describing a user of the object storage service.
 type User struct {
 	ID                string
 	Username          string
+	Role              string
 	Password          string
 	Salt              string
 	DataEncryptionKey DataEncryptionKey

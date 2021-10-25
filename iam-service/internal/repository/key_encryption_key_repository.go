@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/CzarSimon/tactics-trainer/iam-service/internal/models"
+	"github.com/opentracing/opentracing-go"
 )
 
 // KeyEncryptionKeyRepository interface for KeyEncryptionKey (KEK) data access layer
@@ -36,6 +37,9 @@ type kekRepo struct {
 }
 
 func (r *kekRepo) Find(ctx context.Context, id int) (models.KeyEncryptionKey, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "kek_repo_find")
+	defer span.Finish()
+
 	kek, ok := r.keys[id]
 	if !ok {
 		return kek, fmt.Errorf("could not find KeyEncryptionKey(id=%d)", id)
@@ -45,6 +49,9 @@ func (r *kekRepo) Find(ctx context.Context, id int) (models.KeyEncryptionKey, er
 }
 
 func (r *kekRepo) FindActive(ctx context.Context) (models.KeyEncryptionKey, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "kek_repo_find_active")
+	defer span.Finish()
+
 	id, err := r.findActiveKeyEncryptionKeyID(ctx)
 	if err != nil {
 		return models.KeyEncryptionKey{}, err

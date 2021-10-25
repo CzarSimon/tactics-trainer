@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKeyEncryptionKeyRepositoryFind(t *testing.T) {
+func Test_kekRepo_Find(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 	db := testutil.InMemoryDB(true, "../../resources/db/sqlite")
@@ -35,7 +35,7 @@ func TestKeyEncryptionKeyRepositoryFind(t *testing.T) {
 	assert.Error(kek.Valid())
 }
 
-func TestKeyEncryptionKeyRepositoryFindActive(t *testing.T) {
+func Test_kekRepo_FindActive(t *testing.T) {
 	assert := assert.New(t)
 	ctx := context.Background()
 	db := testutil.InMemoryDB(true, "../../resources/db/sqlite")
