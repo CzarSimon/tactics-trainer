@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/CzarSimon/httputil/testutil"
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/models"
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/repository"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/models"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/repository"
 	"github.com/stretchr/testify/assert"
 )
 

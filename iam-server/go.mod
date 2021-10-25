@@ -1,4 +1,4 @@
-module github.com/CzarSimon/tactics-trainer/iam-service
+module github.com/CzarSimon/tactics-trainer/iam-server
 
 go 1.17
 

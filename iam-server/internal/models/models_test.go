@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/CzarSimon/httputil/crypto"
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/models"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/models"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/CzarSimon/httputil/crypto"
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/models"
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/repository"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/models"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/repository"
 )
 
 // Cipher cryptosystem for generating sealed keys and encrypting and decrypting byte arrays.

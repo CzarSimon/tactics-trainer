@@ -9,8 +9,8 @@ import (
 	"github.com/CzarSimon/httputil/id"
 	"github.com/CzarSimon/httputil/testutil"
 	"github.com/CzarSimon/httputil/timeutil"
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/models"
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/repository"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/models"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/repository"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 )

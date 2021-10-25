@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/models"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/models"
 	"github.com/opentracing/opentracing-go"
 )
 

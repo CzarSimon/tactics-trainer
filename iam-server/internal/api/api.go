@@ -7,7 +7,7 @@ import (
 	"github.com/CzarSimon/httputil"
 	"github.com/CzarSimon/httputil/dbutil"
 	"github.com/CzarSimon/httputil/logger"
-	"github.com/CzarSimon/tactics-trainer/iam-service/internal/config"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/config"
 	"go.uber.org/zap"
 )
 
@@ -22,14 +22,14 @@ func Start(cfg config.Config) {
 		log.Panic("Failed to apply upgrade migratons", zap.Error(err))
 	}
 
-	r := httputil.NewRouter("iam-service", healthCheck(db))
+	r := httputil.NewRouter("iam-server", healthCheck(db))
 
 	server := &http.Server{
 		Addr:    ":" + cfg.Port,
 		Handler: r,
 	}
 
-	log.Info("Starting iam-service", zap.String("port", cfg.Port))
+	log.Info("Starting iam-server", zap.String("port", cfg.Port))
 	err = server.ListenAndServe()
 	if err != nil {
 		log.Error("Server stoped with an error", zap.Error(err))
