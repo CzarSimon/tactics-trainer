@@ -11,6 +11,7 @@ import (
 	"github.com/CzarSimon/httputil/timeutil"
 	"github.com/CzarSimon/tactics-trainer/iam-service/internal/models"
 	"github.com/CzarSimon/tactics-trainer/iam-service/internal/repository"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 )
 
