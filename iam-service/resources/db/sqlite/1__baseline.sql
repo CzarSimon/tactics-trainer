@@ -1,4 +1,16 @@
 -- +migrate Up
+CREATE TABLE `key_state` (
+    `id` VARCHAR(50) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    PRIMARY KEY (`id`)
+);
+CREATE TABLE `key_encryption_key` (
+    `id` INTEGER NOT NULL,
+    `state` VARCHAR(50) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`state`) REFERENCES `key_state` (`id`)
+);
 CREATE TABLE `role` (
     `name` VARCHAR(50) NOT NULL,
     `created_at` DATETIME NOT NULL,
@@ -18,7 +30,8 @@ CREATE TABLE `user_account` (
     UNIQUE(`username`),
     UNIQUE(`salt`),
     UNIQUE(`data_encryption_key`),
-    FOREIGN KEY (`role`) REFERENCES `role` (`name`)
+    FOREIGN KEY (`role`) REFERENCES `role` (`name`),
+    FOREIGN KEY (`key_encryption_key_id`) REFERENCES `key_encryption_key` (`id`)
 );
 CREATE TABLE `puzzle` (
     `id` VARCHAR(36) NOT NULL,
@@ -36,6 +49,14 @@ CREATE TABLE `puzzle` (
 );
 INSERT INTO `role`(`name`, `created_at`)
 VALUES ('USER', CURRENT_TIMESTAMP);
+INSERT INTO `key_state`(`id`, `created_at`)
+VALUES ('ACTIVE', CURRENT_TIMESTAMP),
+    ('NEXT', CURRENT_TIMESTAMP),
+    ('DEACTIVATED', CURRENT_TIMESTAMP);
+INSERT INTO `key_encryption_key`(`id`, `state`, `created_at`)
+VALUES (0, 'ACTIVE', CURRENT_TIMESTAMP);
 -- +migrate Down
 DROP TABLE IF EXISTS `user_account`;
 DROP TABLE IF EXISTS `role`;
+DROP TABLE IF EXISTS `key_encryption_key`;
+DROP TABLE IF EXISTS `key_state`;

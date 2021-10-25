@@ -11,6 +11,13 @@ import (
 	"github.com/CzarSimon/httputil/crypto"
 )
 
+// Key states
+const (
+	KeyStateActive      = "ACTIVE"
+	KeyStateNext        = "NEXT"
+	KeyStateDeactivated = "DEACTIVATED"
+)
+
 var errIncorrectKeyString = errors.New("incorrectly formated key encryption key string")
 
 // User account describing a user of the object storage service.
