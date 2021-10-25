@@ -71,6 +71,8 @@ jobs:
           scan-ref: "iam-server"
           hide-progress: false
           ignore-unfixed: true
+        env:
+          TRIVY_IGNOREFILE: "iam-server/.trivyignore"
       - name: Scan code
         run: |
           curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.8.1
