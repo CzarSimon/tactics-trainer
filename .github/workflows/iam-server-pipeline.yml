@@ -69,6 +69,8 @@ jobs:
           format: "table"
           exit-code: "1"
           skip-dirs: "webapp,puzzle-server"
+          hide-progress: false
+          ignore-unfixed: true
       - name: Scan code
         run: |
           curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.8.1
