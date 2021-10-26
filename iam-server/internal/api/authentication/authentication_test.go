@@ -9,6 +9,7 @@ import (
 	"github.com/CzarSimon/httputil"
 	"github.com/CzarSimon/httputil/client/rpc"
 	"github.com/CzarSimon/httputil/crypto"
+	"github.com/CzarSimon/httputil/jwt"
 	"github.com/CzarSimon/httputil/testutil"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/api/authentication"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/models"
@@ -20,7 +21,7 @@ import (
 
 func TestSignup(t *testing.T) {
 	assert := assert.New(t)
-	svc := setupAuthService()
+	svc, jwtVerifier := setupAuthService()
 	router := setupRouter(svc)
 	ctx := context.Background()
 
@@ -36,6 +37,19 @@ func TestSignup(t *testing.T) {
 	req, _ := rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/signup", body)
 	res := testutil.PerformRequest(router, req)
 	assert.Equal(http.StatusOK, res.Code)
+	var resBody models.AuthenticationResponse
+	err = rpc.DecodeJSON(res.Result(), &resBody)
+	assert.NoError(err)
+	assert.Len(resBody.User.ID, 36)
+	assert.Equal(body.Username, resBody.User.Username)
+	assert.Equal(models.UserRole, resBody.User.Role)
+	assert.Empty(resBody.User.Credentials)
+
+	assert.NotEmpty(resBody.Token)
+	jwtUser, err := jwtVerifier.Verify(resBody.Token)
+	assert.NoError(err)
+	assert.True(jwtUser.HasRole(models.UserRole))
+	assert.Equal(resBody.User.ID, jwtUser.ID)
 
 	user, found, err := svc.UserRepo.FindByUsername(ctx, body.Username)
 	assert.NoError(err)
@@ -44,7 +58,7 @@ func TestSignup(t *testing.T) {
 	assert.NotEqual(body.Password, user.Credentials.Password)
 }
 
-func setupAuthService() *service.AuthenticationService {
+func setupAuthService() (*service.AuthenticationService, jwt.Verifier) {
 	db := testutil.InMemoryDB(true, "../../../resources/db/sqlite")
 	userRepo := repository.NewUserRepository(db)
 
@@ -57,11 +71,18 @@ func setupAuthService() *service.AuthenticationService {
 		KEKRepo: kekRepo,
 	}
 
-	return &service.AuthenticationService{
-		UserRepo: userRepo,
-		Cipher:   cipher,
-		Hasher:   crypto.DefaultScryptHasher(),
+	jwtCreds := jwt.Credentials{
+		Issuer: "tactics-trainer/iam-service",
+		Secret: "614f10d529be2dd62b3554160c5247d5",
 	}
+
+	return &service.AuthenticationService{
+		UserRepo:      userRepo,
+		Cipher:        cipher,
+		Hasher:        crypto.DefaultScryptHasher(),
+		Issuer:        jwt.NewIssuer(jwtCreds),
+		TokenLifetime: time.Hour * 24 * 7,
+	}, jwt.NewVerifier(jwtCreds, time.Minute)
 }
 
 func setupRouter(svc *service.AuthenticationService) http.Handler {

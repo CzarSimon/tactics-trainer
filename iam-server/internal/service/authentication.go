@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/hex"
+	"time"
 
 	"github.com/CzarSimon/httputil"
 	"github.com/CzarSimon/httputil/crypto"
@@ -14,10 +15,11 @@ import (
 
 // AuthenticationService business logic for handling authentication.
 type AuthenticationService struct {
-	Issuer   jwt.Issuer
-	Cipher   *Cipher
-	Hasher   crypto.Hasher
-	UserRepo repository.UserRepository
+	Issuer        jwt.Issuer
+	Cipher        *Cipher
+	Hasher        crypto.Hasher
+	UserRepo      repository.UserRepository
+	TokenLifetime time.Duration
 }
 
 func (s *AuthenticationService) Signup(ctx context.Context, req models.AuthenticationRequest) (models.AuthenticationResponse, error) {
@@ -30,13 +32,19 @@ func (s *AuthenticationService) Signup(ctx context.Context, req models.Authentic
 	}
 
 	user := models.NewUser(req.Username, models.UserRole, creds)
+	token, err := s.Issuer.Issue(user.JWTUser(), s.TokenLifetime)
+	if err != nil {
+		return models.AuthenticationResponse{}, httputil.InternalServerErrorf("failed to issue token: %w", err)
+	}
+
 	err = s.UserRepo.Save(ctx, user)
 	if err != nil {
 		return models.AuthenticationResponse{}, err
 	}
 
 	return models.AuthenticationResponse{
-		User: user,
+		Token: token,
+		User:  user,
 	}, nil
 }
 

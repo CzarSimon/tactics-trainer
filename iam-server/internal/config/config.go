@@ -2,9 +2,11 @@ package config
 
 import (
 	"strings"
+	"time"
 
 	"github.com/CzarSimon/httputil/dbutil"
 	"github.com/CzarSimon/httputil/environ"
+	"github.com/CzarSimon/httputil/jwt"
 )
 
 // Config application configuration.
@@ -12,6 +14,8 @@ type Config struct {
 	DB             dbutil.Config
 	MigrationsPath string
 	Port           string
+	JwtCredentials jwt.Credentials
+	TokenLifetime  time.Duration
 }
 
 // GetConfig reads, parses and marshalls the applications configuration.

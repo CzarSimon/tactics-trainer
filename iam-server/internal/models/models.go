@@ -10,6 +10,7 @@ import (
 
 	"github.com/CzarSimon/httputil/crypto"
 	"github.com/CzarSimon/httputil/id"
+	"github.com/CzarSimon/httputil/jwt"
 	"github.com/CzarSimon/httputil/timeutil"
 )
 
@@ -51,6 +52,15 @@ func NewUser(username, role string, credentials Credentials) User {
 		Credentials: credentials,
 		CreatedAt:   now,
 		UpdatedAt:   now,
+	}
+}
+
+func (u User) JWTUser() jwt.User {
+	return jwt.User{
+		ID: u.ID,
+		Roles: []string{
+			u.Role,
+		},
 	}
 }
 
