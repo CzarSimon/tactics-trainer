@@ -73,6 +73,16 @@ func (r AuthenticationRequest) String() string {
 	return fmt.Sprintf("AuthenticationRequest(username=%s)", r.Username)
 }
 
+// AuthenticationResponse response to successfull signup or login.
+type AuthenticationResponse struct {
+	Token string `json:"token"`
+	User  User   `json:"user"`
+}
+
+func (r AuthenticationResponse) String() string {
+	return fmt.Sprintf("AuthenticationResponse(user=%s)", r.User)
+}
+
 // DataEncryptionKey (DEK) key to encrypt and decrypt a objects.
 // A DEK is encrypted with a KeyEncryptionKey.
 type DataEncryptionKey struct {

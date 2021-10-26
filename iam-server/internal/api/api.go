@@ -24,7 +24,7 @@ func Start(cfg config.Config) {
 	}
 
 	r := httputil.NewRouter("iam-server", healthCheck(db))
-	authentication.AttachController(r)
+	authentication.AttachController(nil, r)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.Port,
