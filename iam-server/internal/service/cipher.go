@@ -6,6 +6,7 @@ import (
 	"github.com/CzarSimon/httputil/crypto"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/models"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/repository"
+	"github.com/opentracing/opentracing-go"
 )
 
 // Cipher cryptosystem for generating sealed keys and encrypting and decrypting byte arrays.
@@ -15,6 +16,9 @@ type Cipher struct {
 
 // Encrypt generates DEK, enrcypts the plaintext and returns a sealed DEK.
 func (s *Cipher) Encrypt(ctx context.Context, plaintext []byte) ([]byte, models.DataEncryptionKey, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "cipher_encrypt")
+	defer span.Finish()
+
 	key, err := crypto.GenerateAESKey()
 	if err != nil {
 		return nil, models.DataEncryptionKey{}, err
@@ -40,6 +44,9 @@ func (s *Cipher) Encrypt(ctx context.Context, plaintext []byte) ([]byte, models.
 
 // Decrypt decrypts DEK using the referenced KEK and finally decrypts the ciphertext.
 func (s *Cipher) Decrypt(ctx context.Context, ciphertext []byte, dek models.DataEncryptionKey) ([]byte, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "cipher_decrypt")
+	defer span.Finish()
+
 	kek, err := s.KEKRepo.Find(ctx, dek.KeyEncryptionKeyID)
 	if err != nil {
 		return nil, err

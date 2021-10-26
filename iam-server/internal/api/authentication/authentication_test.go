@@ -8,6 +8,7 @@ import (
 
 	"github.com/CzarSimon/httputil"
 	"github.com/CzarSimon/httputil/client/rpc"
+	"github.com/CzarSimon/httputil/crypto"
 	"github.com/CzarSimon/httputil/testutil"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/api/authentication"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/models"
@@ -59,6 +60,7 @@ func setupAuthService() *service.AuthenticationService {
 	return &service.AuthenticationService{
 		UserRepo: userRepo,
 		Cipher:   cipher,
+		Hasher:   crypto.DefaultScryptHasher(),
 	}
 }
 

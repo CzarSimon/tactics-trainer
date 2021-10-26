@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/CzarSimon/httputil/crypto"
+	"github.com/CzarSimon/httputil/id"
+	"github.com/CzarSimon/httputil/timeutil"
 )
 
 // Key states
@@ -37,6 +39,19 @@ type User struct {
 	Credentials Credentials `json:"-"`
 	CreatedAt   time.Time   `json:"created_at"`
 	UpdatedAt   time.Time   `json:"updated_at"`
+}
+
+func NewUser(username, role string, credentials Credentials) User {
+	now := timeutil.Now()
+
+	return User{
+		ID:          id.New(),
+		Username:    username,
+		Role:        role,
+		Credentials: credentials,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+	}
 }
 
 func (u User) String() string {
