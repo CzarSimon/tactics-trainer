@@ -23,22 +23,49 @@ const (
 	UserRole = "USER"
 )
 
+const (
+	MinimumPasswordLength = 8
+)
+
 var errIncorrectKeyString = errors.New("incorrectly formated key encryption key string")
 
 // User account describing a user of the object storage service.
 type User struct {
-	ID                string
-	Username          string
-	Role              string
-	Password          string
-	Salt              string
-	DataEncryptionKey DataEncryptionKey
-	CreatedAt         time.Time
-	UpdatedAt         time.Time
+	ID                string            `json:"id"`
+	Username          string            `json:"username"`
+	Role              string            `json:"role"`
+	Password          string            `json:"-"`
+	Salt              string            `json:"-"`
+	DataEncryptionKey DataEncryptionKey `json:"-"`
+	CreatedAt         time.Time         `json:"created_at"`
+	UpdatedAt         time.Time         `json:"updated_at"`
 }
 
 func (u User) String() string {
 	return fmt.Sprintf("User(id=%s, username=%s, createdAt=%v, updatedAt=%v)", u.ID, u.Username, u.CreatedAt, u.UpdatedAt)
+}
+
+// AuthenticationRequest request to signup or login.
+type AuthenticationRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// Valid validates if an authenication request is valid.
+func (r AuthenticationRequest) Valid(checkPassword bool) error {
+	if r.Username == "" {
+		return errors.New("username cannot be empty")
+	}
+
+	if checkPassword && len(r.Password) < MinimumPasswordLength {
+		return fmt.Errorf("password must be at least %d characters", MinimumPasswordLength)
+	}
+
+	return nil
+}
+
+func (r AuthenticationRequest) String() string {
+	return fmt.Sprintf("AuthenticationRequest(username=%s)", r.Username)
 }
 
 // DataEncryptionKey (DEK) key to encrypt and decrypt a objects.

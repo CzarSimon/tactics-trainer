@@ -55,3 +55,23 @@ func TestEncryptAndDecryptKey(t *testing.T) {
 
 	assert.Equal(hex.EncodeToString(key), hex.EncodeToString(plaintext))
 }
+
+func TestAuthenticationRequestValid(t *testing.T) {
+	assert := assert.New(t)
+
+	req := models.AuthenticationRequest{
+		Username: "valid-username",
+		Password: "valid-password",
+	}
+
+	assert.NoError(req.Valid(true))
+
+	req.Password = ""
+	assert.NoError(req.Valid(false))
+	assert.Error(req.Valid(true))
+
+	req.Username = ""
+	req.Password = "valid-password"
+	assert.Error(req.Valid(false))
+	assert.Error(req.Valid(true))
+}
