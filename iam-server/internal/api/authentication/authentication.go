@@ -14,12 +14,12 @@ type controller struct{}
 func AttachController(r gin.IRouter) {
 	controller := &controller{}
 
-	g.GET("/v1/signup", controller.signUp)
-	g.GET("/v1/login", controller.login)
+	r.GET("/v1/signup", controller.signUp)
+	r.GET("/v1/login", controller.login)
 }
 
 func (h *controller) signUp(c *gin.Context) {
-	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "authenication_controller_signup")
+	span, _ := opentracing.StartSpanFromContext(c.Request.Context(), "authenication_controller_signup")
 	defer span.Finish()
 
 	err := httputil.NotImplementedf("signup is not yet implemeted")
@@ -27,7 +27,7 @@ func (h *controller) signUp(c *gin.Context) {
 }
 
 func (h *controller) login(c *gin.Context) {
-	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "authenication_controller_login")
+	span, _ := opentracing.StartSpanFromContext(c.Request.Context(), "authenication_controller_login")
 	defer span.Finish()
 
 	err := httputil.NotImplementedf("login is not yet implemeted")
