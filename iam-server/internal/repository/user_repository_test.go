@@ -25,11 +25,13 @@ func Test_userRepo_Save(t *testing.T) {
 		ID:       id.New(),
 		Username: "test-user",
 		Role:     models.UserRole,
-		Password: "test-password",
-		Salt:     "some-salt",
-		DataEncryptionKey: models.DataEncryptionKey{
-			Body:               "hex-encoded-string",
-			KeyEncryptionKeyID: 0,
+		Credentials: models.Credentials{
+			Password: "test-password",
+			Salt:     "some-salt",
+			DataEncryptionKey: models.DataEncryptionKey{
+				Body:               "hex-encoded-string",
+				KeyEncryptionKeyID: 0,
+			},
 		},
 		CreatedAt: timeutil.Now(),
 		UpdatedAt: timeutil.Now(),
@@ -65,11 +67,13 @@ func Test_userRepo_FindByUsername(t *testing.T) {
 		ID:       id.New(),
 		Username: "test-user",
 		Role:     models.UserRole,
-		Password: "test-password",
-		Salt:     "some-salt",
-		DataEncryptionKey: models.DataEncryptionKey{
-			Body:               "hex-encoded-string",
-			KeyEncryptionKeyID: 0,
+		Credentials: models.Credentials{
+			Password: "test-password",
+			Salt:     "some-salt",
+			DataEncryptionKey: models.DataEncryptionKey{
+				Body:               "hex-encoded-string",
+				KeyEncryptionKeyID: 0,
+			},
 		},
 		CreatedAt: timeutil.Now(),
 		UpdatedAt: timeutil.Now(),

@@ -32,8 +32,9 @@ func (r *userRepo) Save(ctx context.Context, user models.User) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "user_repo_save")
 	defer span.Finish()
 
-	dek := user.DataEncryptionKey
-	_, err := r.db.ExecContext(ctx, saveUserQuery, user.ID, user.Username, user.Role, user.Password, user.Salt, dek.Body, dek.KeyEncryptionKeyID, user.CreatedAt, user.UpdatedAt)
+	c := user.Credentials
+	dek := c.DataEncryptionKey
+	_, err := r.db.ExecContext(ctx, saveUserQuery, user.ID, user.Username, user.Role, c.Password, c.Salt, dek.Body, dek.KeyEncryptionKeyID, user.CreatedAt, user.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("failed to save %s: %w", user, err)
 	}
@@ -66,10 +67,10 @@ func (r *userRepo) FindByUsername(ctx context.Context, username string) (models.
 		&u.ID,
 		&u.Username,
 		&u.Role,
-		&u.Password,
-		&u.Salt,
-		&u.DataEncryptionKey.Body,
-		&u.DataEncryptionKey.KeyEncryptionKeyID,
+		&u.Credentials.Password,
+		&u.Credentials.Salt,
+		&u.Credentials.DataEncryptionKey.Body,
+		&u.Credentials.DataEncryptionKey.KeyEncryptionKeyID,
 		&u.CreatedAt,
 		&u.UpdatedAt,
 	)

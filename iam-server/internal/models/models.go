@@ -31,18 +31,23 @@ var errIncorrectKeyString = errors.New("incorrectly formated key encryption key 
 
 // User account describing a user of the object storage service.
 type User struct {
-	ID                string            `json:"id"`
-	Username          string            `json:"username"`
-	Role              string            `json:"role"`
-	Password          string            `json:"-"`
-	Salt              string            `json:"-"`
-	DataEncryptionKey DataEncryptionKey `json:"-"`
-	CreatedAt         time.Time         `json:"created_at"`
-	UpdatedAt         time.Time         `json:"updated_at"`
+	ID          string      `json:"id"`
+	Username    string      `json:"username"`
+	Role        string      `json:"role"`
+	Credentials Credentials `json:"-"`
+	CreatedAt   time.Time   `json:"created_at"`
+	UpdatedAt   time.Time   `json:"updated_at"`
 }
 
 func (u User) String() string {
-	return fmt.Sprintf("User(id=%s, username=%s, createdAt=%v, updatedAt=%v)", u.ID, u.Username, u.CreatedAt, u.UpdatedAt)
+	return fmt.Sprintf("User(id=%s, username=%s, role=%s, createdAt=%v, updatedAt=%v)", u.ID, u.Username, u.Role, u.CreatedAt, u.UpdatedAt)
+}
+
+// Credentials authenication information
+type Credentials struct {
+	Password          string
+	Salt              string
+	DataEncryptionKey DataEncryptionKey
 }
 
 // AuthenticationRequest request to signup or login.
