@@ -7,6 +7,7 @@ import (
 	"github.com/CzarSimon/httputil"
 	"github.com/CzarSimon/httputil/dbutil"
 	"github.com/CzarSimon/httputil/logger"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/api/authentication"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/config"
 	"go.uber.org/zap"
 )
@@ -23,6 +24,7 @@ func Start(cfg config.Config) {
 	}
 
 	r := httputil.NewRouter("iam-server", healthCheck(db))
+	authentication.AttachController(r)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.Port,
