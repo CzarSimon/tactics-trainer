@@ -56,6 +56,10 @@ func TestSignup(t *testing.T) {
 	assert.True(found)
 	assert.Equal(body.Username, user.Username)
 	assert.NotEqual(body.Password, user.Credentials.Password)
+
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/signup", body)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusConflict, res.Code)
 }
 
 func setupAuthService() (*service.AuthenticationService, jwt.Verifier) {

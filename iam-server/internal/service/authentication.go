@@ -26,6 +26,15 @@ func (s *AuthenticationService) Signup(ctx context.Context, req models.Authentic
 	span, ctx := opentracing.StartSpanFromContext(ctx, "authenication_service_signup")
 	defer span.Finish()
 
+	_, found, err := s.UserRepo.FindByUsername(ctx, req.Username)
+	if err != nil {
+		return models.AuthenticationResponse{}, err
+	}
+
+	if found {
+		return models.AuthenticationResponse{}, httputil.Conflictf("user with username=%s already exits", req.Username)
+	}
+
 	creds, err := s.hashPassword(ctx, req.Password)
 	if err != nil {
 		return models.AuthenticationResponse{}, httputil.InternalServerErrorf("failed to hash password: %w", err)
