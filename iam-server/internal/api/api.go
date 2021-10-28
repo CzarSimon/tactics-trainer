@@ -5,10 +5,14 @@ import (
 	"net/http"
 
 	"github.com/CzarSimon/httputil"
+	"github.com/CzarSimon/httputil/crypto"
 	"github.com/CzarSimon/httputil/dbutil"
+	"github.com/CzarSimon/httputil/jwt"
 	"github.com/CzarSimon/httputil/logger"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/api/authentication"
 	"github.com/CzarSimon/tactics-trainer/iam-server/internal/config"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/repository"
+	"github.com/CzarSimon/tactics-trainer/iam-server/internal/service"
 	"go.uber.org/zap"
 )
 
@@ -23,8 +27,20 @@ func Start(cfg config.Config) {
 		log.Panic("Failed to apply upgrade migratons", zap.Error(err))
 	}
 
+	cipher := &service.Cipher{
+		KEKRepo: repository.NewKeyEncryptionKeyRepository(config.LoadKEKConfig(cfg.KEKPath), db),
+	}
+
+	authSvc := &service.AuthenticationService{
+		UserRepo:      repository.NewUserRepository(db),
+		Cipher:        cipher,
+		Hasher:        crypto.DefaultScryptHasher(),
+		Issuer:        jwt.NewIssuer(cfg.JwtCredentials),
+		TokenLifetime: cfg.TokenLifetime,
+	}
+
 	r := httputil.NewRouter("iam-server", healthCheck(db))
-	authentication.AttachController(nil, r)
+	authentication.AttachController(authSvc, r)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.Port,
