@@ -16,6 +16,21 @@ services:
     networks:
       - tactics-trainer
 
+  iam-server:
+    image: ghcr.io/czarsimon/tactics-trainer/iam-server:0.1.0
+    ports:
+      - 18082:8080
+    environment:
+      DB_TYPE: sqlite
+      DB_FILENAME: /var/lib/iam-server/db.sql
+      MIGRATIONS_PATH: /etc/iam-server/migrations/sqlite
+      JWT_SECRET: 084415a2891cd35485f690dc19bbcedb22a9432bc962932726f89be77bf56bd7
+    volumes:
+      - ../iam-server/resources/testing/key-encryption-keys.txt:/etc/iam-server/key-encryption-keys.txt
+      - ../iam-server/resources/testing/test.db:/var/lib/iam-server/db.sql
+    networks:
+      - tactics-trainer
+
   httplogger:
     image: czarsimon/httplogger:0.8
     ports:
