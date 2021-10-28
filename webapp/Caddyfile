@@ -13,6 +13,11 @@ route /api/puzzle-server/* {
     reverse_proxy :18081
 }
 
+route /api/iam-server/* {
+    uri strip_prefix /api/iam-server
+    reverse_proxy :18082
+}
+
 route /api/httplogger/* {
     uri strip_prefix /api/httplogger
     reverse_proxy :18080

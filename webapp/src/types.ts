@@ -25,6 +25,25 @@ export interface Puzzle {
 // Chess types
 export type Color = 'black' | 'white';
 
+// IAM types
+export interface User {
+  id: string;
+  username: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthenticationRequest {
+  username: string;
+  password: string;
+}
+
+export interface AuthenticationResponse {
+  token: string;
+  user: User;
+}
+
 // Hook types
 export interface UsePuzzleStateResult {
   fen: string;
