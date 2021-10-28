@@ -60,6 +60,17 @@ func TestSignup(t *testing.T) {
 	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/signup", body)
 	res = testutil.PerformRequest(router, req)
 	assert.Equal(http.StatusConflict, res.Code)
+
+	body.Password = "toshort"
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/signup", body)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusBadRequest, res.Code)
+
+	body.Username = ""
+	body.Password = "valid-password"
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/signup", body)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusBadRequest, res.Code)
 }
 
 func setupAuthService() (*service.AuthenticationService, jwt.Verifier) {
