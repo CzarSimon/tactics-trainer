@@ -49,11 +49,24 @@ func (h *controller) signUp(c *gin.Context) {
 }
 
 func (h *controller) login(c *gin.Context) {
-	span, _ := opentracing.StartSpanFromContext(c.Request.Context(), "authenication_controller_login")
+	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "authenication_controller_login")
 	defer span.Finish()
 
-	err := httputil.NotImplementedf("login is not yet implemeted")
-	c.Error(err)
+	req, err := parseAuthenticationRequest(c, false)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	res, err := h.svc.Login(ctx, req)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
 }
 
 func parseAuthenticationRequest(c *gin.Context, validatePassword bool) (models.AuthenticationRequest, error) {

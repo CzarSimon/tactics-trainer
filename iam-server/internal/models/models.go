@@ -75,6 +75,20 @@ type Credentials struct {
 	DataEncryptionKey DataEncryptionKey
 }
 
+func (c Credentials) Decode() ([]byte, []byte, error) {
+	password, err := hex.DecodeString(c.Password)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode password: %w", err)
+	}
+
+	salt, err := hex.DecodeString(c.Salt)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to decode salt: %w", err)
+	}
+
+	return password, salt, nil
+}
+
 // AuthenticationRequest request to signup or login.
 type AuthenticationRequest struct {
 	Username string `json:"username"`

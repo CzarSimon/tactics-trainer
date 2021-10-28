@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"time"
 
 	"github.com/CzarSimon/httputil"
@@ -26,13 +27,9 @@ func (s *AuthenticationService) Signup(ctx context.Context, req models.Authentic
 	span, ctx := opentracing.StartSpanFromContext(ctx, "authenication_service_signup")
 	defer span.Finish()
 
-	_, found, err := s.UserRepo.FindByUsername(ctx, req.Username)
+	err := s.assertNewUser(ctx, req.Username)
 	if err != nil {
 		return models.AuthenticationResponse{}, err
-	}
-
-	if found {
-		return models.AuthenticationResponse{}, httputil.Conflictf("user with username=%s already exits", req.Username)
 	}
 
 	creds, err := s.hashPassword(ctx, req.Password)
@@ -49,6 +46,31 @@ func (s *AuthenticationService) Signup(ctx context.Context, req models.Authentic
 	err = s.UserRepo.Save(ctx, user)
 	if err != nil {
 		return models.AuthenticationResponse{}, err
+	}
+
+	return models.AuthenticationResponse{
+		Token: token,
+		User:  user,
+	}, nil
+}
+
+func (s *AuthenticationService) Login(ctx context.Context, req models.AuthenticationRequest) (models.AuthenticationResponse, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "authenication_service_login")
+	defer span.Finish()
+
+	user, err := s.findExistingUser(ctx, req.Username)
+	if err != nil {
+		return models.AuthenticationResponse{}, err
+	}
+
+	err = s.verifyPassword(ctx, user.Credentials, req.Password)
+	if err != nil {
+		return models.AuthenticationResponse{}, err
+	}
+
+	token, err := s.Issuer.Issue(user.JWTUser(), s.TokenLifetime)
+	if err != nil {
+		return models.AuthenticationResponse{}, httputil.InternalServerErrorf("failed to issue token: %w", err)
 	}
 
 	return models.AuthenticationResponse{
@@ -81,4 +103,56 @@ func (s *AuthenticationService) hashPassword(ctx context.Context, password strin
 		Salt:              hex.EncodeToString(salt),
 		DataEncryptionKey: dek,
 	}, nil
+}
+
+func (s *AuthenticationService) verifyPassword(ctx context.Context, credentials models.Credentials, password string) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "authenication_service_verify_password")
+	defer span.Finish()
+
+	ciphertext, salt, err := credentials.Decode()
+	if err != nil {
+		return err
+	}
+
+	hashtext, err := s.Cipher.Decrypt(ctx, ciphertext, credentials.DataEncryptionKey)
+	if err != nil {
+		return err
+	}
+
+	err = s.Hasher.Verify([]byte(password), salt, hashtext)
+	if err != nil {
+		if errors.Is(err, crypto.ErrHashMissmatch) {
+			return httputil.Unauthorizedf("wrong password: %w", err)
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+func (s *AuthenticationService) findExistingUser(ctx context.Context, username string) (models.User, error) {
+	user, found, err := s.UserRepo.FindByUsername(ctx, username)
+	if err != nil {
+		return models.User{}, err
+	}
+
+	if !found {
+		return models.User{}, httputil.Unauthorizedf("no user with username=%s found", username)
+	}
+
+	return user, nil
+}
+
+func (s *AuthenticationService) assertNewUser(ctx context.Context, username string) error {
+	_, found, err := s.UserRepo.FindByUsername(ctx, username)
+	if err != nil {
+		return err
+	}
+
+	if found {
+		return httputil.Conflictf("user with username=%s already exits", username)
+	}
+
+	return nil
 }

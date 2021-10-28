@@ -73,6 +73,47 @@ func TestSignup(t *testing.T) {
 	assert.Equal(http.StatusBadRequest, res.Code)
 }
 
+func TestLogin(t *testing.T) {
+	assert := assert.New(t)
+	svc, jwtVerifier := setupAuthService()
+	router := setupRouter(svc)
+	ctx := context.Background()
+
+	body := models.AuthenticationRequest{
+		Username: "valid-username",
+		Password: "valid-password",
+	}
+
+	req, _ := rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/login", body)
+	res := testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusUnauthorized, res.Code)
+
+	_, err := svc.Signup(ctx, body)
+	assert.NoError(err)
+
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/login", body)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	var resBody models.AuthenticationResponse
+	err = rpc.DecodeJSON(res.Result(), &resBody)
+	assert.NoError(err)
+	assert.Len(resBody.User.ID, 36)
+	assert.Equal(body.Username, resBody.User.Username)
+	assert.Equal(models.UserRole, resBody.User.Role)
+	assert.Empty(resBody.User.Credentials)
+
+	assert.NotEmpty(resBody.Token)
+	jwtUser, err := jwtVerifier.Verify(resBody.Token)
+	assert.NoError(err)
+	assert.True(jwtUser.HasRole(models.UserRole))
+	assert.Equal(resBody.User.ID, jwtUser.ID)
+
+	body.Password = "wrong-password"
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/login", body)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusUnauthorized, res.Code)
+}
+
 func setupAuthService() (*service.AuthenticationService, jwt.Verifier) {
 	db := testutil.InMemoryDB(true, "../../../resources/db/sqlite")
 	userRepo := repository.NewUserRepository(db)
