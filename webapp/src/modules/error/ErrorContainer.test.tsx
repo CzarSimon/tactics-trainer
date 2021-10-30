@@ -1,6 +1,5 @@
 import React from 'react';
 import { screen, render } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { ErrorContainer } from './ErrorContainer';
 import { ErrorContext } from '../../state/error/ErrorContext';
 import { ErrorInfo } from '../../types';
