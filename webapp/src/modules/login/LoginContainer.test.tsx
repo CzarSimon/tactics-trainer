@@ -80,6 +80,7 @@ test('login screen renders and login works', async () => {
     },
     { timeout: 1000 },
   );
+  expect(window.location.pathname).toBe('/');
 });
 
 test('login: redirect to signup works', async () => {
