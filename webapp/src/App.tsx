@@ -3,6 +3,7 @@ import { initLoggerAndHttpclient } from './init';
 import { Routes } from './routes/Routes';
 
 import 'antd/dist/antd.css';
+import styles from './App.module.css';
 
 function App() {
   useEffect(() => {
@@ -10,7 +11,7 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <div className={styles.App}>
       <Routes />
     </div>
   );

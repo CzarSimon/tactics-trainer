@@ -53,6 +53,12 @@ export interface UsePuzzleStateResult {
   done: boolean;
 }
 
+export interface UseAuthResult {
+  login: (req: AuthenticationRequest) => void;
+  user?: User;
+  authenticated: boolean;
+}
+
 // Client
 export interface Client {
   id: string;

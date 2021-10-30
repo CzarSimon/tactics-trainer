@@ -4,6 +4,8 @@ import { Form, Input, Button } from 'antd';
 import { Store } from 'antd/lib/form/interface';
 import { AuthenticationRequest } from '../../../types';
 
+import styles from './Login.module.css';
+
 interface Props {
   submit: (req: AuthenticationRequest) => void;
 }
@@ -14,7 +16,7 @@ export function Login({ submit }: Props) {
   };
 
   return (
-    <div>
+    <div className={styles.Login}>
       <h1>Tactics trainer</h1>
       <Form initialValues={{ remember: true }} onFinish={onFinish}>
         <Form.Item name="username" rules={[{ required: true, message: 'Username is required' }]}>

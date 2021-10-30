@@ -4,12 +4,15 @@ import './index.css';
 import App from './App';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import reportWebVitals from './reportWebVitals';
+import { AuthProvider } from './state/auth/AuthProvider';
 
 const queryClient = new QueryClient();
 
 ReactDOM.render(
   <QueryClientProvider client={queryClient}>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </QueryClientProvider>,
   document.getElementById('root'),
 );

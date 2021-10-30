@@ -1,12 +1,14 @@
 import React from 'react';
 import { Login } from './components/Login';
-import * as api from '../../api';
 import { AuthenticationRequest } from '../../types';
+import { useAuth } from '../../state/auth/hooks';
+import { Redirect } from 'react-router';
 
 export function LoginContainer() {
+  const { authenticated, login } = useAuth();
   const handleLogin = (req: AuthenticationRequest) => {
-    api.login(req);
+    login(req);
   };
 
-  return <Login submit={handleLogin} />;
+  return authenticated ? <Redirect to="/" /> : <Login submit={handleLogin} />;
 }
