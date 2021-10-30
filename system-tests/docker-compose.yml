@@ -3,6 +3,17 @@ networks:
     name: tactics-trainer
 
 services:
+  mysql:
+    image: ghcr.io/czarsimon/tactics-trainer/mysql-server:8.0.27-0.1.0
+    ports:
+      - 13306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 1615a2817d9a676fc0957a3bf693cd65
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - tactics-trainer
+
   puzzle-server:
     image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.1.0
     ports:
@@ -10,6 +21,7 @@ services:
     environment:
       DB_TYPE: sqlite
       DB_FILENAME: /var/lib/puzzle-server/db.sql
+      DB_PASSWORD: 0f9a2abc26c46b4794a84b984105410b
       MIGRATIONS_PATH: /etc/puzzle-server/migrations/sqlite
     volumes:
       - ../puzzle-server/resources/db.sql:/var/lib/puzzle-server/db.sql
@@ -23,6 +35,7 @@ services:
     environment:
       DB_TYPE: sqlite
       DB_FILENAME: /var/lib/iam-server/db.sql
+      DB_PASSWORD: 7535807ef23504ca84c7200671611ebc
       MIGRATIONS_PATH: /etc/iam-server/migrations/sqlite
       JWT_SECRET: 084415a2891cd35485f690dc19bbcedb22a9432bc962932726f89be77bf56bd7
     volumes:
@@ -37,3 +50,6 @@ services:
       - 18080:8080
     environment:
       JAEGER_DISABLED: "true"
+
+volumes:
+  mysql-data:
