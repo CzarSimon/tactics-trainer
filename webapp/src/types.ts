@@ -7,6 +7,16 @@ export type Optional<T> = T | undefined;
 
 export type TypedMap<T> = Record<string, T>;
 
+export interface ApiResponse<T> {
+  data?: T;
+  error?: Error;
+}
+
+export interface ErrorInfo {
+  title: string;
+  details: string;
+}
+
 // Puzzle
 export interface Puzzle {
   id: string;

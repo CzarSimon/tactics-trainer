@@ -1,7 +1,7 @@
 import { createContext } from 'react';
 import { User } from '../../types';
 
-interface AuthState {
+export interface AuthState {
   authenticated: boolean;
   user?: User;
   authenticate: (user: User) => void;
