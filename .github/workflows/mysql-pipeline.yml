@@ -44,14 +44,14 @@ jobs:
           ignore-unfixed: true
           format: "table"
           exit-code: "1"
-          scan-ref: "iam-server"
+          scan-ref: "mysql"
       - name: Scan configuration
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "config"
           format: "table"
           exit-code: "1"
-          scan-ref: "iam-server"
+          scan-ref: "mysql"
           hide-progress: false
           ignore-unfixed: true
         env:
