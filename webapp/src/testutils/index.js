@@ -4,6 +4,7 @@ import { render as rtlRender } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import log, { ConsoleHandler, level } from '@czarsimon/remotelogger';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { AuthProvider } from '../state/auth/AuthProvider';
 
 const logHandlers = { console: new ConsoleHandler(level.DEBUG) };
 log.configure(logHandlers);
@@ -23,7 +24,9 @@ export function render(ui, { ...renderOptions } = {}) {
     const queryClient = new QueryClient();
     return (
       <QueryClientProvider client={queryClient}>
-        <Router>{children}</Router>
+        <AuthProvider>
+          <Router>{children}</Router>
+        </AuthProvider>
       </QueryClientProvider>
     );
   }
