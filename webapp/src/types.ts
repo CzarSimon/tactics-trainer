@@ -65,6 +65,7 @@ export interface UsePuzzleStateResult {
 
 export interface UseAuthResult {
   login: (req: AuthenticationRequest) => void;
+  signup: (req: AuthenticationRequest) => void;
   user?: User;
   authenticated: boolean;
   authenticate: (user: User) => void;

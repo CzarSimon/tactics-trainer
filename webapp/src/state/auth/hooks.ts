@@ -12,6 +12,14 @@ export function useAuth(): UseAuthResult {
   const history = useHistory();
   const { setError } = useError();
 
+  const handleAuthResponse = (res?: AuthenticationResponse) => {
+    if (res) {
+      authenticate(res.user);
+      storeAuthInfo(res);
+      history.push('/');
+    }
+  };
+
   const login = async (req: AuthenticationRequest) => {
     const { data, error } = await api.login(req);
     if (error) {
@@ -21,15 +29,24 @@ export function useAuth(): UseAuthResult {
       });
       return;
     }
-    if (data) {
-      authenticate(data.user);
-      storeAuthInfo(data);
-      history.push('/');
+    handleAuthResponse(data);
+  };
+
+  const signup = async (req: AuthenticationRequest) => {
+    const { data, error } = await api.signup(req);
+    if (error) {
+      setError({
+        title: 'Signup failed',
+        details: error.message,
+      });
+      return;
     }
+    handleAuthResponse(data);
   };
 
   return {
     login,
+    signup,
     user,
     authenticated,
     authenticate,
