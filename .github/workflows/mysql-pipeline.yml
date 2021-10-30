@@ -1,0 +1,86 @@
+name: mysql-pipeline
+
+defaults:
+  run:
+    working-directory: mysql
+
+on:
+  push:
+    paths:
+      - mysql/**
+      - .github/workflows/mysql-pipeline.yml
+
+jobs:
+  parse-version:
+    name: parse-version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse.outputs.version }}
+      tag-name: ${{ steps.parse.outputs.tag-name }}
+      package-name: ${{ steps.parse.outputs.package-name }}
+      full-package-name: ${{ steps.parse.outputs.full-package-name }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: parse
+        name: Parse version info
+        run: |
+          NAME=$(cat package.json | jq .name --raw-output)
+          VERSION=$(cat package.json | jq .version --raw-output)
+          COMMIT_ID=${GITHUB_SHA:0:7}
+          echo "::set-output name=version::$VERSION"
+          echo "::set-output name=tag-name::$NAME/$VERSION"
+          echo "::set-output name=package-name::$NAME:$VERSION"
+          echo "::set-output name=full-package-name::$NAME:$VERSION-$COMMIT_ID"
+
+  security-scans:
+    name: security-scans
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Scan dependencies
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          ignore-unfixed: true
+          format: "table"
+          exit-code: "1"
+          scan-ref: "iam-server"
+      - name: Scan configuration
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "config"
+          format: "table"
+          exit-code: "1"
+          scan-ref: "iam-server"
+          hide-progress: false
+          ignore-unfixed: true
+        env:
+          TRIVY_IGNOREFILE: "mysql/.trivyignore"
+
+  build-image:
+    name: build-image
+    # if: github.ref == 'refs/heads/main'
+    needs:
+      - parse-version
+      - security-scans
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+      - name: Docker build
+        run: |
+          echo "Package version: ${{needs.parse-version.outputs.full-package-name}}"
+          docker build -t ghcr.io/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}} .
+      - name: Run Trivy vulnerability scanner on image
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "image"
+          image-ref: "ghcr.io/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}}"
+          ignore-unfixed: true
+          format: "table"
+          exit-code: "1"
+      - name: Docker push
+        run: |
+          docker login https://ghcr.io --username $GITHUB_ACTOR --password ${{ secrets.GITHUB_TOKEN }}
+          docker push ghcr.io/czarsimon/tactics-trainer/${{needs.parse-version.outputs.package-name}}
