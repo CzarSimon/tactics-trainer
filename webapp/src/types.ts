@@ -67,6 +67,7 @@ export interface UseAuthResult {
   login: (req: AuthenticationRequest) => void;
   user?: User;
   authenticated: boolean;
+  authenticate: (user: User) => void;
 }
 
 // Client

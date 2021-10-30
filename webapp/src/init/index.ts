@@ -1,8 +1,17 @@
 import { v4 as uuid } from 'uuid';
 import log, { Handlers, ConsoleHandler, HttploggerHandler, level } from '@czarsimon/remotelogger';
-import { CLIENT_ID_KEY, DEV_MODE, APP_NAME, APP_VERSION } from '../constants';
-import { Client } from '../types';
+import { CLIENT_ID_KEY, DEV_MODE, APP_NAME, APP_VERSION, CURRENT_USER_KEY } from '../constants';
+import { Optional, Client, User } from '../types';
 import { initHttpclient } from '../api/httpclient';
+
+export function readUser(): Optional<User> {
+  const serializedUser = localStorage.getItem(CURRENT_USER_KEY);
+  if (!serializedUser) {
+    return;
+  }
+
+  return JSON.parse(serializedUser);
+}
 
 export function initLoggerAndHttpclient(): void {
   const client = getClientInfo();

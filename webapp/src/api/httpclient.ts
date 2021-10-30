@@ -1,5 +1,6 @@
-import { Fetch, HttpClient, HTTPResponse, MockTransport } from '@czarsimon/httpclient';
+import { Fetch, HttpClient, HTTPResponse, MockTransport, Headers } from '@czarsimon/httpclient';
 import { level, Handlers, ConsoleHandler } from '@czarsimon/remotelogger';
+import { AUTH_TOKEN_KEY } from '../constants';
 import { Client, TypedMap } from '../types';
 
 export let httpclient = new HttpClient({
@@ -9,14 +10,21 @@ export let httpclient = new HttpClient({
 });
 
 export function initHttpclient(client: Client, handlers: Handlers) {
+  const baseHeaders: Headers = {
+    ...httpclient.getHeaders(),
+    'X-Client-ID': client.id,
+    'X-Session-ID': client.sessionId,
+  };
+
+  const token = localStorage.getItem(AUTH_TOKEN_KEY);
+  if (token) {
+    baseHeaders['Authorization'] = `Bearer ${token}`;
+  }
+
   httpclient = new HttpClient({
     logHandlers: handlers,
-    baseHeaders: {
-      ...httpclient.getHeaders(),
-      'X-Client-ID': client.id,
-      'X-Session-ID': client.sessionId,
-    },
     transport: new Fetch(),
+    baseHeaders,
   });
 }
 

@@ -32,6 +32,7 @@ export function useAuth(): UseAuthResult {
     login,
     user,
     authenticated,
+    authenticate,
   };
 }
 
