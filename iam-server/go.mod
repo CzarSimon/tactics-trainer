@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/CzarSimon/httputil v0.0.0-20211025070343-88cb3d2b3307
 	github.com/gin-gonic/gin v1.7.4
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.9
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/stretchr/testify v1.7.0
