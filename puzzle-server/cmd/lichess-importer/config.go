@@ -15,7 +15,7 @@ import (
 func setupPuzzleRepository() (repository.PuzzleRepository, *sql.DB) {
 	cfg := config.GetConfig()
 	db := dbutil.MustConnect(cfg.DB)
-	err := dbutil.Upgrade(cfg.MigrationsPath, cfg.Driver(), db)
+	err := dbutil.Upgrade(cfg.MigrationsPath, cfg.DB.Driver(), db)
 	if err != nil {
 		log.Fatal(err)
 	}
