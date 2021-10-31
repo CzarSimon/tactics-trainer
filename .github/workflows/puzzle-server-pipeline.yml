@@ -1,14 +1,14 @@
-name: iam-server-pipeline
+name: puzzle-server-pipeline
 
 defaults:
   run:
-    working-directory: iam-server
+    working-directory: puzzle-server
 
 on:
   push:
     paths:
-      - iam-server/**
-      - .github/workflows/iam-server-pipeline.yml
+      - puzzle-server/**
+      - .github/workflows/puzzle-server-pipeline.yml
 
 jobs:
   parse-version:
@@ -61,18 +61,18 @@ jobs:
           ignore-unfixed: true
           format: "table"
           exit-code: "1"
-          scan-ref: "iam-server"
+          scan-ref: "puzzle-server"
       - name: Scan configuration
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "config"
           format: "table"
           exit-code: "1"
-          scan-ref: "iam-server"
+          scan-ref: "puzzle-server"
           hide-progress: false
           ignore-unfixed: true
         env:
-          TRIVY_IGNOREFILE: "iam-server/.trivyignore"
+          TRIVY_IGNOREFILE: "puzzle-server/.trivyignore"
       - name: Scan code
         run: |
           curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.8.1
