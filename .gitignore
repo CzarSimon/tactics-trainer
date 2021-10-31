@@ -3,7 +3,7 @@ puzzle-server/resources/db.sql
 puzzle-server/db.sql
 puzzle-server/cmd/server/puzzle-server
 
-lichess_db_puzzle.csv
+puzzle-data/
 
 iam-server/cmd/server/server
 iam-server/iam-server
