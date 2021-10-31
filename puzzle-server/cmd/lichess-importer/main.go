@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/CzarSimon/httputil/logger"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var log = logger.GetDefaultLogger("cmd/importer").Sugar()

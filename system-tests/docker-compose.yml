@@ -3,31 +3,47 @@ networks:
     name: tactics-trainer
 
 services:
+  mysql:
+    image: ghcr.io/czarsimon/tactics-trainer/mysql-server:8.0.27-0.1.0
+    ports:
+      - 13306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 1615a2817d9a676fc0957a3bf693cd65
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - tactics-trainer
+
   puzzle-server:
-    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.1.0
+    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.2.0
     ports:
       - 18081:8080
     environment:
-      DB_TYPE: sqlite
-      DB_FILENAME: /var/lib/puzzle-server/db.sql
-      MIGRATIONS_PATH: /etc/puzzle-server/migrations/sqlite
-    volumes:
-      - ../puzzle-server/resources/db.sql:/var/lib/puzzle-server/db.sql
+      DB_TYPE: mysql
+      DB_HOST: mysql
+      DB_PORT: '3306'
+      DB_NAME: puzzleserver
+      DB_USERNAME: puzzleserver
+      DB_PASSWORD: 0f9a2abc26c46b4794a84b984105410b
+      MIGRATIONS_PATH: /etc/puzzle-server/migrations/mysql
     networks:
       - tactics-trainer
 
   iam-server:
-    image: ghcr.io/czarsimon/tactics-trainer/iam-server:0.1.0
+    image: ghcr.io/czarsimon/tactics-trainer/iam-server:0.2.0
     ports:
       - 18082:8080
     environment:
-      DB_TYPE: sqlite
-      DB_FILENAME: /var/lib/iam-server/db.sql
-      MIGRATIONS_PATH: /etc/iam-server/migrations/sqlite
+      DB_TYPE: mysql
+      DB_HOST: mysql
+      DB_PORT: '3306'
+      DB_NAME: iamserver
+      DB_USERNAME: iamserver
+      DB_PASSWORD: 7535807ef23504ca84c7200671611ebc
+      MIGRATIONS_PATH: /etc/iam-server/migrations/mysql
       JWT_SECRET: 084415a2891cd35485f690dc19bbcedb22a9432bc962932726f89be77bf56bd7
     volumes:
       - ../iam-server/resources/testing/key-encryption-keys.txt:/etc/iam-server/key-encryption-keys.txt
-      - ../iam-server/resources/testing/test.db:/var/lib/iam-server/db.sql
     networks:
       - tactics-trainer
 
@@ -37,3 +53,6 @@ services:
       - 18080:8080
     environment:
       JAEGER_DISABLED: "true"
+
+volumes:
+  mysql-data:

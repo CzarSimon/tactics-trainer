@@ -18,7 +18,7 @@ type Config struct {
 func GetConfig() Config {
 	return Config{
 		DB:             getDBConfig(),
-		MigrationsPath: environ.Get("MIGRATIONS_PATH", "/etc/puzzle-service/db/sqlite"),
+		MigrationsPath: environ.Get("MIGRATIONS_PATH", "/etc/puzzle-service/db/mysql"),
 		Port:           environ.Get("PORT", "8080"),
 	}
 }

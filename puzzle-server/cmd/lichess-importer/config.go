@@ -8,37 +8,19 @@ import (
 	"strings"
 
 	"github.com/CzarSimon/httputil/dbutil"
-	"github.com/CzarSimon/httputil/environ"
+	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/config"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/repository"
 )
 
 func setupPuzzleRepository() (repository.PuzzleRepository, *sql.DB) {
-	cfg := getDBConfig()
-	db := dbutil.MustConnect(cfg)
-	migrationsPath := input("migrations path")
-	err := dbutil.Upgrade(migrationsPath, cfg.Driver(), db)
+	cfg := config.GetConfig()
+	db := dbutil.MustConnect(cfg.DB)
+	err := dbutil.Upgrade(cfg.MigrationsPath, cfg.DB.Driver(), db)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return repository.NewPuzzleRepository(db), db
-}
-
-func getDBConfig() dbutil.Config {
-	dbType := environ.Get("DB_TYPE", "mysql")
-	if dbType == "sqlite" {
-		return dbutil.SqliteConfig{
-			Name: input("Database name"),
-		}
-	}
-
-	return dbutil.MysqlConfig{
-		Host:     input("host"),
-		Port:     input("port"),
-		User:     input("user"),
-		Password: input("password"),
-		Database: input("database"),
-	}
 }
 
 func input(prompt string) string {
