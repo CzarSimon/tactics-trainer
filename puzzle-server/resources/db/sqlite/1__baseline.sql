@@ -28,6 +28,7 @@ CREATE TABLE `problem_set_puzzle` (
     `id` VARCHAR(36) NOT NULL,
     `puzzle_id` VARCHAR(36) NOT NULL,
     `problem_set_id` VARCHAR(36) NOT NULL,
+    `number` INTEGER NOT NULL,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`puzzle_id`) REFERENCES `puzzle` (`id`),
     FOREIGN KEY (`problem_set_id`) REFERENCES `problem_set` (`id`)
