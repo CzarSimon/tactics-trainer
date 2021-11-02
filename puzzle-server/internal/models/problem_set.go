@@ -63,9 +63,39 @@ func (p ProblemSetPuzzle) String() string {
 
 // CreateProblemSetRequest request to create a problem set
 type CreateProblemSetRequest struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description,omitempty"`
-	Themes      []string `json:"themes"`
-	MinRating   string   `json:"minRating"`
-	MaxRating   string   `json:"maxRating"`
+	Name        string       `json:"name"`
+	Description string       `json:"description,omitempty"`
+	Filter      PuzzleFilter `json:"filter"`
+}
+
+func (r CreateProblemSetRequest) String() string {
+	return fmt.Sprintf("CreateProblemSetRequest(name=%s, filter=%s)", r.Name, r.Filter)
+}
+
+// PuzzleFilter selection criteria of puzzles.
+type PuzzleFilter struct {
+	Themes        []string `json:"themes"`
+	MinRating     uint     `json:"minRating,omitempty"`
+	MaxRating     uint     `json:"maxRating,omitempty"`
+	MinPopularity uint     `json:"minPopularity"`
+	Size          uint     `json:"size"`
+}
+
+// RatingInterval encode the requested rating interval as a string.
+func (f PuzzleFilter) RatingInterval() string {
+	if f.MaxRating == 0 {
+		return "*"
+	}
+
+	return fmt.Sprintf("%d - %d", f.MinRating, f.MaxRating)
+}
+
+func (f PuzzleFilter) String() string {
+	return fmt.Sprintf(
+		"PuzzleFilter(themes=%v, ratingInterval=%s, minPopularity=%d, size=%d)",
+		f.Themes,
+		f.RatingInterval(),
+		f.MinPopularity,
+		f.Size,
+	)
 }

@@ -18,6 +18,7 @@ const (
 type PuzzleRepository interface {
 	Save(ctx context.Context, p models.Puzzle) error
 	Find(ctx context.Context, id string) (models.Puzzle, bool, error)
+	FindByFilter(ctx context.Context, f models.PuzzleFilter) ([]models.Puzzle, error)
 }
 
 func NewPuzzleRepository(db *sql.DB) PuzzleRepository {
@@ -95,6 +96,13 @@ func (r *puzzleRepo) Find(ctx context.Context, id string) (models.Puzzle, bool, 
 	p.Moves = decodeMoves(moveStr)
 	p.Themes = decodeThemes(themeStr)
 	return p, true, nil
+}
+
+func (r *puzzleRepo) FindByFilter(ctx context.Context, f models.PuzzleFilter) ([]models.Puzzle, error) {
+	span, _ := opentracing.StartSpanFromContext(ctx, "puzzle_repo_find_by_filter")
+	defer span.Finish()
+
+	return nil, nil
 }
 
 func encodeMoves(moves []string) string {
