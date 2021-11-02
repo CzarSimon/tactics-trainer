@@ -98,11 +98,76 @@ func (r *puzzleRepo) Find(ctx context.Context, id string) (models.Puzzle, bool, 
 	return p, true, nil
 }
 
+const findPuzzlesByFilterQuery = `
+	SELECT
+		id,
+		external_id,
+		fen, 
+		moves,
+		rating, 
+		rating_deviation, 
+		popularity,
+		themes,  
+		game_url, 
+		created_at, 
+		updated_at
+	FROM 
+		puzzle
+	WHERE
+		rating >= ?
+		AND rating <= ?
+		AND popularity >= ?`
+
 func (r *puzzleRepo) FindByFilter(ctx context.Context, f models.PuzzleFilter) ([]models.Puzzle, error) {
 	span, _ := opentracing.StartSpanFromContext(ctx, "puzzle_repo_find_by_filter")
 	defer span.Finish()
 
-	return nil, nil
+	query, values := createThemeFilterQuery(f)
+	rows, err := r.db.QueryContext(ctx, query, values...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query puzzles by filter %s: %w", f, err)
+	}
+	defer rows.Close()
+
+	puzzles := make([]models.Puzzle, 0)
+	var p models.Puzzle
+	var moveStr string
+	var themeStr string
+	for rows.Next() {
+		err = rows.Scan(&p.ID, &p.ExternalID, &p.FEN, &moveStr, &p.Rating, &p.RatingDeviation, &p.Popularity, &themeStr, &p.GameURL, &p.CreatedAt, &p.UpdatedAt)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row. Error: %w, %s", err, f)
+		}
+
+		p.Moves = decodeMoves(moveStr)
+		p.Themes = decodeThemes(themeStr)
+		puzzles = append(puzzles, p)
+	}
+
+	return puzzles, nil
+}
+
+func createThemeFilterQuery(f models.PuzzleFilter) (string, []interface{}) {
+	conditions := make([]string, len(f.Themes))
+	filterValues := make([]interface{}, 3+len(f.Themes))
+	filterValues[0] = f.MinRating
+	filterValues[1] = f.MaxRating
+	filterValues[2] = f.MinPopularity
+
+	for i, theme := range f.Themes {
+		conditions[i] = "themes LIKE ?"
+		filterValues[3+i] = "%" + encodeTheme(theme) + "%"
+	}
+
+	filterValues = append(filterValues, f.Size)
+
+	var themeCondition string
+	if len(f.Themes) > 0 {
+		themeCondition = fmt.Sprintf("AND %s", strings.Join(conditions, " AND "))
+	}
+
+	query := findPuzzlesByFilterQuery + themeCondition + " LIMIT ?"
+	return query, filterValues
 }
 
 func encodeMoves(moves []string) string {
