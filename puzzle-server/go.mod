@@ -3,7 +3,8 @@ module github.com/CzarSimon/tactics-trainer/puzzle-server
 go 1.16
 
 require (
-	github.com/CzarSimon/httputil v0.0.0-20210920075731-4734d626ac44
+	github.com/CzarSimon/httputil v0.0.0-20211025070343-88cb3d2b3307
+	github.com/CzarSimon/tactics-trainer/gopkg v0.0.0-20211101125416-f8d6d09e57ce
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.8

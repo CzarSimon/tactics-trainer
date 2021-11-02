@@ -5,6 +5,7 @@ import (
 
 	"github.com/CzarSimon/httputil/dbutil"
 	"github.com/CzarSimon/httputil/environ"
+	"github.com/CzarSimon/httputil/jwt"
 )
 
 // Config application configuration.
@@ -12,6 +13,7 @@ type Config struct {
 	DB             dbutil.Config
 	MigrationsPath string
 	Port           string
+	JwtCredentials jwt.Credentials
 }
 
 // GetConfig reads, parses and marshalls the applications configuration.
@@ -20,6 +22,10 @@ func GetConfig() Config {
 		DB:             getDBConfig(),
 		MigrationsPath: environ.Get("MIGRATIONS_PATH", "/etc/puzzle-service/db/mysql"),
 		Port:           environ.Get("PORT", "8080"),
+		JwtCredentials: jwt.Credentials{
+			Issuer: environ.Get("JWT_ISSUER", "tactics-trainer/iam-server"),
+			Secret: environ.MustGet("JWT_SECRET"),
+		},
 	}
 }
 

@@ -117,3 +117,41 @@ func Test_puzzleRepo_Find(t *testing.T) {
 	assert.Error(err)
 	assert.True(errors.Is(err, context.Canceled))
 }
+
+func Test_puzzleRepo_FindByFilter(t *testing.T) {
+	assert := assert.New(t)
+	db := testutil.InMemoryDB(true, "../../resources/db/sqlite")
+	seedPuzzles(t, db)
+	repo := repository.NewPuzzleRepository(db)
+	ctx := context.Background()
+
+	filter := models.PuzzleFilter{
+		Themes:        []string{},
+		MinRating:     1100,
+		MaxRating:     1500,
+		MinPopularity: 90,
+		Size:          3,
+	}
+
+	puzzles, err := repo.FindByFilter(ctx, filter)
+	assert.NoError(err)
+	assert.Len(puzzles, 2)
+
+	filter.Themes = []string{"endgame"}
+	puzzles, err = repo.FindByFilter(ctx, filter)
+	assert.NoError(err)
+	assert.Len(puzzles, 1)
+
+	filter.Themes = []string{}
+	filter.Size = 1
+	puzzles, err = repo.FindByFilter(ctx, filter)
+	assert.NoError(err)
+	assert.Len(puzzles, 1)
+
+	ctx, cancel := context.WithCancel(ctx)
+	cancel()
+
+	_, err = repo.FindByFilter(ctx, filter)
+	assert.Error(err)
+	assert.True(errors.Is(err, context.Canceled))
+}
