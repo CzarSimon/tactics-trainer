@@ -185,6 +185,7 @@ func TestListProblemSets(t *testing.T) {
 	err = json.NewDecoder(res.Result().Body).Decode(&user2Sets)
 	assert.NoError(err)
 	assert.Len(user2Sets, 1)
+	assert.Equal(sets[2].ID, user2Sets[0].ID)
 
 	req = testutil.CreateRequest(http.MethodGet, "/v1/problem-sets", nil)
 	attachAuthHeader(req, "user-without-sets", role.User)

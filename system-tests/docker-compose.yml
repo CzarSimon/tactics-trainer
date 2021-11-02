@@ -15,7 +15,7 @@ services:
       - tactics-trainer
 
   puzzle-server:
-    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.2.0
+    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.3.0
     ports:
       - 18081:8080
     environment:
@@ -26,6 +26,7 @@ services:
       DB_USERNAME: puzzleserver
       DB_PASSWORD: 0f9a2abc26c46b4794a84b984105410b
       MIGRATIONS_PATH: /etc/puzzle-server/migrations/mysql
+      JWT_SECRET: 084415a2891cd35485f690dc19bbcedb22a9432bc962932726f89be77bf56bd7
     networks:
       - tactics-trainer
 
