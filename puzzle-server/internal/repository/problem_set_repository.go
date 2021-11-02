@@ -13,6 +13,7 @@ import (
 // PuzzleRepository interface for storing and querying for stored puzzles.
 type ProblemSetRepository interface {
 	Save(ctx context.Context, p models.ProblemSet) error
+	Find(ctx context.Context, id string) (models.ProblemSet, bool, error)
 }
 
 func NewProblemSetRepository(db *sql.DB) ProblemSetRepository {
@@ -80,4 +81,77 @@ func saveProblemSetPuzzle(ctx context.Context, tx *sql.Tx, p models.ProblemSetPu
 	}
 
 	return nil
+}
+
+func (r *problemSetRepo) Find(ctx context.Context, id string) (models.ProblemSet, bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_repo_find")
+	defer span.Finish()
+
+	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return models.ProblemSet{}, false, err
+	}
+	defer dbutil.Rollback(tx)
+
+	set, found, err := findProblemSet(ctx, tx, id)
+	if !found {
+		return models.ProblemSet{}, found, err
+	}
+
+	puzzleIDs, err := findProblemSetPuzzleIDs(ctx, tx, id)
+	if err != nil {
+		return models.ProblemSet{}, false, err
+	}
+
+	set.PuzzleIDs = puzzleIDs
+	return set, true, nil
+}
+
+const findProblemSetQuery = `
+	SELECT id, name, description, themes, rating_interval, user_id, created_at, updated_at FROM problem_set WHERE id = ?`
+
+func findProblemSet(ctx context.Context, tx *sql.Tx, id string) (models.ProblemSet, bool, error) {
+	var p models.ProblemSet
+	var themeStr string
+	err := tx.QueryRowContext(ctx, findProblemSetQuery, id).Scan(
+		&p.ID,
+		&p.Name,
+		&p.Description,
+		&themeStr,
+		&p.RatingInterval,
+		&p.UserID,
+		&p.CreatedAt,
+		&p.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return models.ProblemSet{}, false, nil
+	} else if err != nil {
+		return models.ProblemSet{}, false, fmt.Errorf("failed to query ProblemSet(id=%s): %w", id, err)
+	}
+
+	p.Themes = decodeThemes(themeStr)
+	return p, true, nil
+}
+
+const findProbmeSetPuzzleIDsQuery = `SELECT puzzle_id FROM problem_set_puzzle WHERE problem_set_id = ?`
+
+func findProblemSetPuzzleIDs(ctx context.Context, tx *sql.Tx, problemSetId string) ([]string, error) {
+	rows, err := tx.QueryContext(ctx, findProbmeSetPuzzleIDsQuery, problemSetId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query problem_set_puzzle with problem_set_id=%s: %w", problemSetId, err)
+	}
+	defer rows.Close()
+
+	puzzleIDs := make([]string, 0)
+	var puzzleID string
+	for rows.Next() {
+		err := rows.Scan(&puzzleID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan problem_set_puzzle row. Error: %w, problem_set_id=%s", err, problemSetId)
+		}
+
+		puzzleIDs = append(puzzleIDs, puzzleID)
+	}
+
+	return puzzleIDs, nil
 }

@@ -95,6 +95,42 @@ func Test_problemSetRepo_Save(t *testing.T) {
 	assert.True(errors.Is(err, context.Canceled))
 }
 
+func Test_problemSetRepo_Find(t *testing.T) {
+	assert := assert.New(t)
+	db := testutil.InMemoryDB(true, "../../resources/db/sqlite")
+	seedPuzzles(t, db)
+	repo := repository.NewProblemSetRepository(db)
+	ctx := context.Background()
+
+	set := models.ProblemSet{
+		ID:             id.New(),
+		Name:           "ps-name",
+		Themes:         []string{"passedPawn", "endgame"},
+		RatingInterval: "1300 - 1500",
+		CreatedAt:      timeutil.Now(),
+		UpdatedAt:      timeutil.Now(),
+		UserID:         "user-0",
+		PuzzleIDs: []string{
+			"puzzle-0",
+			"puzzle-1",
+			"puzzle-2",
+		},
+	}
+
+	_, found, err := repo.Find(ctx, set.ID)
+	assert.NoError(err)
+	assert.False(found)
+
+	err = repo.Save(ctx, set)
+	assert.NoError(err)
+
+	foundSet, found, err := repo.Find(ctx, set.ID)
+	assert.NoError(err)
+	assert.True(found)
+	assert.Equal(set.ID, foundSet.ID)
+	assert.Equal(set, foundSet)
+}
+
 func seedPuzzles(t *testing.T, db *sql.DB) {
 	assert := assert.New(t)
 	repo := repository.NewPuzzleRepository(db)
