@@ -140,6 +140,60 @@ func Test_problemSetRepo_Find(t *testing.T) {
 	assert.True(errors.Is(err, context.Canceled))
 }
 
+func Test_problemSetRepo_FindByUserID(t *testing.T) {
+	assert := assert.New(t)
+	db := testutil.InMemoryDB(true, "../../resources/db/sqlite")
+	seedPuzzles(t, db)
+	repo := repository.NewProblemSetRepository(db)
+	ctx := context.Background()
+
+	sets := []models.ProblemSet{
+		{
+			ID:             id.New(),
+			Name:           "ps-name",
+			Themes:         []string{},
+			RatingInterval: "1300 - 1500",
+			UserID:         "user-0",
+			PuzzleIDs:      []string{"puzzle-0"},
+		},
+		{
+			ID:             id.New(),
+			Name:           "ps-name",
+			Themes:         []string{},
+			RatingInterval: "1300 - 1500",
+			UserID:         "user-0",
+			PuzzleIDs:      []string{"puzzle-1"},
+		},
+		{
+			ID:             id.New(),
+			Name:           "ps-name",
+			Themes:         []string{},
+			RatingInterval: "1300 - 1500",
+			UserID:         "user-1",
+			PuzzleIDs:      []string{"puzzle-2"},
+		},
+	}
+
+	for _, set := range sets {
+		err := repo.Save(ctx, set)
+		assert.NoError(err)
+	}
+
+	found, err := repo.FindByUserID(ctx, "user-0")
+	assert.NoError(err)
+	assert.Len(found, 2)
+
+	found, err = repo.FindByUserID(ctx, "user-1")
+	assert.NoError(err)
+	assert.Len(found, 1)
+	assert.Equal(sets[2].ID, found[0].ID)
+	assert.Len(found[0].PuzzleIDs, 0)
+
+	found, err = repo.FindByUserID(ctx, "other-user")
+	assert.NoError(err)
+	assert.Len(found, 0)
+}
+
 func seedPuzzles(t *testing.T, db *sql.DB) {
 	assert := assert.New(t)
 	repo := repository.NewPuzzleRepository(db)

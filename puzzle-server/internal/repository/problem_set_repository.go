@@ -14,6 +14,7 @@ import (
 type ProblemSetRepository interface {
 	Save(ctx context.Context, p models.ProblemSet) error
 	Find(ctx context.Context, id string) (models.ProblemSet, bool, error)
+	FindByUserID(ctx context.Context, userID string) ([]models.ProblemSet, error)
 }
 
 func NewProblemSetRepository(db *sql.DB) ProblemSetRepository {
@@ -77,7 +78,7 @@ func saveProblemSetPuzzle(ctx context.Context, tx *sql.Tx, p models.ProblemSetPu
 
 	_, err := tx.ExecContext(ctx, saveProblemSetPuzzleQuery, p.ID, p.PuzzleID, p.ProblemSetID, p.Number)
 	if err != nil {
-		return fmt.Errorf("failed to %s: %w", p, err)
+		return fmt.Errorf("failed to save %s: %w", p, err)
 	}
 
 	return nil
@@ -133,10 +134,10 @@ func findProblemSet(ctx context.Context, tx *sql.Tx, id string) (models.ProblemS
 	return p, true, nil
 }
 
-const findProbmeSetPuzzleIDsQuery = `SELECT puzzle_id FROM problem_set_puzzle WHERE problem_set_id = ?`
+const findProblemSetPuzzleIDsQuery = `SELECT puzzle_id FROM problem_set_puzzle WHERE problem_set_id = ? ORDER BY number ASC`
 
 func findProblemSetPuzzleIDs(ctx context.Context, tx *sql.Tx, problemSetId string) ([]string, error) {
-	rows, err := tx.QueryContext(ctx, findProbmeSetPuzzleIDsQuery, problemSetId)
+	rows, err := tx.QueryContext(ctx, findProblemSetPuzzleIDsQuery, problemSetId)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query problem_set_puzzle with problem_set_id=%s: %w", problemSetId, err)
 	}
@@ -154,4 +155,43 @@ func findProblemSetPuzzleIDs(ctx context.Context, tx *sql.Tx, problemSetId strin
 	}
 
 	return puzzleIDs, nil
+}
+
+const findProblemSetsByUserIDQuery = `
+	SELECT id, name, description, themes, rating_interval, user_id, created_at, updated_at FROM problem_set WHERE user_id = ? ORDER BY created_at ASC`
+
+func (r *problemSetRepo) FindByUserID(ctx context.Context, userID string) ([]models.ProblemSet, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_repo_find_by_user_id")
+	defer span.Finish()
+
+	rows, err := r.db.QueryContext(ctx, findProblemSetsByUserIDQuery, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query problem_set by user_id=%s: %w", userID, err)
+	}
+	defer rows.Close()
+
+	sets := make([]models.ProblemSet, 0)
+	var s models.ProblemSet
+	var themeStr string
+	for rows.Next() {
+		err := rows.Scan(
+			&s.ID,
+			&s.Name,
+			&s.Description,
+			&themeStr,
+			&s.RatingInterval,
+			&s.UserID,
+			&s.CreatedAt,
+			&s.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan problem_set row. Error: %w, user_id=%s", err, userID)
+		}
+
+		s.Themes = decodeThemes(themeStr)
+		s.PuzzleIDs = make([]string, 0)
+		sets = append(sets, s)
+	}
+
+	return sets, nil
 }
