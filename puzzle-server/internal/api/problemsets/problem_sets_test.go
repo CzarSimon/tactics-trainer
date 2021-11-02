@@ -128,6 +128,74 @@ func TestCreateProblemSet_UnauthorizedAndForbidden(t *testing.T) {
 	})
 }
 
+func TestListProblemSets(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	svc, rbac := setupEnv(ctx)
+	router := setupRouter(svc, rbac)
+
+	user1ID := id.New()
+	user2ID := id.New()
+	sets := []models.ProblemSet{
+		{
+			ID:             id.New(),
+			Name:           "ps-name-0",
+			Themes:         []string{"passedPawn", "endgame"},
+			RatingInterval: "1300 - 1500",
+			UserID:         user1ID,
+			PuzzleIDs:      []string{"puzzle-0", "puzzle-1"},
+		},
+		{
+			ID:             id.New(),
+			Name:           "ps-name-1",
+			Themes:         []string{},
+			RatingInterval: "1500 - 1700",
+			UserID:         user1ID,
+			PuzzleIDs:      []string{"puzzle-2"},
+		},
+		{
+			ID:             id.New(),
+			Name:           "ps-name-2",
+			Themes:         []string{},
+			RatingInterval: "1500 - 1700",
+			UserID:         user2ID,
+			PuzzleIDs:      []string{"puzzle-2"},
+		},
+	}
+
+	for _, set := range sets {
+		err := svc.ProblemSetRepo.Save(ctx, set)
+		assert.NoError(err)
+	}
+
+	req := testutil.CreateRequest(http.MethodGet, "/v1/problem-sets", nil)
+	attachAuthHeader(req, user1ID, role.User)
+	res := testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	var user1Sets []models.ProblemSet
+	err := json.NewDecoder(res.Result().Body).Decode(&user1Sets)
+	assert.NoError(err)
+	assert.Len(user1Sets, 2)
+
+	req = testutil.CreateRequest(http.MethodGet, "/v1/problem-sets", nil)
+	attachAuthHeader(req, user2ID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	var user2Sets []models.ProblemSet
+	err = json.NewDecoder(res.Result().Body).Decode(&user2Sets)
+	assert.NoError(err)
+	assert.Len(user2Sets, 1)
+
+	req = testutil.CreateRequest(http.MethodGet, "/v1/problem-sets", nil)
+	attachAuthHeader(req, "user-without-sets", role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	var emptySetList []models.ProblemSet
+	err = json.NewDecoder(res.Result().Body).Decode(&emptySetList)
+	assert.NoError(err)
+	assert.Len(emptySetList, 0)
+}
+
 func TestListProblemSets_UnauthorizedAndForbidden(t *testing.T) {
 	test_UnauthorizedAndForbidden(t, http.MethodGet, "/v1/problem-sets", []string{
 		role.Anonymous,

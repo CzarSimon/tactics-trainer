@@ -26,11 +26,32 @@ func AttachController(svc *service.ProblemSetService, rbac auth.RBAC, r gin.IRou
 	g := r.Group("/v1/problem-sets")
 	secure := rbac.Secure
 
-	g.GET("", secure(scope.ListProblemSets), notImplemented)
+	g.GET("", secure(scope.ListProblemSets), controller.listProblemSets)
 	g.POST("", secure(scope.CreateProblemSet), controller.createProblemSet)
 	g.GET("/:setId", secure(scope.ReadProblemSet), controller.getProblemSet)
 	g.DELETE("/:setId", secure(scope.DeleteProblemSet), notImplemented)
 	g.PUT("/:setId/puzzles/:puzzleId", secure(scope.UpdateProblemSet), notImplemented)
+}
+
+func (h *controller) listProblemSets(c *gin.Context) {
+	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_list_problem_sets")
+	defer span.Finish()
+
+	principal, err := auth.MustGetPrincipal(c)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	sets, err := h.svc.ListProblemSets(ctx, principal.ID)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, sets)
 }
 
 func (h *controller) createProblemSet(c *gin.Context) {

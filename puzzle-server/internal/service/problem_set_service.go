@@ -15,6 +15,18 @@ type ProblemSetService struct {
 	PuzzleRepo     repository.PuzzleRepository
 }
 
+func (s *ProblemSetService) ListProblemSets(ctx context.Context, userID string) ([]models.ProblemSet, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_service_list_problem_sets")
+	defer span.Finish()
+
+	sets, err := s.ProblemSetRepo.FindByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return sets, nil
+}
+
 func (s *ProblemSetService) CreateProblemSet(ctx context.Context, req models.CreateProblemSetRequest, userID string) (models.ProblemSet, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_service_create_problem_set")
 	defer span.Finish()
@@ -23,7 +35,7 @@ func (s *ProblemSetService) CreateProblemSet(ctx context.Context, req models.Cre
 	if err != nil {
 		return models.ProblemSet{}, err
 	} else if len(puzzleIDs) < 1 {
-		return models.ProblemSet{}, httputil.Errorf(http.StatusUnprocessableEntity, "the filter returned no puzzles", req.Filter)
+		return models.ProblemSet{}, httputil.Errorf(http.StatusUnprocessableEntity, "%s returned no puzzles", req.Filter)
 	}
 
 	set := models.NewProblemSet(req, userID, puzzleIDs)
