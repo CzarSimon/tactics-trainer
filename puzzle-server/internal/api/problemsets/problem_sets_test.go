@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/CzarSimon/httputil"
+	"github.com/CzarSimon/httputil/client/rpc"
 	"github.com/CzarSimon/httputil/id"
 	"github.com/CzarSimon/httputil/jwt"
 	"github.com/CzarSimon/httputil/testutil"
@@ -58,7 +59,69 @@ var puzzles = []models.Puzzle{
 	},
 }
 
-func TestCreateProblemSets_UnauthorizedAndForbidden(t *testing.T) {
+func TestCreateProblemSet(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	svc, rbac := setupEnv(ctx)
+	router := setupRouter(svc, rbac)
+
+	userID := id.New()
+	reqBody := models.CreateProblemSetRequest{
+		Name: "ps-name",
+		Filter: models.PuzzleFilter{
+			Themes:        []string{"passedPawn", "endgame"},
+			MinRating:     1300,
+			MaxRating:     1500,
+			MinPopularity: 100,
+			Size:          2,
+		},
+	}
+
+	req, _ := rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/problem-sets", reqBody)
+	attachAuthHeader(req, userID, role.User)
+	res := testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	var resBody models.ProblemSet
+	err := json.NewDecoder(res.Result().Body).Decode(&resBody)
+	assert.NoError(err)
+	assert.Equal(reqBody.Name, resBody.Name)
+	assert.Len(resBody.PuzzleIDs, 1)
+	assert.Equal(puzzles[2].ID, resBody.PuzzleIDs[0])
+
+	storedSet, found, err := svc.ProblemSetRepo.Find(ctx, resBody.ID)
+	assert.NoError(err)
+	assert.True(found)
+	assert.Equal(storedSet, resBody)
+
+	reqBody.Name = ""
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/problem-sets", reqBody)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusBadRequest, res.Code)
+
+	reqBody.Name = "valid-name"
+	reqBody.Filter.MaxRating = 1000 // Lower than the minimum rating
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/problem-sets", reqBody)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusBadRequest, res.Code)
+
+	reqBody.Filter.MaxRating = 1500
+	reqBody.Filter.Size = 50000 // Very large problem size, potential DoS
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/problem-sets", reqBody)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusBadRequest, res.Code)
+
+	reqBody.Filter.Size = 10
+	reqBody.Filter.Themes = append(reqBody.Filter.Themes, "prophylaxis") // No matching puzzle with all these themes
+	req, _ = rpc.NewClient(time.Second).CreateRequest(http.MethodPost, "/v1/problem-sets", reqBody)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusUnprocessableEntity, res.Code)
+}
+
+func TestCreateProblemSet_UnauthorizedAndForbidden(t *testing.T) {
 	test_UnauthorizedAndForbidden(t, http.MethodPost, "/v1/problem-sets", []string{
 		role.Anonymous,
 		"missing",
@@ -156,11 +219,13 @@ func attachAuthHeader(req *http.Request, userId, role string) {
 func setupEnv(ctx context.Context) (*service.ProblemSetService, auth.RBAC) {
 	db := testutil.InMemoryDB(true, "../../../resources/db/sqlite")
 	problemSetRepo := repository.NewProblemSetRepository(db)
+	puzzleRepo := repository.NewPuzzleRepository(db)
+
 	svc := &service.ProblemSetService{
 		ProblemSetRepo: problemSetRepo,
+		PuzzleRepo:     puzzleRepo,
 	}
 
-	puzzleRepo := repository.NewPuzzleRepository(db)
 	for _, p := range puzzles {
 		err := puzzleRepo.Save(ctx, p)
 		if err != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/CzarSimon/httputil"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth/scope"
+	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/models"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
@@ -33,10 +34,31 @@ func AttachController(svc *service.ProblemSetService, rbac auth.RBAC, r gin.IRou
 }
 
 func (h *controller) createProblemSet(c *gin.Context) {
-	span, _ := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_create_problem_set")
+	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_create_problem_set")
 	defer span.Finish()
 
-	notImplemented(c)
+	req, err := parseCreateProblemSetRequest(c)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	principal, err := auth.MustGetPrincipal(c)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	set, err := h.svc.CreateProblemSet(ctx, req, principal.ID)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, set)
 }
 
 func (h *controller) getProblemSet(c *gin.Context) {
@@ -59,6 +81,23 @@ func (h *controller) getProblemSet(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, set)
+}
+
+func parseCreateProblemSetRequest(c *gin.Context) (models.CreateProblemSetRequest, error) {
+	var body models.CreateProblemSetRequest
+	err := c.BindJSON(&body)
+	if err != nil {
+		err = httputil.BadRequestf("failed to parse request body. %w", err)
+		return models.CreateProblemSetRequest{}, err
+	}
+
+	err = body.Valid()
+	if err != nil {
+		err = httputil.BadRequestf("invalid %s. %w", body, err)
+		return models.CreateProblemSetRequest{}, err
+	}
+
+	return body, nil
 }
 
 func notImplemented(c *gin.Context) {

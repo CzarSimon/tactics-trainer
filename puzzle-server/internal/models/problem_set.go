@@ -1,10 +1,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/CzarSimon/httputil/id"
+	"github.com/CzarSimon/httputil/timeutil"
 )
 
 // ProblemSet represents a collection of chess puzzles
@@ -28,6 +30,21 @@ func (p ProblemSet) String() string {
 		p.RatingInterval,
 		p.UserID,
 	)
+}
+
+func NewProblemSet(req CreateProblemSetRequest, userID string, puzzleIDs []string) ProblemSet {
+	now := timeutil.Now()
+	return ProblemSet{
+		ID:             id.New(),
+		Name:           req.Name,
+		Description:    req.Description,
+		Themes:         req.Filter.Themes,
+		RatingInterval: req.Filter.RatingInterval(),
+		UserID:         userID,
+		PuzzleIDs:      puzzleIDs,
+		CreatedAt:      now,
+		UpdatedAt:      now,
+	}
 }
 
 // ProblemSetPuzzle creates a ProblemSetPuzzle struct based on a puzzle id in the
@@ -72,6 +89,14 @@ func (r CreateProblemSetRequest) String() string {
 	return fmt.Sprintf("CreateProblemSetRequest(name=%s, filter=%s)", r.Name, r.Filter)
 }
 
+func (r CreateProblemSetRequest) Valid() error {
+	if r.Name == "" {
+		return errors.New("name must be set")
+	}
+
+	return r.Filter.Valid()
+}
+
 // PuzzleFilter selection criteria of puzzles.
 type PuzzleFilter struct {
 	Themes        []string `json:"themes"`
@@ -79,6 +104,30 @@ type PuzzleFilter struct {
 	MaxRating     uint     `json:"maxRating,omitempty"`
 	MinPopularity uint     `json:"minPopularity"`
 	Size          uint     `json:"size"`
+}
+
+func (f PuzzleFilter) Valid() error {
+	if f.Themes == nil {
+		return errors.New("themes cannot be nil, empty array should be used instead")
+	}
+
+	if f.MinRating < 0 {
+		return errors.New("minimum rating must at least be 0")
+	}
+
+	if f.MaxRating < f.MinRating {
+		return errors.New("maximum rating cannot be less than minimum rating")
+	}
+
+	if f.MinPopularity > 100 {
+		return errors.New("minimum popularity can at most be the maximum possible popularity, which is 100")
+	}
+
+	if f.Size < 1 || f.Size > 1000 {
+		return errors.New("size must be between 1 and 1000")
+	}
+
+	return nil
 }
 
 // RatingInterval encode the requested rating interval as a string.
