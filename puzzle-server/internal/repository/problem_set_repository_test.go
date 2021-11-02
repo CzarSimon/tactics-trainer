@@ -129,6 +129,15 @@ func Test_problemSetRepo_Find(t *testing.T) {
 	assert.True(found)
 	assert.Equal(set.ID, foundSet.ID)
 	assert.Equal(set, foundSet)
+
+	_, found, err = repo.Find(ctx, id.New())
+	assert.NoError(err)
+	assert.False(found)
+
+	ctx, cancel := context.WithCancel(ctx)
+	cancel()
+	_, _, err = repo.Find(ctx, set.ID)
+	assert.True(errors.Is(err, context.Canceled))
 }
 
 func seedPuzzles(t *testing.T, db *sql.DB) {
