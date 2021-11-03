@@ -1,0 +1,8 @@
+CREATE USER 'puzzleserver'@'%' IDENTIFIED BY '0f9a2abc26c46b4794a84b984105410b';
+GRANT ALL PRIVILEGES ON puzzleserver.* TO 'puzzleserver'@'%';
+
+CREATE USER 'iamserver'@'%' IDENTIFIED BY '7535807ef23504ca84c7200671611ebc';
+GRANT ALL PRIVILEGES ON iamserver.* TO 'iamserver'@'%';
+
+CREATE USER 'admin'@'%' IDENTIFIED BY 'eff25e6862038a476454f5f22d51997d';
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%';
