@@ -51,16 +51,16 @@ const findQuery = `
 	SELECT
 		id,
 		external_id,
-		fen, 
+		fen,
 		moves,
-		rating, 
-		rating_deviation, 
+		rating,
+		rating_deviation,
 		popularity,
-		themes,  
-		game_url, 
-		created_at, 
+		themes,
+		game_url,
+		created_at,
 		updated_at
-	FROM 
+	FROM
 		puzzle
 	WHERE
 		id = ?`
@@ -102,16 +102,16 @@ const findPuzzlesByFilterQuery = `
 	SELECT
 		id,
 		external_id,
-		fen, 
+		fen,
 		moves,
-		rating, 
-		rating_deviation, 
+		rating,
+		rating_deviation,
 		popularity,
-		themes,  
-		game_url, 
-		created_at, 
+		themes,
+		game_url,
+		created_at,
 		updated_at
-	FROM 
+	FROM
 		puzzle
 	WHERE
 		rating >= ?
@@ -163,7 +163,7 @@ func createThemeFilterQuery(f models.PuzzleFilter) (string, []interface{}) {
 
 	var themeCondition string
 	if len(f.Themes) > 0 {
-		themeCondition = fmt.Sprintf("AND %s", strings.Join(conditions, " AND "))
+		themeCondition = fmt.Sprintf(" AND %s", strings.Join(conditions, " AND "))
 	}
 
 	query := findPuzzlesByFilterQuery + themeCondition + " LIMIT ?"
@@ -179,6 +179,10 @@ func decodeMoves(s string) []string {
 }
 
 func encodeThemes(themes []string) string {
+	if themes == nil || len(themes) == 0 {
+		return ""
+	}
+
 	encoded := make([]string, len(themes))
 	for i, theme := range themes {
 		encoded[i] = encodeTheme(theme)
@@ -191,6 +195,10 @@ func encodeTheme(theme string) string {
 }
 
 func decodeThemes(s string) []string {
+	if s == "" {
+		return []string{}
+	}
+
 	cleanStr := strings.ReplaceAll(strings.ReplaceAll(s, "[", ""), "]", "")
 	return strings.Split(cleanStr, separator)
 }
