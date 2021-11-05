@@ -32,6 +32,18 @@ export interface Puzzle {
   updatedAt: string;
 }
 
+export interface ProblemSet {
+  id: string;
+  name: string;
+  description?: string;
+  themes: string[];
+  ratingInterval: string;
+  userId: string;
+  puzzleIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Chess types
 export type Color = 'black' | 'white';
 

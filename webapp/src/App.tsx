@@ -15,7 +15,7 @@ function App() {
     if (user) {
       authenticate(user);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className={styles.App}>

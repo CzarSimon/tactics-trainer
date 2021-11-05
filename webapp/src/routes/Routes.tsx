@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { Home } from '../modules/home/Home';
 import { LoginContainer } from '../modules/login/LoginContainer';
+import { ProblemSetsContainer } from '../modules/problemsets/PromblemSetsContainer';
 import { PuzzlePage } from '../modules/puzzle/PuzzlePage';
 import { SignupContainer } from '../modules/signup/SignupContainer';
 
@@ -22,7 +22,7 @@ export function Routes() {
             <LoginContainer />
           </Route>
           <Route path="/">
-            <Home />
+            <ProblemSetsContainer />
           </Route>
         </Switch>
       </div>

@@ -1,12 +1,16 @@
 import { useQuery } from 'react-query';
 import { ChessInstance } from 'chess.js';
 import log from '@czarsimon/remotelogger';
-import { getPuzzle } from '../api/puzzleApi';
-import { Chess, Puzzle, Optional, UsePuzzleStateResult } from '../types';
+import { getPuzzle, getProblemSet, getProblemSets } from '../api/puzzleApi';
+import { Chess, Puzzle, Optional, UsePuzzleStateResult, ProblemSet } from '../types';
 import { useState } from 'react';
 
-const IMMUTABLE_QUERY_OPTIONS = {
+const DEFAULT_QUERY_OPTIONS = {
   retry: 0,
+};
+
+const IMMUTABLE_QUERY_OPTIONS = {
+  ...DEFAULT_QUERY_OPTIONS,
   refetchOnWindowFocus: false,
   refetchIntervalInBackground: false,
   refetchOnMount: false,
@@ -15,6 +19,16 @@ const IMMUTABLE_QUERY_OPTIONS = {
 
 export function usePuzzle(id: string): Optional<Puzzle> {
   const { data } = useQuery<Puzzle, Error>(['puzzle', id], () => getPuzzle(id), IMMUTABLE_QUERY_OPTIONS);
+  return data;
+}
+
+export function useProblemSet(id: string): Optional<ProblemSet> {
+  const { data } = useQuery<ProblemSet, Error>(['problem-sets', id], () => getProblemSet(id), IMMUTABLE_QUERY_OPTIONS);
+  return data;
+}
+
+export function useProblemSets(): Optional<ProblemSet[]> {
+  const { data } = useQuery<ProblemSet[], Error>('problem-sets', getProblemSets, DEFAULT_QUERY_OPTIONS);
   return data;
 }
 

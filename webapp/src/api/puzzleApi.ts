@@ -1,14 +1,38 @@
 import { httpclient } from './httpclient';
-import { Puzzle } from '../types';
+import { ProblemSet, Puzzle } from '../types';
 import { wrapAndLogError } from './util';
 
-const PUZZLE_URL = '/api/puzzle-server/v1/puzzles';
+const PUZZLE_SERVER_URL = '/api/puzzle-server';
 
 export async function getPuzzle(id: string): Promise<Puzzle> {
-  const { body, error, metadata } = await httpclient.get<Puzzle>({ url: `${PUZZLE_URL}/${id}` });
+  const { body, error, metadata } = await httpclient.get<Puzzle>({ url: `${PUZZLE_SERVER_URL}/v1/puzzles/${id}` });
 
   if (!body) {
     throw wrapAndLogError(`failed to fetch puzzle(id=${id})`, error, metadata);
+  }
+
+  return body;
+}
+
+export async function getProblemSet(id: string): Promise<ProblemSet> {
+  const { body, error, metadata } = await httpclient.get<ProblemSet>({
+    url: `${PUZZLE_SERVER_URL}/v1/problem-sets/${id}`,
+  });
+
+  if (!body) {
+    throw wrapAndLogError(`failed to fetch problem sets id=${id}`, error, metadata);
+  }
+
+  return body;
+}
+
+export async function getProblemSets(): Promise<ProblemSet[]> {
+  const { body, error, metadata } = await httpclient.get<ProblemSet[]>({
+    url: `${PUZZLE_SERVER_URL}/v1/problem-sets`,
+  });
+
+  if (!body) {
+    throw wrapAndLogError('failed to fetch problem sets', error, metadata);
   }
 
   return body;
