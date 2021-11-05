@@ -5,27 +5,23 @@ import { ProblemSetsContainer } from '../modules/problemsets/PromblemSetsContain
 import { PuzzlePage } from '../modules/puzzle/PuzzlePage';
 import { SignupContainer } from '../modules/signup/SignupContainer';
 
-import styles from './Routes.module.css';
-
 export function Routes() {
   return (
     <Router>
-      <div className={styles.Content}>
-        <Switch>
-          <Route path="/puzzles/:puzzleId">
-            <PuzzlePage />
-          </Route>
-          <Route path="/signup">
-            <SignupContainer />
-          </Route>
-          <Route path="/login">
-            <LoginContainer />
-          </Route>
-          <Route path="/">
-            <ProblemSetsContainer />
-          </Route>
-        </Switch>
-      </div>
+      <Switch>
+        <Route path="/signup">
+          <SignupContainer />
+        </Route>
+        <Route path="/login">
+          <LoginContainer />
+        </Route>
+        <Route path="/puzzles/:puzzleId">
+          <PuzzlePage />
+        </Route>
+        <Route path="/">
+          <ProblemSetsContainer />
+        </Route>
+      </Switch>
     </Router>
   );
 }

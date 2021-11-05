@@ -28,7 +28,7 @@ export function useProblemSet(id: string): Optional<ProblemSet> {
 }
 
 export function useProblemSets(): Optional<ProblemSet[]> {
-  const { data } = useQuery<ProblemSet[], Error>('problem-sets', getProblemSets, DEFAULT_QUERY_OPTIONS);
+  const { data } = useQuery<ProblemSet[], Error>('problem-sets', getProblemSets);
   return data;
 }
 

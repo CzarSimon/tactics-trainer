@@ -1,0 +1,11 @@
+.ProblemSetsList {
+  margin: 40px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ListContent {
+  display: flex;
+  margin-top: 20px;
+}
