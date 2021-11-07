@@ -4,6 +4,7 @@ import { render } from '../../testutils';
 import { mockRequests } from '../../api/httpclient';
 import { ProblemSet } from '../../types';
 import { ProblemSetsContainer } from './PromblemSetsContainer';
+import userEvent from '@testing-library/user-event';
 
 const problemSet1: ProblemSet = {
   id: 'ps-1',
@@ -40,6 +41,15 @@ test('check that problem sets load and can be interacted with', async () => {
         url: '/api/puzzle-server/v1/problem-sets',
       },
     },
+    '/api/puzzle-server/v1/problem-sets/ps-1': {
+      body: { ...problemSet1, themes: ['p-0', 'p-1', 'p-2', 'p-3', 'p-4'] },
+      metadata: {
+        method: 'GET',
+        requestId: 'get-problem-set-request-id',
+        status: 200,
+        url: '/api/puzzle-server/v1/problem-sets/ps-1',
+      },
+    },
   });
 
   render(<ProblemSetsContainer />);
@@ -52,8 +62,20 @@ test('check that problem sets load and can be interacted with', async () => {
         if (ps.themes.length > 0) {
           expect(screen.getByText(/themes/i)).toBeInTheDocument();
         }
+        expect(screen.queryByText(ps.description!)).toBeFalsy();
       },
       { timeout: 100 },
     );
   }
+
+  const ps1Name = screen.getByText(problemSet1.name);
+  userEvent.click(ps1Name);
+  await waitFor(
+    () => {
+      expect(screen.getByText(problemSet1.description!)).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /^cycles$/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^start new cycle$/i })).toBeInTheDocument();
+    },
+    { timeout: 100 },
+  );
 });
