@@ -30,7 +30,8 @@
     "proxy": "caddy start -config Caddyfile",
     "lint": "prettier --write \"src/**/*.{js,ts,tsx,css}\" && eslint  --quiet --fix 'src/**/*.{js,ts,tsx}'",
     "check-format": "prettier --check \"src/**/*.{js,ts,tsx,css}\"",
-    "check-linting": "eslint  --quiet 'src/**/*.{js,ts,tsx}'"
+    "check-linting": "eslint  --quiet 'src/**/*.{js,ts,tsx}'",
+    "pre-merge": "CI=1 npm test && npm run check-format && npm run check-linting"
   },
   "eslintConfig": {
     "extends": [

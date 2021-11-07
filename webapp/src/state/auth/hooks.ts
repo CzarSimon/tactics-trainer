@@ -53,6 +53,11 @@ export function useAuth(): UseAuthResult {
   };
 }
 
+export function useIsAuthenticated(): boolean {
+  const { authenticated } = useContext(AuthContext);
+  return authenticated;
+}
+
 function storeAuthInfo({ user, token }: AuthenticationResponse) {
   setHeader('Authorization', `Bearer ${token}`);
   localStorage.setItem(AUTH_TOKEN_KEY, token);
