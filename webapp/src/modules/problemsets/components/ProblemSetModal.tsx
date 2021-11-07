@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Modal } from 'antd';
+import { Divider, Modal } from 'antd';
 import { useProblemSet } from '../../../hooks';
+import { CycleList } from './CycleList';
 
 interface Props {
   id: string;
@@ -36,6 +37,8 @@ export function ProblemSetModal({ id, onClose }: Props) {
         <b>Created: </b>
         {createdAt}
       </p>
+      <Divider />
+      <CycleList problemSetId={id} />
     </Modal>
   );
 }

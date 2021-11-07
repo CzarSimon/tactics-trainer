@@ -1,0 +1,4 @@
+.TitleRow {
+  display: flex;
+  justify-content: space-between;
+}
