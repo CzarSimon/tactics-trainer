@@ -5,6 +5,11 @@
   flex-direction: column;
 }
 
+.ListTitleRow {
+  display: flex;
+  justify-content: space-between;
+}
+
 .ListContent {
   display: flex;
   margin-top: 20px;

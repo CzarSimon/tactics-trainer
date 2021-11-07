@@ -17,7 +17,7 @@ export function CycleList({ problemSetId }: Props) {
     <>
       <div className={styles.TitleRow}>
         <h2>Cycles</h2>
-        <Button type="primary" onClick={startNewCycle}>
+        <Button type="primary" shape="round" onClick={startNewCycle}>
           Start new cycle
         </Button>
       </div>

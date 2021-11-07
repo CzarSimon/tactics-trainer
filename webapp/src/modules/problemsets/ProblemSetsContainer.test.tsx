@@ -53,7 +53,9 @@ test('check that problem sets load and can be interacted with', async () => {
   });
 
   render(<ProblemSetsContainer />);
-  expect(screen.getByRole('heading', { name: /^Problem sets$/i })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /^problem sets$/i })).toBeInTheDocument();
+  const newSetButton = screen.getByRole('button', { name: /^create new problem set$/i });
+  expect(newSetButton).toBeInTheDocument();
   for (const ps of [problemSet1, problemSet2]) {
     await waitFor(
       () => {
@@ -78,4 +80,7 @@ test('check that problem sets load and can be interacted with', async () => {
     },
     { timeout: 100 },
   );
+
+  userEvent.click(newSetButton);
+  expect(window.location.pathname).toBe('/problem-sets/new');
 });

@@ -7,11 +7,10 @@ import { ProblemSetsList } from './components/ProblemSetsList';
 export function ProblemSetsContainer() {
   const problemSets = useProblemSets();
   const history = useHistory();
-
-  const selectProblemSet = (id: string) => {
-    log.info(`selected problem set id=${id}`);
-    history.push(`/problem-sets/${id}`);
+  const onCreateNew = () => {
+    log.info('creating new problem set');
+    history.push('/problem-sets/new');
   };
 
-  return <ProblemSetsList problemSets={problemSets} select={selectProblemSet} />;
+  return <ProblemSetsList problemSets={problemSets} onCreateNew={onCreateNew} />;
 }

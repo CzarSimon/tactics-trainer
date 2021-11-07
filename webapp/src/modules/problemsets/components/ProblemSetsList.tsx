@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Spin } from 'antd';
+import { Spin, Button } from 'antd';
 import { Optional, ProblemSet } from '../../../types';
 import { ProblemSetCard } from './ProblemSetCard';
 
@@ -8,10 +8,10 @@ import { ProblemSetModal } from './ProblemSetModal';
 
 interface Props {
   problemSets: Optional<ProblemSet[]>;
-  select: (id: string) => void;
+  onCreateNew: () => void;
 }
 
-export function ProblemSetsList({ problemSets }: Props) {
+export function ProblemSetsList({ problemSets, onCreateNew }: Props) {
   const [selectedId, setSelectedId] = useState<Optional<string>>(undefined);
   const selectProblemSet = (id: string) => {
     setSelectedId(id);
@@ -22,7 +22,12 @@ export function ProblemSetsList({ problemSets }: Props) {
 
   return (
     <div className={styles.ProblemSetsList}>
-      <h1>Problem Sets</h1>
+      <div className={styles.ListTitleRow}>
+        <h1>Problem Sets</h1>
+        <Button type="primary" shape="round" size="large" onClick={onCreateNew}>
+          Create new problem set
+        </Button>
+      </div>
       <div className={styles.ListContent}>
         {!problemSets && <Spin size="large" />}
         {problemSets && problemSets.map((s) => <ProblemSetCard key={s.id} problemSet={s} select={selectProblemSet} />)}
