@@ -44,6 +44,20 @@ export interface ProblemSet {
   updatedAt: string;
 }
 
+export interface CreateProblemSetRequest {
+  name: string;
+  description: string;
+  filter: PuzzleFilter;
+}
+
+export interface PuzzleFilter {
+  themes: string[];
+  minRating: number;
+  maxRating: number;
+  minPopularity: number;
+  size: number;
+}
+
 // Chess types
 export type Color = 'black' | 'white';
 

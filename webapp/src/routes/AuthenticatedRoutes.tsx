@@ -11,11 +11,11 @@ export function AuthenticatedRoutes() {
         <Route path="/puzzles/:puzzleId">
           <PuzzlePage />
         </Route>
-        <Route path="/">
-          <ProblemSetsContainer />
-        </Route>
         <Route path="/problem-sets/new">
           <NewProblemSetContainer />
+        </Route>
+        <Route path="/">
+          <ProblemSetsContainer />
         </Route>
       </Switch>
     </Router>

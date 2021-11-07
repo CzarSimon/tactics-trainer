@@ -1,0 +1,34 @@
+.Form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 5% 20% 0% 20%;
+}
+
+.FormContent {
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+}
+
+.ThemeAndSizeRow {
+  display: flex;
+}
+
+.ThemeSelector {
+  flex: 1;
+}
+
+.Divider {
+  width: 20px;
+}
+
+.ButtonGroup {
+  display: flex;
+  justify-content: center;
+}
+
+.Button {
+  width: 300px;
+  margin-right: 20px;
+}

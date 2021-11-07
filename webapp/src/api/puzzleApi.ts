@@ -1,5 +1,5 @@
 import { httpclient } from './httpclient';
-import { ProblemSet, Puzzle } from '../types';
+import { CreateProblemSetRequest, ProblemSet, Puzzle } from '../types';
 import { wrapAndLogError } from './util';
 
 const PUZZLE_SERVER_URL = '/api/puzzle-server';
@@ -33,6 +33,19 @@ export async function getProblemSets(): Promise<ProblemSet[]> {
 
   if (!body) {
     throw wrapAndLogError('failed to fetch problem sets', error, metadata);
+  }
+
+  return body;
+}
+
+export async function createProblemSet(req: CreateProblemSetRequest): Promise<ProblemSet> {
+  const { body, error, metadata } = await httpclient.post<ProblemSet>({
+    url: `${PUZZLE_SERVER_URL}/v1/problem-sets`,
+    body: req,
+  });
+
+  if (!body) {
+    throw wrapAndLogError('failed to create problem set', error, metadata);
   }
 
   return body;
