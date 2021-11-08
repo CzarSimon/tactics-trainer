@@ -1,5 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router';
+import log from '@czarsimon/remotelogger';
 import { useCreateNewProblemSet } from '../../hooks';
 import { CreateProblemSetRequest } from '../../types';
 import { NewProblemSetForm } from './components/NewProblemSetForm';
@@ -13,7 +14,8 @@ export function NewProblemSetContainer() {
   };
 
   const onSubmit = async (req: CreateProblemSetRequest) => {
-    await createNewProblemSet(req);
+    const { id } = await createNewProblemSet(req);
+    log.info(`created new problem set id=${id}`);
     history.push('/');
   };
 

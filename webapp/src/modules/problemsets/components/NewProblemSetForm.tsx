@@ -3,10 +3,10 @@ import { Button, Form, Input, InputNumber } from 'antd';
 import { Store } from 'antd/lib/form/interface';
 import { RatingSlider } from '../../../components/ratingSlider/RatingSlider';
 import { ThemeSelector } from '../../../components/themeSelector/ThemeSelector';
-
-import styles from './NewProblemSetForm.module.css';
 import { CreateProblemSetRequest } from '../../../types';
 import { useFormSelect } from '../../../hooks';
+
+import styles from './NewProblemSetForm.module.css';
 
 interface Props {
   onSubmit: (req: CreateProblemSetRequest) => void;
@@ -21,7 +21,6 @@ const initialValues: Store = {
 export function NewProblemSetForm({ onCancel, onSubmit }: Props) {
   const [form, onSelect] = useFormSelect();
   const onFinish = (store: Store) => {
-    console.log(store);
     const { name, description, size, themes, ratingInterval } = store;
     const [minRating, maxRating] = ratingInterval;
     const req: CreateProblemSetRequest = {
@@ -50,7 +49,7 @@ export function NewProblemSetForm({ onCancel, onSubmit }: Props) {
     <div className={styles.Form}>
       <h1>Create new problem set</h1>
       <Form form={form} initialValues={initialValues} onFinish={onFinish} className={styles.FormContent}>
-        <Form.Item name="name">
+        <Form.Item name="name" rules={[{ required: true, message: 'Name is required' }]}>
           <Input size="large" placeholder="Name" autoFocus />
         </Form.Item>
         <Form.Item name="description">
@@ -65,7 +64,7 @@ export function NewProblemSetForm({ onCancel, onSubmit }: Props) {
             <ThemeSelector onChange={onThemesChange} />
           </Form.Item>
           <div className={styles.Divider} />
-          <Form.Item name="size" label="Number of puzzles">
+          <Form.Item name="size" label="Number of puzzles" rules={[{ required: true, message: 'Size is required' }]}>
             <InputNumber size="large" min={10} max={1000} step={10} />
           </Form.Item>
         </div>
