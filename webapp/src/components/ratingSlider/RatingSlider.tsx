@@ -6,6 +6,7 @@ import styles from './RatingSlider.module.css';
 interface Props {
   defaultValues?: [number, number];
   step?: number;
+  onChange: (val: [number, number]) => void;
 }
 
 export function RatingSlider(props: Props) {
@@ -14,7 +15,15 @@ export function RatingSlider(props: Props) {
 
   return (
     <div className={styles.RatingSlider}>
-      <Slider range defaultValue={defaultValues} min={100} max={3000} step={step} tooltipVisible={true} />
+      <Slider
+        range
+        defaultValue={defaultValues}
+        min={100}
+        max={3000}
+        step={step}
+        tooltipVisible={true}
+        onChange={props.onChange}
+      />
     </div>
   );
 }

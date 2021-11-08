@@ -1,21 +1,19 @@
 import React from 'react';
-import { useQueryClient } from 'react-query';
 import { useHistory } from 'react-router';
-import * as api from '../../api';
+import { useCreateNewProblemSet } from '../../hooks';
 import { CreateProblemSetRequest } from '../../types';
 import { NewProblemSetForm } from './components/NewProblemSetForm';
 
 export function NewProblemSetContainer() {
   const history = useHistory();
-  const queryClient = useQueryClient();
+  const createNewProblemSet = useCreateNewProblemSet();
 
   const onCancel = () => {
     history.goBack();
   };
 
   const onSubmit = async (req: CreateProblemSetRequest) => {
-    await api.createProblemSet(req);
-    queryClient.invalidateQueries('problem-sets');
+    await createNewProblemSet(req);
     history.push('/');
   };
 

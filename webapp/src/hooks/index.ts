@@ -1,9 +1,10 @@
-import { useQuery } from 'react-query';
+import { useState } from 'react';
+import Form, { FormInstance } from 'antd/lib/form';
+import { useQuery, useQueryClient } from 'react-query';
 import { ChessInstance } from 'chess.js';
 import log from '@czarsimon/remotelogger';
-import { getPuzzle, getProblemSet, getProblemSets } from '../api/puzzleApi';
-import { Chess, Puzzle, Optional, UsePuzzleStateResult, ProblemSet } from '../types';
-import { useState } from 'react';
+import { getPuzzle, getProblemSet, getProblemSets, createProblemSet } from '../api/puzzleApi';
+import { Chess, Puzzle, Optional, UsePuzzleStateResult, ProblemSet, CreateProblemSetRequest } from '../types';
 
 const DEFAULT_QUERY_OPTIONS = {
   retry: 0,
@@ -30,6 +31,33 @@ export function useProblemSet(id: string): Optional<ProblemSet> {
 export function useProblemSets(): Optional<ProblemSet[]> {
   const { data } = useQuery<ProblemSet[], Error>('problem-sets', getProblemSets, DEFAULT_QUERY_OPTIONS);
   return data;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type UseFormSelectHook = [FormInstance, (key: string, value: any) => void];
+
+export function useFormSelect(): UseFormSelectHook {
+  const [form] = Form.useForm();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onSelect = (key: string, value: any) => {
+    form.setFieldsValue({ [key]: value });
+  };
+
+  return [form, onSelect];
+}
+
+type CreateProblemSetFn = (req: CreateProblemSetRequest) => Promise<ProblemSet>;
+
+export function useCreateNewProblemSet(): CreateProblemSetFn {
+  const queryClient = useQueryClient();
+
+  const createNewProblemSet = async (req: CreateProblemSetRequest): Promise<ProblemSet> => {
+    const ps = await createProblemSet(req);
+    queryClient.invalidateQueries('problem-sets');
+    return ps;
+  };
+
+  return createNewProblemSet;
 }
 
 export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
