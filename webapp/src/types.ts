@@ -95,6 +95,7 @@ export interface UseAuthResult {
   user?: User;
   authenticated: boolean;
   authenticate: (user: User) => void;
+  logout: () => void;
 }
 
 // Client

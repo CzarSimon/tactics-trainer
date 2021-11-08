@@ -35,6 +35,11 @@ export function setHeader(name: string, value: string) {
   });
 }
 
+export function removeHeader(name: string) {
+  const { [name]: _, ...rest } = httpclient.getHeaders(); // eslint-disable-line @typescript-eslint/no-unused-vars
+  httpclient.setHeaders(rest);
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockResponses = TypedMap<HTTPResponse<any>>;
 

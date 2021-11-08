@@ -1,0 +1,11 @@
+.ProfileAvatar {
+  margin: 20px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.Avatar {
+  background-color: green !important;
+  font-size: 1.2em;
+}

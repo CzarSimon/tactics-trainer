@@ -1,22 +1,24 @@
 import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import * as api from '../../api';
-import { setHeader } from '../../api/httpclient';
+import { setHeader, removeHeader } from '../../api/httpclient';
 import { AuthenticationRequest, AuthenticationResponse, UseAuthResult } from '../../types';
 import { AUTH_TOKEN_KEY, CURRENT_USER_KEY } from '../../constants';
 import { AuthContext } from './AuthContext';
 import { useError } from '../error/hooks';
 
 export function useAuth(): UseAuthResult {
-  const { user, authenticated, authenticate } = useContext(AuthContext);
+  const { user, authenticated, authenticate, logout } = useContext(AuthContext);
   const history = useHistory();
   const { setError } = useError();
 
   const handleAuthResponse = (res?: AuthenticationResponse) => {
     if (res) {
-      authenticate(res.user);
       storeAuthInfo(res);
-      history.push('/');
+      setTimeout(() => {
+        authenticate(res.user);
+        history.push('/');
+      }, 100);
     }
   };
 
@@ -44,12 +46,19 @@ export function useAuth(): UseAuthResult {
     handleAuthResponse(data);
   };
 
+  const onLogout = () => {
+    logout();
+    removeAuthInfo();
+    history.push('/login');
+  };
+
   return {
     login,
     signup,
     user,
     authenticated,
     authenticate,
+    logout: onLogout,
   };
 }
 
@@ -62,4 +71,10 @@ function storeAuthInfo({ user, token }: AuthenticationResponse) {
   setHeader('Authorization', `Bearer ${token}`);
   localStorage.setItem(AUTH_TOKEN_KEY, token);
   localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+}
+
+function removeAuthInfo() {
+  removeHeader('Authorization');
+  localStorage.removeItem(AUTH_TOKEN_KEY);
+  localStorage.removeItem(CURRENT_USER_KEY);
 }
