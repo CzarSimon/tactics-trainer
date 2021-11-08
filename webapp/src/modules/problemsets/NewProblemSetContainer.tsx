@@ -3,7 +3,7 @@ import { useHistory } from 'react-router';
 import log from '@czarsimon/remotelogger';
 import { useCreateNewProblemSet } from '../../hooks';
 import { CreateProblemSetRequest } from '../../types';
-import { NewProblemSetForm } from './components/NewProblemSetForm';
+import { NewProblemSetForm } from './components/NewProblemSet';
 
 export function NewProblemSetContainer() {
   const history = useHistory();

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button, Form, Input, InputNumber } from 'antd';
 import { Store } from 'antd/lib/form/interface';
-import { RatingSlider } from '../../../components/ratingSlider/RatingSlider';
-import { ThemeSelector } from '../../../components/themeSelector/ThemeSelector';
-import { CreateProblemSetRequest } from '../../../types';
-import { useFormSelect } from '../../../hooks';
+import { RatingSlider } from '../../../../components/ratingSlider/RatingSlider';
+import { ThemeSelector } from '../../../../components/themeSelector/ThemeSelector';
+import { CreateProblemSetRequest } from '../../../../types';
+import { useFormSelect } from '../../../../hooks';
 
 import styles from './NewProblemSetForm.module.css';
 

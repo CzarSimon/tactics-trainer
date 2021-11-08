@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from 'antd';
-import { ProblemSet } from '../../../types';
+import { ProblemSet } from '../../../../types';
 
 import styles from './ProblemSetCard.module.css';
 

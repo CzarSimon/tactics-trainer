@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Spin, Button } from 'antd';
-import { Optional, ProblemSet } from '../../../types';
+import { Optional, ProblemSet } from '../../../../types';
 import { ProblemSetCard } from './ProblemSetCard';
 
 import styles from './ProblemSetsList.module.css';

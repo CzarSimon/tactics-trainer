@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { NewProblemSetContainer } from '../modules/problemsets/NewProblemSetContainer';
-import { ProblemSetsContainer } from '../modules/problemsets/PromblemSetsContainer';
+import { NewProblemSetContainer, ProblemSetsContainer } from '../modules/problemsets';
 import { PuzzlePage } from '../modules/puzzle/PuzzlePage';
 
 export function AuthenticatedRoutes() {

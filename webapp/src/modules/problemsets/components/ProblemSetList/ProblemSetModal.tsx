@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Divider, Modal } from 'antd';
-import { useProblemSet } from '../../../hooks';
+import { useProblemSet } from '../../../../hooks';
 import { CycleList } from './CycleList';
 
 interface Props {

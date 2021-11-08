@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { Home } from '../modules/home/Home';
-import { LoginContainer } from '../modules/login/LoginContainer';
-import { SignupContainer } from '../modules/signup/SignupContainer';
+import { LoginContainer } from '../modules/login';
+import { SignupContainer } from '../modules/signup';
 
 export function UnuthenticatedRoutes() {
   return (
