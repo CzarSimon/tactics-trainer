@@ -13,6 +13,7 @@ import (
 // CycleRepository interface for storing and querying for stored cycles.
 type CycleRepository interface {
 	Save(ctx context.Context, c models.Cycle) error
+	Find(ctx context.Context, id string) (models.Cycle, bool, error)
 }
 
 func NewCycleRepository(db *sql.DB) CycleRepository {
@@ -41,4 +42,44 @@ func (r *cycleRepo) Save(ctx context.Context, c models.Cycle) error {
 	}
 
 	return nil
+}
+
+const findCycleQuery = `
+	SELECT 
+		id, 
+		number, 
+		problem_set_id, 
+		current_puzzle_id, 
+		compleated_at, 
+		created_at, 
+		updated_at
+	FROM
+		cycle
+	WHERE 
+		id = ?
+`
+
+func (r *cycleRepo) Find(ctx context.Context, id string) (models.Cycle, bool, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "cycle_repo_find")
+	defer span.Finish()
+
+	var c models.Cycle
+	var compleatedAt sql.NullTime
+	err := r.db.QueryRowContext(ctx, findCycleQuery, id).Scan(
+		&c.ID,
+		&c.Number,
+		&c.ProblemSetID,
+		&c.CurrentPuzzleID,
+		&compleatedAt,
+		&c.CreatedAt,
+		&c.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return models.Cycle{}, false, nil
+	} else if err != nil {
+		return models.Cycle{}, false, fmt.Errorf("failed to query Cycle(id=%s): %w", id, err)
+	}
+
+	c.CompleatedAt = compleatedAt.Time
+	return c, true, nil
 }
