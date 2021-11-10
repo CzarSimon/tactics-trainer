@@ -210,3 +210,82 @@ func Test_cycleRepo_FindByProblemSetID(t *testing.T) {
 	_, err = cycleRepo.FindByProblemSetID(ctx, set.ID, false)
 	assert.True(errors.Is(err, context.Canceled))
 }
+
+func Test_cycleRepo_Update(t *testing.T) {
+	assert := assert.New(t)
+	db := testutil.InMemoryDB(true, "../../resources/db/sqlite")
+	seedPuzzles(t, db)
+	psRepo := repository.NewProblemSetRepository(db)
+	cycleRepo := repository.NewCycleRepository(db)
+	ctx := context.Background()
+
+	set := models.ProblemSet{
+		ID:             id.New(),
+		Name:           "ps-name",
+		Themes:         []string{"passedPawn", "endgame"},
+		RatingInterval: "1300 - 1500",
+		CreatedAt:      timeutil.Now(),
+		UpdatedAt:      timeutil.Now(),
+		UserID:         "user-0",
+		PuzzleIDs: []string{
+			"puzzle-0",
+			"puzzle-1",
+			"puzzle-2",
+		},
+	}
+
+	err := psRepo.Save(ctx, set)
+	assert.NoError(err)
+
+	cycle := models.Cycle{
+		ID:              id.New(),
+		Number:          1,
+		ProblemSetID:    set.ID,
+		CurrentPuzzleID: "puzzle-0",
+		CreatedAt:       timeutil.Now(),
+		UpdatedAt:       timeutil.Now(),
+	}
+
+	err = cycleRepo.Save(ctx, cycle)
+	assert.NoError(err)
+
+	stored, found, err := cycleRepo.Find(ctx, cycle.ID)
+	assert.True(found)
+	assert.NoError(err)
+	assert.Equal(cycle, stored)
+
+	cycle.CurrentPuzzleID = "puzzle-1"
+	err = cycleRepo.Update(ctx, cycle)
+	assert.NoError(err)
+
+	updated, found, err := cycleRepo.Find(ctx, cycle.ID)
+	assert.True(found)
+	assert.NoError(err)
+	assert.NotEqual(cycle, updated)
+	assert.Equal("puzzle-1", updated.CurrentPuzzleID)
+	assert.True(updated.UpdatedAt.After(updated.CreatedAt))
+	assert.False(updated.Compleated())
+	updated.CurrentPuzzleID = cycle.CurrentPuzzleID
+	updated.UpdatedAt = cycle.UpdatedAt
+	assert.Equal(cycle, updated)
+
+	compleatedAt := timeutil.Now()
+	cycle.CompleatedAt = compleatedAt
+	err = cycleRepo.Update(ctx, cycle)
+	assert.NoError(err)
+
+	updated, found, err = cycleRepo.Find(ctx, cycle.ID)
+	assert.True(found)
+	assert.NoError(err)
+	assert.NotEqual(cycle, updated)
+	assert.True(updated.UpdatedAt.After(updated.CreatedAt))
+	assert.True(updated.Compleated())
+	updated.CompleatedAt = cycle.CompleatedAt
+	updated.UpdatedAt = cycle.UpdatedAt
+	assert.Equal(cycle, updated)
+
+	ctx, cancel := context.WithCancel(ctx)
+	cancel()
+	err = cycleRepo.Update(ctx, cycle)
+	assert.True(errors.Is(err, context.Canceled))
+}

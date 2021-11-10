@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/CzarSimon/httputil/timeutil"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/models"
 	"github.com/opentracing/opentracing-go"
 )
@@ -15,6 +16,7 @@ type CycleRepository interface {
 	Save(ctx context.Context, c models.Cycle) error
 	Find(ctx context.Context, id string) (models.Cycle, bool, error)
 	FindByProblemSetID(ctx context.Context, problemSetId string, onlyActive bool) ([]models.Cycle, error)
+	Update(ctx context.Context, c models.Cycle) error
 }
 
 func NewCycleRepository(db *sql.DB) CycleRepository {
@@ -131,6 +133,33 @@ func (r *cycleRepo) FindByProblemSetID(ctx context.Context, problemSetId string,
 	}
 
 	return cycles, nil
+}
+
+const updateCycleQuery = `
+	UPDATE
+		cycle
+	SET    
+		current_puzzle_id = ?, 
+		compleated_at = ?, 
+		updated_at = ?
+	WHERE 
+		id = ?
+`
+
+func (r *cycleRepo) Update(ctx context.Context, c models.Cycle) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "cycle_repo_update")
+	defer span.Finish()
+
+	compleatedAt := sql.NullTime{
+		Time:  c.CompleatedAt,
+		Valid: !c.CompleatedAt.Equal(time.Time{}),
+	}
+	_, err := r.db.ExecContext(ctx, updateCycleQuery, c.CurrentPuzzleID, compleatedAt, timeutil.Now(), c.ID)
+	if err != nil {
+		return fmt.Errorf("failed to update %s: %w", c, err)
+	}
+
+	return nil
 }
 
 func createFindCycleByProblemSetIDQuery(onlyActive bool) string {
