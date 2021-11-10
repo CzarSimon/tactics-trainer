@@ -38,8 +38,8 @@ type User struct {
 	Username    string      `json:"username"`
 	Role        string      `json:"role"`
 	Credentials Credentials `json:"-"`
-	CreatedAt   time.Time   `json:"created_at"`
-	UpdatedAt   time.Time   `json:"updated_at"`
+	CreatedAt   time.Time   `json:"createdAt"`
+	UpdatedAt   time.Time   `json:"updatedAt"`
 }
 
 func NewUser(username, role string, credentials Credentials) User {
