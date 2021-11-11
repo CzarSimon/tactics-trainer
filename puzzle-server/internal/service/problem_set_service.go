@@ -92,6 +92,23 @@ func (s *ProblemSetService) CreateProblemSetCycle(ctx context.Context, id, userI
 	return cycle, nil
 }
 
+func (s *ProblemSetService) ListProblemSetCycles(ctx context.Context, id, userID string, onlyActive bool) ([]models.Cycle, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_service_list_problem_set_cycles")
+	defer span.Finish()
+
+	set, err := s.GetProblemSet(ctx, id, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	cycles, err := s.CycleRepo.FindByProblemSetID(ctx, set.ID, onlyActive)
+	if err != nil {
+		return nil, err
+	}
+
+	return cycles, nil
+}
+
 func (s *ProblemSetService) getPuzzleIDs(ctx context.Context, f models.PuzzleFilter) ([]string, error) {
 	puzzles, err := s.PuzzleRepo.FindByFilter(ctx, f)
 	if err != nil {

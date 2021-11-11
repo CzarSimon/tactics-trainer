@@ -14,6 +14,7 @@ import (
 	"github.com/CzarSimon/httputil/id"
 	"github.com/CzarSimon/httputil/jwt"
 	"github.com/CzarSimon/httputil/testutil"
+	"github.com/CzarSimon/httputil/timeutil"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth/role"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/api/problemsets"
@@ -323,8 +324,104 @@ func TestCreateProblemSetCycle(t *testing.T) {
 	assert.Equal(http.StatusForbidden, res.Code)
 }
 
+func TestListProblemSetCycles(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	svc, rbac := setupEnv(ctx)
+	router := setupRouter(svc, rbac)
+
+	userID := id.New()
+	set := models.ProblemSet{
+		ID:             id.New(),
+		Name:           "ps-name",
+		Themes:         []string{"passedPawn", "endgame"},
+		RatingInterval: "1300 - 1500",
+		UserID:         userID,
+		PuzzleIDs:      []string{"puzzle-0", "puzzle-1"},
+	}
+
+	err := svc.ProblemSetRepo.Save(ctx, set)
+	assert.NoError(err)
+
+	path := fmt.Sprintf("/v1/problem-sets/%s/cycles", set.ID)
+	req := testutil.CreateRequest(http.MethodGet, path, nil)
+	attachAuthHeader(req, userID, role.User)
+	res := testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+
+	var body []models.Cycle
+	err = json.NewDecoder(res.Result().Body).Decode(&body)
+	assert.NoError(err)
+	assert.Len(body, 0)
+
+	cycle1 := models.Cycle{
+		ID:              id.New(),
+		Number:          1,
+		ProblemSetID:    set.ID,
+		CurrentPuzzleID: "puzzle-2",
+		CompleatedAt:    timeutil.Now(),
+		CreatedAt:       timeutil.Now(),
+		UpdatedAt:       timeutil.Now(),
+	}
+	cycle2 := models.Cycle{
+		ID:              id.New(),
+		Number:          2,
+		ProblemSetID:    set.ID,
+		CurrentPuzzleID: "puzzle-0",
+		CreatedAt:       timeutil.Now(),
+		UpdatedAt:       timeutil.Now(),
+	}
+
+	err = svc.CycleRepo.Save(ctx, cycle1)
+	assert.NoError(err)
+	err = svc.CycleRepo.Save(ctx, cycle2)
+	assert.NoError(err)
+
+	req = testutil.CreateRequest(http.MethodGet, path, nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+
+	err = json.NewDecoder(res.Result().Body).Decode(&body)
+	assert.NoError(err)
+	assert.Len(body, 2)
+	assert.Equal(cycle1, body[0])
+	assert.Equal(cycle2, body[1])
+
+	onlyActivePath := fmt.Sprintf("/v1/problem-sets/%s/cycles?onlyActive=true", set.ID)
+	req = testutil.CreateRequest(http.MethodGet, onlyActivePath, nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+
+	err = json.NewDecoder(res.Result().Body).Decode(&body)
+	assert.NoError(err)
+	assert.Len(body, 1)
+	assert.Equal(cycle2, body[0])
+
+	// No such problem set
+	wrongPath := fmt.Sprintf("/v1/problem-sets/%s/cycles", id.New())
+	req = testutil.CreateRequest(http.MethodGet, wrongPath, nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusNotFound, res.Code)
+
+	// Wrong user forbidden
+	req = testutil.CreateRequest(http.MethodGet, path, nil)
+	attachAuthHeader(req, "other-user-id", role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusForbidden, res.Code)
+}
+
 func TestCreateProblemSetCycle_UnauthorizedAndForbidden(t *testing.T) {
 	test_UnauthorizedAndForbidden(t, http.MethodPost, "/v1/problem-sets/some-id/cycles", []string{
+		role.Anonymous,
+		"missing",
+	})
+}
+
+func TestListProblemSetCycles_UnauthorizedAndForbidden(t *testing.T) {
+	test_UnauthorizedAndForbidden(t, http.MethodGet, "/v1/problem-sets/some-id/cycles", []string{
 		role.Anonymous,
 		"missing",
 	})
