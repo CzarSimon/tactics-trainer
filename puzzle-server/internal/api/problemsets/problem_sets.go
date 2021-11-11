@@ -30,7 +30,7 @@ func AttachController(svc *service.ProblemSetService, rbac auth.RBAC, r gin.IRou
 	g.POST("", secure(scope.CreateProblemSet), controller.createProblemSet)
 	g.GET("/:setId", secure(scope.ReadProblemSet), controller.getProblemSet)
 	g.DELETE("/:setId", secure(scope.DeleteProblemSet), notImplemented)
-	g.PUT("/:setId/puzzles/:puzzleId", secure(scope.UpdateProblemSet), notImplemented)
+	g.POST("/:setId/cycles", secure(scope.CreateProblemSetCycle), controller.createProblemSetCycle)
 }
 
 func (h *controller) listProblemSets(c *gin.Context) {
@@ -102,6 +102,28 @@ func (h *controller) getProblemSet(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, set)
+}
+
+func (h *controller) createProblemSetCycle(c *gin.Context) {
+	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_create_problem_set_cycle")
+	defer span.Finish()
+
+	principal, err := auth.MustGetPrincipal(c)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	id := c.Param("setId")
+	cycle, err := h.svc.CreateProblemSetCycle(ctx, id, principal.ID)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cycle)
 }
 
 func parseCreateProblemSetRequest(c *gin.Context) (models.CreateProblemSetRequest, error) {

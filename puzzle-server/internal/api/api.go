@@ -29,12 +29,14 @@ func Start(cfg config.Config) {
 
 	puzzleRepo := repository.NewPuzzleRepository(db)
 	problemSetRepo := repository.NewProblemSetRepository(db)
+	cycleRepo := repository.NewCycleRepository(db)
 	puzzleSvc := &service.PuzzleService{
 		PuzzleRepo: puzzleRepo,
 	}
 	problemSetSvc := &service.ProblemSetService{
 		PuzzleRepo:     puzzleRepo,
 		ProblemSetRepo: problemSetRepo,
+		CycleRepo:      cycleRepo,
 	}
 
 	rbac := auth.NewRBAC(cfg.JwtCredentials)
