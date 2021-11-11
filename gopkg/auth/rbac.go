@@ -7,11 +7,17 @@ import (
 
 	"github.com/CzarSimon/httputil"
 	"github.com/CzarSimon/httputil/jwt"
+	"github.com/CzarSimon/httputil/logger"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth/role"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth/scope"
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/ext"
+	tracelog "github.com/opentracing/opentracing-go/log"
+	"go.uber.org/zap"
 )
+
+var log = logger.GetDefaultLogger("gopkg/auth")
 
 const principalKey = "tactics-trainer:gopkg:auth:principalKey"
 
@@ -53,6 +59,7 @@ func (r *RBAC) Secure(requiredScope scope.Scope) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, err := extractUserFromRequest(c, r.Verifier)
 		if err != nil {
+			logError(c, err)
 			c.AbortWithStatusJSON(err.Status, err)
 			return
 		}
@@ -77,6 +84,7 @@ func (r *RBAC) Secure(requiredScope scope.Scope) gin.HandlerFunc {
 		}
 
 		err = httputil.Forbiddenf("%s %s access denied for %s", c.Request.Method, c.Request.URL.Path, user)
+		logError(c, err)
 		c.AbortWithStatusJSON(err.Status, err)
 	}
 }
@@ -103,4 +111,24 @@ func exctractToken(c *gin.Context) (string, *httputil.Error) {
 
 	token := strings.Replace(header, "Bearer ", "", 1)
 	return token, nil
+}
+
+func logError(c *gin.Context, err *httputil.Error) {
+	span := opentracing.SpanFromContext(c.Request.Context())
+	if span != nil {
+		span.LogFields(tracelog.Error(err))
+		ext.HTTPStatusCode.Set(span, uint16(err.Status))
+	}
+
+	if err.Status < 500 {
+		log.Info(err.Message,
+			zap.Int("status", err.Status),
+			zap.String("errorId", err.ID),
+			zap.Error(err.Err))
+		return
+	}
+	log.Error(err.Message,
+		zap.Int("status", err.Status),
+		zap.String("errorId", err.ID),
+		zap.Error(err.Err))
 }

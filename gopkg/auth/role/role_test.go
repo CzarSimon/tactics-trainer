@@ -28,6 +28,10 @@ func TestUserRole(t *testing.T) {
 		scope.ListProblemSets,
 		scope.ReadProblemSet,
 		scope.UpdateProblemSet,
+		scope.ListProblemSetCycles,
+		scope.CreateProblemSetCycle,
+		scope.ReadCycle,
+		scope.UpdateCycle,
 	}
 
 	notExpectedScopes := []scope.Scope{}
@@ -44,6 +48,10 @@ func TestAnonymousRole(t *testing.T) {
 		scope.ListProblemSets,
 		scope.ReadProblemSet,
 		scope.UpdateProblemSet,
+		scope.ListProblemSetCycles,
+		scope.CreateProblemSetCycle,
+		scope.ReadCycle,
+		scope.UpdateCycle,
 	}
 
 	testRole(t, role.Anonymous, expectedScopes, notExpectedScopes)
