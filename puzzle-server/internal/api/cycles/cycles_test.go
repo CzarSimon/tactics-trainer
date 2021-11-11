@@ -2,6 +2,7 @@ package cycles_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"github.com/CzarSimon/httputil/id"
 	"github.com/CzarSimon/httputil/jwt"
 	"github.com/CzarSimon/httputil/testutil"
+	"github.com/CzarSimon/httputil/timeutil"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth/role"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/api/cycles"
@@ -68,6 +70,47 @@ var puzzles = []models.Puzzle{
 	},
 }
 
+func TestGetCycle(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	svc, rbac := setupEnv(ctx)
+	router := setupRouter(svc, rbac)
+
+	cycle := models.Cycle{
+		ID:              id.New(),
+		Number:          1,
+		ProblemSetID:    problemSet.ID,
+		CurrentPuzzleID: "puzzle-2",
+		CompleatedAt:    timeutil.Now(),
+		CreatedAt:       timeutil.Now(),
+		UpdatedAt:       timeutil.Now(),
+	}
+
+	err := svc.CycleRepo.Save(ctx, cycle)
+	assert.NoError(err)
+
+	path := fmt.Sprintf("/v1/cycles/%s", cycle.ID)
+	req := testutil.CreateRequest(http.MethodGet, path, nil)
+	attachAuthHeader(req, userID, role.User)
+	res := testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+
+	var body models.Cycle
+	err = json.NewDecoder(res.Result().Body).Decode(&body)
+	assert.NoError(err)
+	assert.Equal(cycle, body)
+
+	req = testutil.CreateRequest(http.MethodGet, path, nil)
+	attachAuthHeader(req, "other-user-id", role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusForbidden, res.Code)
+
+	req = testutil.CreateRequest(http.MethodGet, "/v1/cycles/missing-id", nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusNotFound, res.Code)
+}
+
 func TestUpdateCycle_UnauthorizedAndForbidden(t *testing.T) {
 	test_UnauthorizedAndForbidden(t, http.MethodPut, "/v1/cycles/some-id", []string{
 		role.Anonymous,
@@ -110,7 +153,8 @@ func setupEnv(ctx context.Context) (*service.CycleService, auth.RBAC) {
 	cycleRepo := repository.NewCycleRepository(db)
 
 	svc := &service.CycleService{
-		CycleRepo: cycleRepo,
+		CycleRepo:      cycleRepo,
+		ProblemSetRepo: problemSetRepo,
 	}
 
 	for _, p := range puzzles {

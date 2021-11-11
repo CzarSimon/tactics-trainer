@@ -40,7 +40,8 @@ func Start(cfg config.Config) {
 		CycleRepo:      cycleRepo,
 	}
 	cycleSvc := &service.CycleService{
-		CycleRepo: cycleRepo,
+		CycleRepo:      cycleRepo,
+		ProblemSetRepo: problemSetRepo,
 	}
 
 	rbac := auth.NewRBAC(cfg.JwtCredentials)
