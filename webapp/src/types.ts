@@ -58,6 +58,16 @@ export interface PuzzleFilter {
   size: number;
 }
 
+export interface Cycle {
+  id: string;
+  number: number;
+  problemSetId: string;
+  currentPuzzleId: string;
+  compleatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Chess types
 export type Color = 'black' | 'white';
 
