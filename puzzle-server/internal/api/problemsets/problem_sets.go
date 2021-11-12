@@ -2,6 +2,7 @@ package problemsets
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/CzarSimon/httputil"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth"
@@ -30,7 +31,8 @@ func AttachController(svc *service.ProblemSetService, rbac auth.RBAC, r gin.IRou
 	g.POST("", secure(scope.CreateProblemSet), controller.createProblemSet)
 	g.GET("/:setId", secure(scope.ReadProblemSet), controller.getProblemSet)
 	g.DELETE("/:setId", secure(scope.DeleteProblemSet), notImplemented)
-	g.PUT("/:setId/puzzles/:puzzleId", secure(scope.UpdateProblemSet), notImplemented)
+	g.GET("/:setId/cycles", secure(scope.ListProblemSetCycles), controller.listProblemSetCycles)
+	g.POST("/:setId/cycles", secure(scope.CreateProblemSetCycle), controller.createProblemSetCycle)
 }
 
 func (h *controller) listProblemSets(c *gin.Context) {
@@ -104,6 +106,51 @@ func (h *controller) getProblemSet(c *gin.Context) {
 	c.JSON(http.StatusOK, set)
 }
 
+func (h *controller) createProblemSetCycle(c *gin.Context) {
+	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_create_problem_set_cycle")
+	defer span.Finish()
+
+	principal, err := auth.MustGetPrincipal(c)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	id := c.Param("setId")
+	cycle, err := h.svc.CreateProblemSetCycle(ctx, id, principal.ID)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cycle)
+}
+
+func (h *controller) listProblemSetCycles(c *gin.Context) {
+	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_list_problem_set_cycles")
+	defer span.Finish()
+
+	principal, err := auth.MustGetPrincipal(c)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	id := c.Param("setId")
+	onlyActive := parseOnlyActiveFlag(c)
+	cycles, err := h.svc.ListProblemSetCycles(ctx, id, principal.ID, onlyActive)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cycles)
+}
+
 func parseCreateProblemSetRequest(c *gin.Context) (models.CreateProblemSetRequest, error) {
 	var body models.CreateProblemSetRequest
 	err := c.BindJSON(&body)
@@ -119,6 +166,15 @@ func parseCreateProblemSetRequest(c *gin.Context) (models.CreateProblemSetReques
 	}
 
 	return body, nil
+}
+
+func parseOnlyActiveFlag(c *gin.Context) bool {
+	val, ok := c.GetQuery("onlyActive")
+	if !ok {
+		return false
+	}
+
+	return strings.ToLower(val) == "true" || val == "1"
 }
 
 func notImplemented(c *gin.Context) {

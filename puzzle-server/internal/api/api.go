@@ -8,6 +8,7 @@ import (
 	"github.com/CzarSimon/httputil/dbutil"
 	"github.com/CzarSimon/httputil/logger"
 	"github.com/CzarSimon/tactics-trainer/gopkg/auth"
+	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/api/cycles"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/api/problemsets"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/api/puzzles"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/config"
@@ -29,11 +30,17 @@ func Start(cfg config.Config) {
 
 	puzzleRepo := repository.NewPuzzleRepository(db)
 	problemSetRepo := repository.NewProblemSetRepository(db)
+	cycleRepo := repository.NewCycleRepository(db)
 	puzzleSvc := &service.PuzzleService{
 		PuzzleRepo: puzzleRepo,
 	}
 	problemSetSvc := &service.ProblemSetService{
 		PuzzleRepo:     puzzleRepo,
+		ProblemSetRepo: problemSetRepo,
+		CycleRepo:      cycleRepo,
+	}
+	cycleSvc := &service.CycleService{
+		CycleRepo:      cycleRepo,
 		ProblemSetRepo: problemSetRepo,
 	}
 
@@ -42,6 +49,7 @@ func Start(cfg config.Config) {
 	r := httputil.NewRouter("puzzle-server", healthCheck(db))
 	puzzles.AttachController(puzzleSvc, r)
 	problemsets.AttachController(problemSetSvc, rbac, r)
+	cycles.AttachController(cycleSvc, rbac, r)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.Port,

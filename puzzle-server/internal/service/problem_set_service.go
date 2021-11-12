@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/CzarSimon/httputil"
+	"github.com/CzarSimon/httputil/id"
+	"github.com/CzarSimon/httputil/timeutil"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/models"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/repository"
 	"github.com/opentracing/opentracing-go"
@@ -13,6 +16,7 @@ import (
 type ProblemSetService struct {
 	ProblemSetRepo repository.ProblemSetRepository
 	PuzzleRepo     repository.PuzzleRepository
+	CycleRepo      repository.CycleRepository
 }
 
 func (s *ProblemSetService) ListProblemSets(ctx context.Context, userID string) ([]models.ProblemSet, error) {
@@ -66,6 +70,45 @@ func (s *ProblemSetService) GetProblemSet(ctx context.Context, id, userID string
 	return set, nil
 }
 
+func (s *ProblemSetService) CreateProblemSetCycle(ctx context.Context, id, userID string) (models.Cycle, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_service_create_problem_set_cycle")
+	defer span.Finish()
+
+	set, err := s.GetProblemSet(ctx, id, userID)
+	if err != nil {
+		return models.Cycle{}, err
+	}
+
+	cycle, err := s.createNewCycle(ctx, set)
+	if err != nil {
+		return models.Cycle{}, err
+	}
+
+	err = s.CycleRepo.Save(ctx, cycle)
+	if err != nil {
+		return models.Cycle{}, err
+	}
+
+	return cycle, nil
+}
+
+func (s *ProblemSetService) ListProblemSetCycles(ctx context.Context, id, userID string, onlyActive bool) ([]models.Cycle, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_service_list_problem_set_cycles")
+	defer span.Finish()
+
+	set, err := s.GetProblemSet(ctx, id, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	cycles, err := s.CycleRepo.FindByProblemSetID(ctx, set.ID, onlyActive)
+	if err != nil {
+		return nil, err
+	}
+
+	return cycles, nil
+}
+
 func (s *ProblemSetService) getPuzzleIDs(ctx context.Context, f models.PuzzleFilter) ([]string, error) {
 	puzzles, err := s.PuzzleRepo.FindByFilter(ctx, f)
 	if err != nil {
@@ -78,6 +121,29 @@ func (s *ProblemSetService) getPuzzleIDs(ctx context.Context, f models.PuzzleFil
 	}
 
 	return ids, nil
+}
+
+func (s *ProblemSetService) createNewCycle(ctx context.Context, set models.ProblemSet) (models.Cycle, error) {
+	if len(set.PuzzleIDs) < 1 {
+		return models.Cycle{}, fmt.Errorf("%s contained no puzzles", set)
+	}
+
+	cycles, err := s.CycleRepo.FindByProblemSetID(ctx, set.ID, false)
+	if err != nil {
+		return models.Cycle{}, err
+	}
+
+	now := timeutil.Now()
+	cycle := models.Cycle{
+		ID:              id.New(),
+		Number:          len(cycles) + 1,
+		ProblemSetID:    set.ID,
+		CurrentPuzzleID: set.PuzzleIDs[0],
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}
+
+	return cycle, nil
 }
 
 func assertProblemSetAccess(set models.ProblemSet, userID string) error {
