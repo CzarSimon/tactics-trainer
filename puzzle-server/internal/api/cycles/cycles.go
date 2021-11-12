@@ -26,7 +26,7 @@ func AttachController(svc *service.CycleService, rbac auth.RBAC, r gin.IRouter) 
 	secure := rbac.Secure
 
 	g.GET("/:id", secure(scope.ReadCycle), h.getCycle)
-	g.PUT("/:id", secure(scope.UpdateCycle), notImplemented)
+	g.PUT("/:id", secure(scope.UpdateCycle), h.updateCycle)
 }
 
 func (h *controller) getCycle(c *gin.Context) {
@@ -42,6 +42,28 @@ func (h *controller) getCycle(c *gin.Context) {
 
 	id := c.Param("id")
 	cycle, err := h.svc.GetCycle(ctx, id, principal.ID)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, cycle)
+}
+
+func (h *controller) updateCycle(c *gin.Context) {
+	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "cycle_controller_update_cycle")
+	defer span.Finish()
+
+	principal, err := auth.MustGetPrincipal(c)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	id := c.Param("id")
+	cycle, err := h.svc.UpdateCycle(ctx, id, principal.ID)
 	if err != nil {
 		span.LogFields(log.Error(err))
 		c.Error(err)

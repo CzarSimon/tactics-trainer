@@ -80,7 +80,7 @@ func TestGetCycle(t *testing.T) {
 		ID:              id.New(),
 		Number:          1,
 		ProblemSetID:    problemSet.ID,
-		CurrentPuzzleID: "puzzle-2",
+		CurrentPuzzleID: "puzzle-1",
 		CompleatedAt:    timeutil.Now(),
 		CreatedAt:       timeutil.Now(),
 		UpdatedAt:       timeutil.Now(),
@@ -106,6 +106,65 @@ func TestGetCycle(t *testing.T) {
 	assert.Equal(http.StatusForbidden, res.Code)
 
 	req = testutil.CreateRequest(http.MethodGet, "/v1/cycles/missing-id", nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusNotFound, res.Code)
+}
+
+func TestUpdateCycle(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	svc, rbac := setupEnv(ctx)
+	router := setupRouter(svc, rbac)
+
+	cycle := models.Cycle{
+		ID:              id.New(),
+		Number:          1,
+		ProblemSetID:    problemSet.ID,
+		CurrentPuzzleID: "puzzle-0",
+		CreatedAt:       timeutil.Now(),
+		UpdatedAt:       timeutil.Now(),
+	}
+
+	err := svc.CycleRepo.Save(ctx, cycle)
+	assert.NoError(err)
+
+	path := fmt.Sprintf("/v1/cycles/%s", cycle.ID)
+	req := testutil.CreateRequest(http.MethodPut, path, nil)
+	attachAuthHeader(req, userID, role.User)
+	res := testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+
+	var body models.Cycle
+	err = json.NewDecoder(res.Result().Body).Decode(&body)
+	assert.NoError(err)
+	assert.Equal("puzzle-1", body.CurrentPuzzleID)
+	assert.True(body.UpdatedAt.After(cycle.UpdatedAt))
+	assert.False(body.Compleated())
+	update1Time := body.UpdatedAt
+
+	req = testutil.CreateRequest(http.MethodPut, path, nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+
+	err = json.NewDecoder(res.Result().Body).Decode(&body)
+	assert.NoError(err)
+	assert.Equal("puzzle-1", body.CurrentPuzzleID)
+	assert.True(body.UpdatedAt.After(update1Time))
+	assert.True(body.Compleated())
+
+	req = testutil.CreateRequest(http.MethodPut, path, nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusUnprocessableEntity, res.Code)
+
+	req = testutil.CreateRequest(http.MethodPut, path, nil)
+	attachAuthHeader(req, "other-user-id", role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusForbidden, res.Code)
+
+	req = testutil.CreateRequest(http.MethodPut, "/v1/cycles/missing-id", nil)
 	attachAuthHeader(req, userID, role.User)
 	res = testutil.PerformRequest(router, req)
 	assert.Equal(http.StatusNotFound, res.Code)
