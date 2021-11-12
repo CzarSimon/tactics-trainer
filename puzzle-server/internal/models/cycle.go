@@ -7,13 +7,13 @@ import (
 
 // Cycle represents a round of going through the puzzles in a problem set
 type Cycle struct {
-	ID              string
-	Number          int
-	ProblemSetID    string
-	CurrentPuzzleID string
-	CompleatedAt    time.Time
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	ID              string    `json:"id"`
+	Number          int       `json:"number"`
+	ProblemSetID    string    `json:"problemSetId"`
+	CurrentPuzzleID string    `json:"currentPuzzleId"`
+	CompleatedAt    time.Time `json:"compleatedAt,omitempty"`
+	CreatedAt       time.Time `json:"createdAt"`
+	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
 // Compleated returns true if the cycle has been marked as finished
