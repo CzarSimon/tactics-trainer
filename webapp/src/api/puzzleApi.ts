@@ -1,5 +1,5 @@
 import { httpclient } from './httpclient';
-import { CreateProblemSetRequest, ProblemSet, Puzzle } from '../types';
+import { ApiResponse, CreateProblemSetRequest, Cycle, ProblemSet, Puzzle } from '../types';
 import { wrapAndLogError } from './util';
 
 const PUZZLE_SERVER_URL = '/api/puzzle-server';
@@ -49,6 +49,70 @@ export async function createProblemSet(req: CreateProblemSetRequest): Promise<Pr
   }
 
   return body;
+}
+
+export async function listProblemSetCycles(id: string): Promise<ApiResponse<Cycle[]>> {
+  const { body, error, metadata } = await httpclient.get<Cycle[]>({
+    url: `${PUZZLE_SERVER_URL}/v1/problem-sets/${id}/cycles`,
+  });
+
+  if (!body) {
+    return {
+      error: wrapAndLogError(`failed to fetch cycles for problemSet(id=${id})`, error, metadata),
+    };
+  }
+
+  return {
+    data: body,
+  };
+}
+
+export async function createProblemSetCycle(id: string): Promise<ApiResponse<Cycle>> {
+  const { body, error, metadata } = await httpclient.post<Cycle>({
+    url: `${PUZZLE_SERVER_URL}/v1/problem-sets/${id}/cycles`,
+  });
+
+  if (!body) {
+    return {
+      error: wrapAndLogError(`failed to create cycle for problemSet(id=${id})`, error, metadata),
+    };
+  }
+
+  return {
+    data: body,
+  };
+}
+
+export async function getCycle(id: string): Promise<ApiResponse<Cycle>> {
+  const { body, error, metadata } = await httpclient.get<Cycle>({
+    url: `${PUZZLE_SERVER_URL}/v1/cycles/${id}`,
+  });
+
+  if (!body) {
+    return {
+      error: wrapAndLogError(`failed to fetch cycle(id=${id})`, error, metadata),
+    };
+  }
+
+  return {
+    data: body,
+  };
+}
+
+export async function updateCycle(id: string): Promise<ApiResponse<Cycle>> {
+  const { body, error, metadata } = await httpclient.put<Cycle>({
+    url: `${PUZZLE_SERVER_URL}/v1/cycles/${id}`,
+  });
+
+  if (!body) {
+    return {
+      error: wrapAndLogError(`failed to update cycle(id=${id})`, error, metadata),
+    };
+  }
+
+  return {
+    data: body,
+  };
 }
 
 export function getRandomPuzzleID(): string {
