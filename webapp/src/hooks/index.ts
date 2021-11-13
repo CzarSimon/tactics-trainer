@@ -3,8 +3,15 @@ import Form, { FormInstance } from 'antd/lib/form';
 import { useQuery, useQueryClient } from 'react-query';
 import { ChessInstance } from 'chess.js';
 import log from '@czarsimon/remotelogger';
-import { getPuzzle, getProblemSet, getProblemSets, createProblemSet } from '../api/puzzleApi';
-import { Chess, Puzzle, Optional, UsePuzzleStateResult, ProblemSet, CreateProblemSetRequest } from '../types';
+import {
+  getPuzzle,
+  getProblemSet,
+  getProblemSets,
+  createProblemSet,
+  listProblemSetCycles,
+  getCycle,
+} from '../api/puzzleApi';
+import { Chess, Puzzle, Optional, UsePuzzleStateResult, ProblemSet, CreateProblemSetRequest, Cycle } from '../types';
 
 const DEFAULT_QUERY_OPTIONS = {
   retry: 0,
@@ -30,6 +37,21 @@ export function useProblemSet(id: string): Optional<ProblemSet> {
 
 export function useProblemSets(): Optional<ProblemSet[]> {
   const { data } = useQuery<ProblemSet[], Error>('problem-sets', getProblemSets);
+  return data;
+}
+
+export function useProblemSetCycles(id: string): Optional<Cycle[]> {
+  const { data } = useQuery<Cycle[], Error>(
+    ['problem-sets', id, 'cycles'],
+    () => listProblemSetCycles(id),
+    DEFAULT_QUERY_OPTIONS,
+  );
+
+  return data;
+}
+
+export function useCycle(id: string): Optional<Cycle> {
+  const { data } = useQuery<Cycle, Error>(['cycles', id], () => getCycle(id), DEFAULT_QUERY_OPTIONS);
   return data;
 }
 
