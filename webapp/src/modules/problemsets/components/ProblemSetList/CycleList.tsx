@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'antd';
-import log from '@czarsimon/remotelogger';
+import { useProblemSetCycles, useCreateNewProblemSetCycle } from '../../../../hooks';
 
 import styles from './CycleList.module.css';
 
@@ -9,8 +9,11 @@ interface Props {
 }
 
 export function CycleList({ problemSetId }: Props) {
-  const startNewCycle = () => {
-    log.info(`Should create new cycle for ProblemSet(id=${problemSetId})`);
+  const cycles = useProblemSetCycles(problemSetId);
+  const createNew = useCreateNewProblemSetCycle();
+
+  const startNewCycle = async () => {
+    createNew(problemSetId);
   };
 
   return (
@@ -20,6 +23,17 @@ export function CycleList({ problemSetId }: Props) {
         <Button type="primary" shape="round" onClick={startNewCycle}>
           Start new cycle
         </Button>
+        {cycles &&
+          cycles.map((c) => (
+            <div key={c.id}>
+              <p>
+                <b>Number:</b> {c.number}
+              </p>
+              <p>
+                <b>Created at:</b> {c.createdAt}
+              </p>
+            </div>
+          ))}
       </div>
     </>
   );

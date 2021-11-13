@@ -10,6 +10,7 @@ import {
   createProblemSet,
   listProblemSetCycles,
   getCycle,
+  createProblemSetCycle,
 } from '../api/puzzleApi';
 import { Chess, Puzzle, Optional, UsePuzzleStateResult, ProblemSet, CreateProblemSetRequest, Cycle } from '../types';
 
@@ -48,6 +49,20 @@ export function useProblemSetCycles(id: string): Optional<Cycle[]> {
   );
 
   return data;
+}
+
+type CreateCycleFn = (id: string) => Promise<Cycle>;
+
+export function useCreateNewProblemSetCycle(): CreateCycleFn {
+  const queryClient = useQueryClient();
+
+  const createNewCycle = async (id: string): Promise<Cycle> => {
+    const cycle = await createProblemSetCycle(id);
+    queryClient.invalidateQueries(['problem-sets', id, 'cycles']);
+    return cycle;
+  };
+
+  return createNewCycle;
 }
 
 export function useCycle(id: string): Optional<Cycle> {

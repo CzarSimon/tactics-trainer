@@ -2,7 +2,7 @@ import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import { render } from '../../testutils';
 import { mockRequests } from '../../api/httpclient';
-import { ProblemSet } from '../../types';
+import { Cycle, ProblemSet } from '../../types';
 import { ProblemSetsContainer } from './PromblemSetsContainer';
 import userEvent from '@testing-library/user-event';
 
@@ -26,9 +26,29 @@ const problemSet2: ProblemSet = {
   ratingInterval: '1800 - 1900',
   userId: 'user-1',
   puzzleIds: [],
-  createdAt: ' 2021-11-04T09:54:34Z',
-  updatedAt: ' 2021-11-04T09:54:34Z',
+  createdAt: '2021-11-04T09:54:34Z',
+  updatedAt: '2021-11-04T09:54:34Z',
 };
+
+const cycles: Cycle[] = [
+  {
+    id: 'c-0',
+    number: 1,
+    problemSetId: 'ps-1',
+    currentPuzzleId: 'p-4',
+    compleatedAt: '2021-11-12T09:54:34Z',
+    createdAt: '2021-11-04T09:54:34Z',
+    updatedAt: '2021-11-04T09:54:34Z',
+  },
+  {
+    id: 'c-1',
+    number: 2,
+    problemSetId: 'ps-1',
+    currentPuzzleId: 'p-0',
+    createdAt: '2021-11-13T09:54:34Z',
+    updatedAt: '2021-11-13T09:54:34Z',
+  },
+];
 
 test('check that problem sets load and can be interacted with', async () => {
   mockRequests({
@@ -48,6 +68,15 @@ test('check that problem sets load and can be interacted with', async () => {
         requestId: 'get-problem-set-request-id',
         status: 200,
         url: '/api/puzzle-server/v1/problem-sets/ps-1',
+      },
+    },
+    '/api/puzzle-server/v1/problem-sets/ps-1/cycles': {
+      body: cycles,
+      metadata: {
+        method: 'GET',
+        requestId: 'get-problem-set-cycles-request-id',
+        status: 200,
+        url: '/api/puzzle-server/v1/problem-sets/ps-1/cycles',
       },
     },
   });
