@@ -47,13 +47,30 @@ jobs:
       - run: npm run check-linting
       - run: npm test
 
-  scan-dockerfile:
-    name: scan-dockerfile
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Scan dockerfile using hadolint
-        run: docker run --rm -i hadolint/hadolint:latest-alpine < Dockerfile
+    security-scans:
+      name: security-scans
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Scan dependencies
+          uses: aquasecurity/trivy-action@master
+          with:
+            scan-type: "fs"
+            ignore-unfixed: true
+            format: "table"
+            exit-code: "1"
+            scan-ref: "puzzle-server"
+        - name: Scan configuration
+          uses: aquasecurity/trivy-action@master
+          with:
+            scan-type: "config"
+            format: "table"
+            exit-code: "1"
+            scan-ref: "puzzle-server"
+            hide-progress: false
+            ignore-unfixed: true
+          env:
+            TRIVY_IGNOREFILE: "puzzle-server/.trivyignore"
 
   build-image:
     name: build-image
@@ -61,7 +78,7 @@ jobs:
     needs:
       - parse-version
       - run-tests
-      - scan-dockerfile
+      - security-scans
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
