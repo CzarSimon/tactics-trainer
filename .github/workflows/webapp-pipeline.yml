@@ -53,13 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Scan dependencies
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: "fs"
-          ignore-unfixed: true
-          format: "table"
-          exit-code: "1"
-          scan-ref: "webapp"
+        run: npm audit --production
       - name: Scan configuration
         uses: aquasecurity/trivy-action@master
         with:
