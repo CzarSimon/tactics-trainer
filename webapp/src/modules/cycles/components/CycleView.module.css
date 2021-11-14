@@ -1,0 +1,9 @@
+.CycleView {
+  margin: auto;
+}
+
+.CloseButton {
+  margin: 20px;
+  position: absolute;
+  right: 0;
+}

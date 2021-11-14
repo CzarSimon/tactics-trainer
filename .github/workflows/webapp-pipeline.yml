@@ -47,13 +47,22 @@ jobs:
       - run: npm run check-linting
       - run: npm test
 
-  scan-dockerfile:
-    name: scan-dockerfile
+  security-scans:
+    name: security-scans
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Scan dockerfile using hadolint
-        run: docker run --rm -i hadolint/hadolint:latest-alpine < Dockerfile
+      - name: Scan dependencies
+        run: npm audit --production
+      - name: Scan configuration
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "config"
+          format: "table"
+          exit-code: "1"
+          scan-ref: "webapp"
+          hide-progress: false
+          ignore-unfixed: true
 
   build-image:
     name: build-image
@@ -61,7 +70,7 @@ jobs:
     needs:
       - parse-version
       - run-tests
-      - scan-dockerfile
+      - security-scans
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

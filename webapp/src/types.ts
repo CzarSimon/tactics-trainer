@@ -58,6 +58,16 @@ export interface PuzzleFilter {
   size: number;
 }
 
+export interface Cycle {
+  id: string;
+  number: number;
+  problemSetId: string;
+  currentPuzzleId: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Chess types
 export type Color = 'black' | 'white';
 
@@ -81,9 +91,11 @@ export interface AuthenticationResponse {
 }
 
 // Hook types
+export type MoveResult = 'WRONG_MOVE' | 'CORRECT_MOVE' | 'PUZZLE_SOLVED';
+
 export interface UsePuzzleStateResult {
   fen: string;
-  move: (move: string) => void;
+  move: (move: string) => MoveResult;
   computerMove: string;
   correctMove: string;
   done: boolean;

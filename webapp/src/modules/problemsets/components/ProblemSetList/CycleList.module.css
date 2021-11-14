@@ -1,3 +1,8 @@
+.CycleList {
+  display: flex;
+  flex-direction: column;
+}
+
 .TitleRow {
   display: flex;
   justify-content: space-between;

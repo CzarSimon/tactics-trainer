@@ -1,6 +1,9 @@
 import React from 'react';
 import { Button } from 'antd';
-import log from '@czarsimon/remotelogger';
+import { useProblemSetCycles, useCreateNewProblemSetCycle } from '../../../../hooks';
+import { CycleCard } from './CycleCard';
+import { Cycle, Optional } from '../../../../types';
+import { cycleIsCompleted } from '../../../../util';
 
 import styles from './CycleList.module.css';
 
@@ -9,18 +12,37 @@ interface Props {
 }
 
 export function CycleList({ problemSetId }: Props) {
-  const startNewCycle = () => {
-    log.info(`Should create new cycle for ProblemSet(id=${problemSetId})`);
+  const cycles = useProblemSetCycles(problemSetId);
+  const createNew = useCreateNewProblemSetCycle();
+
+  const startNewCycle = async () => {
+    createNew(problemSetId);
   };
 
+  const activeCyclesExist = checkForActiveCycles(cycles);
   return (
     <>
-      <div className={styles.TitleRow}>
-        <h2>Cycles</h2>
-        <Button type="primary" shape="round" onClick={startNewCycle}>
-          Start new cycle
-        </Button>
+      <div className={styles.CycleList}>
+        <div className={styles.TitleRow}>
+          <h2>Cycles</h2>
+          <Button type="primary" shape="round" onClick={startNewCycle} disabled={activeCyclesExist}>
+            Start new cycle
+          </Button>
+        </div>
+        {cycles && cycles.reverse().map((c) => <CycleCard cycle={c} key={c.id} />)}
       </div>
     </>
   );
+}
+
+function checkForActiveCycles(cycles: Optional<Cycle[]>): boolean {
+  if (!cycles) {
+    return false;
+  }
+
+  for (const c of cycles) {
+    if (!cycleIsCompleted(c)) return true;
+  }
+
+  return false;
 }
