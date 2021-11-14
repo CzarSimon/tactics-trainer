@@ -1,0 +1,9 @@
+.CycleCard {
+  margin-bottom: 10px;
+}
+
+.CycleInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

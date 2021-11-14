@@ -110,6 +110,9 @@ test('check that problem sets load and can be interacted with', async () => {
     { timeout: 100 },
   );
 
+  expect(screen.getByText('Cycle 1')).toBeInTheDocument();
+  expect(screen.getByText('Cycle 2')).toBeInTheDocument();
+
   userEvent.click(newSetButton);
   expect(window.location.pathname).toBe('/problem-sets/new');
 });
