@@ -30,7 +30,7 @@ export function NewProblemSetForm({ onCancel, onSubmit }: Props) {
         minPopularity: 90,
         minRating,
         maxRating,
-        themes,
+        themes: themes || [],
         size,
       },
     };

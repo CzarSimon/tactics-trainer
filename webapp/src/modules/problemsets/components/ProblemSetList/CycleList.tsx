@@ -3,7 +3,7 @@ import { Button } from 'antd';
 import { useProblemSetCycles, useCreateNewProblemSetCycle } from '../../../../hooks';
 import { CycleCard } from './CycleCard';
 import { Cycle, Optional } from '../../../../types';
-import { EMTPY_DATE } from '../../../../constants';
+import { cycleIsCompleted } from '../../../../util';
 
 import styles from './CycleList.module.css';
 
@@ -41,7 +41,7 @@ function checkForActiveCycles(cycles: Optional<Cycle[]>): boolean {
   }
 
   for (const c of cycles) {
-    if (c.completedAt === EMTPY_DATE || c.completedAt === undefined) return true;
+    if (!cycleIsCompleted(c)) return true;
   }
 
   return false;

@@ -10,9 +10,20 @@ import {
   createProblemSet,
   listProblemSetCycles,
   getCycle,
+  updateCycle,
   createProblemSetCycle,
 } from '../api/puzzleApi';
-import { Chess, Puzzle, Optional, UsePuzzleStateResult, ProblemSet, CreateProblemSetRequest, Cycle } from '../types';
+import {
+  Chess,
+  Puzzle,
+  Optional,
+  UsePuzzleStateResult,
+  ProblemSet,
+  CreateProblemSetRequest,
+  Cycle,
+  MoveResult,
+} from '../types';
+import { CORRECT_MOVE, PUZZLE_SOLVED, WRONG_MOVE } from '../constants';
 
 const DEFAULT_QUERY_OPTIONS = {
   retry: 0,
@@ -51,9 +62,9 @@ export function useProblemSetCycles(id: string): Optional<Cycle[]> {
   return data;
 }
 
-type CreateCycleFn = (id: string) => Promise<Cycle>;
+type MutateCycleFn = (id: string) => Promise<Cycle>;
 
-export function useCreateNewProblemSetCycle(): CreateCycleFn {
+export function useCreateNewProblemSetCycle(): MutateCycleFn {
   const queryClient = useQueryClient();
 
   const createNewCycle = async (id: string): Promise<Cycle> => {
@@ -63,6 +74,18 @@ export function useCreateNewProblemSetCycle(): CreateCycleFn {
   };
 
   return createNewCycle;
+}
+
+export function useUpdateCycle(): MutateCycleFn {
+  const queryClient = useQueryClient();
+
+  const updateCycleWrapper = async (id: string): Promise<Cycle> => {
+    const cycle = await updateCycle(id);
+    queryClient.invalidateQueries(['cycles', id]);
+    return cycle;
+  };
+
+  return updateCycleWrapper;
 }
 
 export function useCycle(id: string): Optional<Cycle> {
@@ -105,11 +128,11 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
 
   const [position, setPosition] = useState<string>(fen);
 
-  const updatePosition = (move: string) => {
+  const updatePosition = (move: string): MoveResult => {
     log.debug(`Move: ${move}`);
     if (move !== correctMove && move !== computerMove) {
       log.info('Wrong move!');
-      return;
+      return WRONG_MOVE;
     }
 
     const chess: ChessInstance = new Chess(position);
@@ -117,7 +140,7 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
 
     if (!validMove) {
       log.error('Invalid move!');
-      return;
+      return WRONG_MOVE;
     }
 
     setPosition(chess.fen);
@@ -128,12 +151,14 @@ export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {
       const [nextComputerMove, nextCorrectMove] = nextMoves(nextIndex, moves);
       if (!nextComputerMove) {
         setDone(true);
-        return;
+        return PUZZLE_SOLVED;
       }
 
       setComputerMove(nextComputerMove);
       setCorrectMove(nextCorrectMove);
     }
+
+    return CORRECT_MOVE;
   };
 
   return {

@@ -91,9 +91,11 @@ export interface AuthenticationResponse {
 }
 
 // Hook types
+export type MoveResult = 'WRONG_MOVE' | 'CORRECT_MOVE' | 'PUZZLE_SOLVED';
+
 export interface UsePuzzleStateResult {
   fen: string;
-  move: (move: string) => void;
+  move: (move: string) => MoveResult;
   computerMove: string;
   correctMove: string;
   done: boolean;

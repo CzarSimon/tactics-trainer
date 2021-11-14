@@ -7,12 +7,14 @@ import { PuzzleDetails } from './PuzzleDetails';
 import { usePuzzleState } from '../../hooks';
 
 import styles from './PuzzleView.module.css';
+import { PUZZLE_SOLVED } from '../../constants';
 
 const { Title } = Typography;
 const COMPUTER_MOVE_DELAY_MS = 200;
 
 interface Props {
   puzzle: Puzzle;
+  onSolved?: () => void;
 }
 
 interface Move {
@@ -20,20 +22,27 @@ interface Move {
   targetSquare: string;
 }
 
-export function PuzzleView({ puzzle }: Props) {
+export function PuzzleView({ puzzle, onSolved }: Props) {
   const color = getInitalTurn(puzzle.fen);
   const [draggable, setDraggable] = useState<boolean>(true);
   const { fen, move, computerMove, done } = usePuzzleState(puzzle);
 
   useEffect(() => {
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       move(computerMove);
     }, COMPUTER_MOVE_DELAY_MS);
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [computerMove]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMove = ({ sourceSquare, targetSquare }: Move) => {
     const moveStr = `${sourceSquare}${targetSquare}`;
-    move(moveStr);
+    const result = move(moveStr);
+    if (result === PUZZLE_SOLVED && onSolved) {
+      onSolved();
+    }
   };
 
   if (draggable && done) {

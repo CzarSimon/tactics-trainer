@@ -1,8 +1,8 @@
 import React from 'react';
 import { useHistory } from 'react-router';
 import { Card, Tag } from 'antd';
-import { Optional, Cycle } from '../../../../types';
-import { EMTPY_DATE } from '../../../../constants';
+import { Cycle } from '../../../../types';
+import { cycleIsCompleted } from '../../../../util';
 
 import styles from './CycleCard.module.css';
 
@@ -12,8 +12,8 @@ interface Props {
 
 export function CycleCard({ cycle }: Props) {
   const history = useHistory();
-  const { id, number, completedAt, createdAt } = cycle;
-  const completed: boolean = isCompleted(completedAt);
+  const { id, number, createdAt } = cycle;
+  const completed: boolean = cycleIsCompleted(cycle);
 
   const onClick = () => {
     if (completed) {
@@ -33,8 +33,4 @@ export function CycleCard({ cycle }: Props) {
       </div>
     </Card>
   );
-}
-
-function isCompleted(completedAt: Optional<string>): boolean {
-  return completedAt !== undefined && completedAt !== EMTPY_DATE;
 }
