@@ -1,6 +1,8 @@
 import React from 'react';
+import { useHistory } from 'react-router';
 import { Card, Tag } from 'antd';
-import { Cycle } from '../../../../types';
+import { Optional, Cycle } from '../../../../types';
+import { EMTPY_DATE } from '../../../../constants';
 
 import styles from './CycleCard.module.css';
 
@@ -9,18 +11,30 @@ interface Props {
 }
 
 export function CycleCard({ cycle }: Props) {
-  const { number, compleatedAt, createdAt } = cycle;
-  console.log(compleatedAt);
-  const compleated: boolean = compleatedAt !== undefined;
+  const history = useHistory();
+  const { id, number, completedAt, createdAt } = cycle;
+  const completed: boolean = isCompleted(completedAt);
+
+  const onClick = () => {
+    if (completed) {
+      return;
+    }
+
+    history.push(`/cycles/${id}`);
+  };
 
   return (
-    <Card hoverable className={styles.CycleCard}>
+    <Card hoverable={!completed} onClick={onClick} className={styles.CycleCard}>
       <h4>Cycle {number}</h4>
       <div className={styles.CycleInfo}>
         <p>{createdAt}</p>
-        {!compleated && <Tag color="green">Active</Tag>}
-        {compleated && <Tag color="green">Compleated</Tag>}
+        {!completed && <Tag color="green">Active</Tag>}
+        {completed && <Tag>Completed</Tag>}
       </div>
     </Card>
   );
+}
+
+function isCompleted(completedAt: Optional<string>): boolean {
+  return completedAt !== undefined && completedAt !== EMTPY_DATE;
 }

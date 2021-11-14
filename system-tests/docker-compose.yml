@@ -15,7 +15,7 @@ services:
       - tactics-trainer
 
   puzzle-server:
-    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.5.0
+    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.6.0
     depends_on:
       - "mysql"
     ports:

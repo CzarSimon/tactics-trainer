@@ -63,7 +63,7 @@ export interface Cycle {
   number: number;
   problemSetId: string;
   currentPuzzleId: string;
-  compleatedAt?: string;
+  completedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
