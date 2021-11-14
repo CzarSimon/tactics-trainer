@@ -47,30 +47,28 @@ jobs:
       - run: npm run check-linting
       - run: npm test
 
-    security-scans:
-      name: security-scans
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Scan dependencies
-          uses: aquasecurity/trivy-action@master
-          with:
-            scan-type: "fs"
-            ignore-unfixed: true
-            format: "table"
-            exit-code: "1"
-            scan-ref: "puzzle-server"
-        - name: Scan configuration
-          uses: aquasecurity/trivy-action@master
-          with:
-            scan-type: "config"
-            format: "table"
-            exit-code: "1"
-            scan-ref: "puzzle-server"
-            hide-progress: false
-            ignore-unfixed: true
-          env:
-            TRIVY_IGNOREFILE: "puzzle-server/.trivyignore"
+  security-scans:
+    name: security-scans
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Scan dependencies
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          ignore-unfixed: true
+          format: "table"
+          exit-code: "1"
+          scan-ref: "webapp"
+      - name: Scan configuration
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "config"
+          format: "table"
+          exit-code: "1"
+          scan-ref: "webapp"
+          hide-progress: false
+          ignore-unfixed: true
 
   build-image:
     name: build-image
