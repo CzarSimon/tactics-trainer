@@ -81,7 +81,7 @@ func TestGetCycle(t *testing.T) {
 		Number:          1,
 		ProblemSetID:    problemSet.ID,
 		CurrentPuzzleID: "puzzle-1",
-		CompleatedAt:    timeutil.Now(),
+		CompletedAt:     timeutil.Now(),
 		CreatedAt:       timeutil.Now(),
 		UpdatedAt:       timeutil.Now(),
 	}
@@ -140,7 +140,7 @@ func TestUpdateCycle(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal("puzzle-1", body.CurrentPuzzleID)
 	assert.True(body.UpdatedAt.After(cycle.UpdatedAt))
-	assert.False(body.Compleated())
+	assert.False(body.Completed())
 	update1Time := body.UpdatedAt
 
 	req = testutil.CreateRequest(http.MethodPut, path, nil)
@@ -152,7 +152,7 @@ func TestUpdateCycle(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal("puzzle-1", body.CurrentPuzzleID)
 	assert.True(body.UpdatedAt.After(update1Time))
-	assert.True(body.Compleated())
+	assert.True(body.Completed())
 
 	req = testutil.CreateRequest(http.MethodPut, path, nil)
 	attachAuthHeader(req, userID, role.User)

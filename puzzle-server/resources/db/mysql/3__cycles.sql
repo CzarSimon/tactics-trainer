@@ -4,7 +4,7 @@ CREATE TABLE `cycle` (
     `number` INTEGER NOT NULL,
     `problem_set_id` VARCHAR(36) NOT NULL,
     `current_puzzle_id` VARCHAR(36) NOT NULL,
-    `compleated_at` DATETIME,
+    `completed_at` DATETIME,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`),

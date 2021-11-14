@@ -29,17 +29,17 @@ type cycleRepo struct {
 	db *sql.DB
 }
 
-const saveCycleRepo = `INSERT INTO cycle(id, number, problem_set_id, current_puzzle_id, compleated_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
+const saveCycleRepo = `INSERT INTO cycle(id, number, problem_set_id, current_puzzle_id, completed_at, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
 
 func (r *cycleRepo) Save(ctx context.Context, c models.Cycle) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "cycle_repo_save")
 	defer span.Finish()
 
-	compleatedAt := sql.NullTime{
-		Time:  c.CompleatedAt,
-		Valid: !c.CompleatedAt.Equal(time.Time{}),
+	completedAt := sql.NullTime{
+		Time:  c.CompletedAt,
+		Valid: !c.CompletedAt.Equal(time.Time{}),
 	}
-	_, err := r.db.ExecContext(ctx, saveCycleRepo, c.ID, c.Number, c.ProblemSetID, c.CurrentPuzzleID, compleatedAt, c.CreatedAt, c.UpdatedAt)
+	_, err := r.db.ExecContext(ctx, saveCycleRepo, c.ID, c.Number, c.ProblemSetID, c.CurrentPuzzleID, completedAt, c.CreatedAt, c.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("failed to save %s: %w", c, err)
 	}
@@ -53,7 +53,7 @@ const findCycleQuery = `
 		number, 
 		problem_set_id, 
 		current_puzzle_id, 
-		compleated_at, 
+		completed_at, 
 		created_at, 
 		updated_at
 	FROM
@@ -67,13 +67,13 @@ func (r *cycleRepo) Find(ctx context.Context, id string) (models.Cycle, bool, er
 	defer span.Finish()
 
 	var c models.Cycle
-	var compleatedAt sql.NullTime
+	var completedAt sql.NullTime
 	err := r.db.QueryRowContext(ctx, findCycleQuery, id).Scan(
 		&c.ID,
 		&c.Number,
 		&c.ProblemSetID,
 		&c.CurrentPuzzleID,
-		&compleatedAt,
+		&completedAt,
 		&c.CreatedAt,
 		&c.UpdatedAt,
 	)
@@ -83,7 +83,7 @@ func (r *cycleRepo) Find(ctx context.Context, id string) (models.Cycle, bool, er
 		return models.Cycle{}, false, fmt.Errorf("failed to query Cycle(id=%s): %w", id, err)
 	}
 
-	c.CompleatedAt = compleatedAt.Time
+	c.CompletedAt = completedAt.Time
 	return c, true, nil
 }
 
@@ -93,7 +93,7 @@ const findCycleByProblemIDQuery = `
 		number, 
 		problem_set_id, 
 		current_puzzle_id, 
-		compleated_at, 
+		completed_at, 
 		created_at, 
 		updated_at
 	FROM
@@ -114,21 +114,21 @@ func (r *cycleRepo) FindByProblemSetID(ctx context.Context, problemSetId string,
 
 	cycles := make([]models.Cycle, 0)
 	var c models.Cycle
-	var compleatedAt sql.NullTime
+	var completedAt sql.NullTime
 	for rows.Next() {
 		err = rows.Scan(
 			&c.ID,
 			&c.Number,
 			&c.ProblemSetID,
 			&c.CurrentPuzzleID,
-			&compleatedAt,
+			&completedAt,
 			&c.CreatedAt,
 			&c.UpdatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan cycle row. Error: %w, problem_set_id=%s", err, problemSetId)
 		}
-		c.CompleatedAt = compleatedAt.Time
+		c.CompletedAt = completedAt.Time
 		cycles = append(cycles, c)
 	}
 
@@ -140,7 +140,7 @@ const updateCycleQuery = `
 		cycle
 	SET    
 		current_puzzle_id = ?, 
-		compleated_at = ?, 
+		completed_at = ?, 
 		updated_at = ?
 	WHERE 
 		id = ?
@@ -150,11 +150,11 @@ func (r *cycleRepo) Update(ctx context.Context, c models.Cycle) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "cycle_repo_update")
 	defer span.Finish()
 
-	compleatedAt := sql.NullTime{
-		Time:  c.CompleatedAt,
-		Valid: !c.CompleatedAt.Equal(time.Time{}),
+	completedAt := sql.NullTime{
+		Time:  c.CompletedAt,
+		Valid: !c.CompletedAt.Equal(time.Time{}),
 	}
-	_, err := r.db.ExecContext(ctx, updateCycleQuery, c.CurrentPuzzleID, compleatedAt, timeutil.Now(), c.ID)
+	_, err := r.db.ExecContext(ctx, updateCycleQuery, c.CurrentPuzzleID, completedAt, timeutil.Now(), c.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update %s: %w", c, err)
 	}
@@ -165,7 +165,7 @@ func (r *cycleRepo) Update(ctx context.Context, c models.Cycle) error {
 func createFindCycleByProblemSetIDQuery(onlyActive bool) string {
 	condition := ""
 	if onlyActive {
-		condition = " AND compleated_at IS NULL"
+		condition = " AND completed_at IS NULL"
 	}
 
 	return findCycleByProblemIDQuery + condition

@@ -283,7 +283,7 @@ func TestCreateProblemSetCycle(t *testing.T) {
 	assert.Equal(1, body.Number)
 	assert.Equal("puzzle-0", body.CurrentPuzzleID)
 	assert.Len(body.ID, 36)
-	assert.False(body.Compleated())
+	assert.False(body.Completed())
 
 	cycle, found, err := svc.CycleRepo.Find(ctx, body.ID)
 	assert.NoError(err)
@@ -359,7 +359,7 @@ func TestListProblemSetCycles(t *testing.T) {
 		Number:          1,
 		ProblemSetID:    set.ID,
 		CurrentPuzzleID: "puzzle-2",
-		CompleatedAt:    timeutil.Now(),
+		CompletedAt:     timeutil.Now(),
 		CreatedAt:       timeutil.Now(),
 		UpdatedAt:       timeutil.Now(),
 	}

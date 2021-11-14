@@ -11,24 +11,24 @@ type Cycle struct {
 	Number          int       `json:"number"`
 	ProblemSetID    string    `json:"problemSetId"`
 	CurrentPuzzleID string    `json:"currentPuzzleId"`
-	CompleatedAt    time.Time `json:"compleatedAt,omitempty"`
+	CompletedAt     time.Time `json:"completedAt,omitempty"`
 	CreatedAt       time.Time `json:"createdAt"`
 	UpdatedAt       time.Time `json:"updatedAt"`
 }
 
-// Compleated returns true if the cycle has been marked as finished
-func (c Cycle) Compleated() bool {
-	return c.CompleatedAt.After(c.CreatedAt)
+// Completed returns true if the cycle has been marked as finished
+func (c Cycle) Completed() bool {
+	return c.CompletedAt.After(c.CreatedAt)
 }
 
 func (c Cycle) String() string {
 	return fmt.Sprintf(
-		"Cycle(id=%s, number=%d, problemSetID=%s currentPuzzleID=%s, createdAt=%v, compleated=%t)",
+		"Cycle(id=%s, number=%d, problemSetID=%s currentPuzzleID=%s, createdAt=%v, completed=%t)",
 		c.ID,
 		c.Number,
 		c.ProblemSetID,
 		c.CurrentPuzzleID,
 		c.CreatedAt,
-		c.Compleated(),
+		c.Completed(),
 	)
 }

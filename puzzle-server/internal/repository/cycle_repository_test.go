@@ -166,7 +166,7 @@ func Test_cycleRepo_FindByProblemSetID(t *testing.T) {
 		Number:          1,
 		ProblemSetID:    set.ID,
 		CurrentPuzzleID: "puzzle-2",
-		CompleatedAt:    timeutil.Now(),
+		CompletedAt:     timeutil.Now(),
 		CreatedAt:       timeutil.Now(),
 		UpdatedAt:       timeutil.Now(),
 	}
@@ -264,13 +264,13 @@ func Test_cycleRepo_Update(t *testing.T) {
 	assert.NotEqual(cycle, updated)
 	assert.Equal("puzzle-1", updated.CurrentPuzzleID)
 	assert.True(updated.UpdatedAt.After(updated.CreatedAt))
-	assert.False(updated.Compleated())
+	assert.False(updated.Completed())
 	updated.CurrentPuzzleID = cycle.CurrentPuzzleID
 	updated.UpdatedAt = cycle.UpdatedAt
 	assert.Equal(cycle, updated)
 
 	compleatedAt := timeutil.Now()
-	cycle.CompleatedAt = compleatedAt
+	cycle.CompletedAt = compleatedAt
 	err = cycleRepo.Update(ctx, cycle)
 	assert.NoError(err)
 
@@ -279,8 +279,8 @@ func Test_cycleRepo_Update(t *testing.T) {
 	assert.NoError(err)
 	assert.NotEqual(cycle, updated)
 	assert.True(updated.UpdatedAt.After(updated.CreatedAt))
-	assert.True(updated.Compleated())
-	updated.CompleatedAt = cycle.CompleatedAt
+	assert.True(updated.Completed())
+	updated.CompletedAt = cycle.CompletedAt
 	updated.UpdatedAt = cycle.UpdatedAt
 	assert.Equal(cycle, updated)
 

@@ -51,7 +51,7 @@ func (s *CycleService) UpdateCycle(ctx context.Context, id, userID string) (mode
 		return models.Cycle{}, err
 	}
 
-	if cycle.Compleated() {
+	if cycle.Completed() {
 		err = httputil.Errorf(http.StatusUnprocessableEntity, "%s is already compleated", cycle)
 		return models.Cycle{}, err
 	}
@@ -61,7 +61,7 @@ func (s *CycleService) UpdateCycle(ctx context.Context, id, userID string) (mode
 	if nextID != "" {
 		cycle.CurrentPuzzleID = nextID
 	} else {
-		cycle.CompleatedAt = cycle.UpdatedAt
+		cycle.CompletedAt = cycle.UpdatedAt
 	}
 
 	err = s.CycleRepo.Update(ctx, cycle)
