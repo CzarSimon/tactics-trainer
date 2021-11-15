@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { Home } from '../modules/home/Home';
 import { LoginContainer } from '../modules/login';
 import { SignupContainer } from '../modules/signup';
 
@@ -15,7 +14,7 @@ export function UnuthenticatedRoutes() {
           <LoginContainer />
         </Route>
         <Route path="/">
-          <Home />
+          <SignupContainer />
         </Route>
       </Switch>
     </Router>

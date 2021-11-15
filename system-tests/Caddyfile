@@ -1,0 +1,24 @@
+:8080
+
+route /health {
+    respond "{\"status\": \"OK\"}" 200
+}
+
+route /* {
+    reverse_proxy http://webapp:8080
+}
+
+route /api/puzzle-server/* {
+    uri strip_prefix /api/puzzle-server
+    reverse_proxy http://puzzle-server:8080
+}
+
+route /api/iam-server/* {
+    uri strip_prefix /api/iam-server
+    reverse_proxy http://iam-server:8080
+}
+
+route /api/httplogger/* {
+    uri strip_prefix /api/httplogger
+    reverse_proxy http://httplogger:8080
+}
