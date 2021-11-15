@@ -55,7 +55,7 @@ services:
       - data-network
 
   webapp:
-    image: ghcr.io/czarsimon/tactics-trainer/webapp:0.1.0
+    image: ghcr.io/czarsimon/tactics-trainer/webapp:0.2.0
     networks:
       - front-network
 
