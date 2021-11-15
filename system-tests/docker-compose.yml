@@ -1,6 +1,10 @@
 networks:
-  tactics-trainer:
-    name: tactics-trainer
+  front-network:
+    name: front-network
+  application-network:
+    name: application-network
+  data-network:
+    name: data-network
 
 services:
   mysql:
@@ -12,14 +16,12 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
-      - tactics-trainer
+      - data-network
 
   puzzle-server:
     image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.6.0
     depends_on:
       - "mysql"
-    ports:
-      - 18081:8080
     environment:
       DB_TYPE: mysql
       DB_HOST: mysql
@@ -30,14 +32,13 @@ services:
       MIGRATIONS_PATH: /etc/puzzle-server/migrations/mysql
       JWT_SECRET: 084415a2891cd35485f690dc19bbcedb22a9432bc962932726f89be77bf56bd7
     networks:
-      - tactics-trainer
+      - application-network
+      - data-network
 
   iam-server:
     image: ghcr.io/czarsimon/tactics-trainer/iam-server:0.3.0
     depends_on:
       - "mysql"
-    ports:
-      - 18082:8080
     environment:
       DB_TYPE: mysql
       DB_HOST: mysql
@@ -50,14 +51,35 @@ services:
     volumes:
       - ../iam-server/resources/testing/key-encryption-keys.txt:/etc/iam-server/key-encryption-keys.txt
     networks:
-      - tactics-trainer
+      - application-network
+      - data-network
+
+  webapp:
+    image: ghcr.io/czarsimon/tactics-trainer/webapp:0.1.0
+    networks:
+      - front-network
+
+  reverse-proxy:
+    image: docker.io/caddy:2.4.6-alpine
+    depends_on:
+      - "iam-server"
+      - "puzzle-server"
+      - "httplogger"
+      - "webapp"
+    ports:
+      - 8080:8080
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - front-network
+      - application-network
 
   httplogger:
     image: czarsimon/httplogger:0.8
-    ports:
-      - 18080:8080
     environment:
       JAEGER_DISABLED: "true"
+    networks:
+      - application-network
 
 volumes:
   mysql-data:
