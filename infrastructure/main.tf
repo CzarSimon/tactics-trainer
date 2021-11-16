@@ -13,61 +13,6 @@ provider "scaleway" {
   project_id = "0bc19c59-3a7b-44bb-b7a2-53d44c07cf9c"
 }
 
-resource "null_resource" "kubeconfig" {
-  depends_on = [
-    scaleway_k8s_pool.main
-  ]
-  triggers = {
-    host                   = scaleway_k8s_cluster.main.kubeconfig[0].host
-    token                  = scaleway_k8s_cluster.main.kubeconfig[0].token
-    cluster_ca_certificate = scaleway_k8s_cluster.main.kubeconfig[0].cluster_ca_certificate
-  }
-}
-
-provider "kubernetes" {
-  host  = null_resource.kubeconfig.triggers.host
-  token = null_resource.kubeconfig.triggers.token
-  cluster_ca_certificate = base64decode(
-    null_resource.kubeconfig.triggers.cluster_ca_certificate
-  )
-}
-
-resource "kubernetes_namespace" "application" {
-  depends_on = [
-    scaleway_k8s_pool.main
-  ]
-  metadata {
-    name = "application"
-  }
-}
-
-resource "kubernetes_namespace" "monitoring" {
-  depends_on = [
-    scaleway_k8s_pool.main
-  ]
-  metadata {
-    name = "monitoring"
-  }
-}
-
-resource "kubernetes_namespace" "cert-manager" {
-  depends_on = [
-    scaleway_k8s_pool.main
-  ]
-  metadata {
-    name = "cert-manager"
-  }
-}
-
-resource "kubernetes_namespace" "argo" {
-  depends_on = [
-    scaleway_k8s_pool.main
-  ]
-  metadata {
-    name = "argo"
-  }
-}
-
 resource "scaleway_rdb_instance" "main" {
   name              = "tactics-trainer-db"
   node_type         = "db-dev-s"
@@ -92,14 +37,6 @@ resource "scaleway_rdb_database" "iam-server-db" {
   name        = "iamserver"
 }
 
-resource "scaleway_rdb_acl" "main" {
-  instance_id = scaleway_rdb_instance.main.id
-  acl_rules {
-    ip          = "188.151.131.138/32"
-    description = "home ip"
-  }
-}
-
 resource "scaleway_k8s_cluster" "main" {
   name    = "tactics-trainer-cluster"
   version = "1.22"
@@ -121,4 +58,47 @@ resource "scaleway_k8s_pool" "main" {
   max_size    = 2
   autoscaling = true
   autohealing = true
+}
+
+resource "scaleway_instance_security_group" "bastion_host_sg" {
+  name                    = "bastion-host-security-group"
+  inbound_default_policy  = "drop"
+  outbound_default_policy = "drop"
+
+  inbound_rule {
+    action = "accept"
+    port   = 22
+    ip     = "188.151.131.138"
+  }
+
+  inbound_rule {
+    action = "accept"
+    port   = 22
+    ip     = "185.201.174.65"
+  }
+
+  outbound_rule {
+    action = "accept"
+    port   = scaleway_rdb_instance.main.endpoint_port
+    ip     = scaleway_rdb_instance.main.endpoint_ip
+  }
+}
+
+resource "scaleway_instance_ip" "bastion_host_ip" {}
+
+resource "scaleway_rdb_acl" "allow_bastion_host" {
+  instance_id = scaleway_rdb_instance.main.id
+  acl_rules {
+    ip          = join("/", [scaleway_instance_ip.bastion_host_ip.address, "32"])
+    description = "bastion host ip"
+  }
+}
+
+resource "scaleway_instance_server" "bastion_host" {
+  name              = "bastion-host"
+  type              = "DEV1-S"
+  image             = "debian_buster"
+  ip_id             = scaleway_instance_ip.bastion_host_ip.id
+  security_group_id = scaleway_instance_security_group.bastion_host_sg.id
+  tags              = ["tactics-trainer", "bastion-host"]
 }
