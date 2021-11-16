@@ -44,3 +44,15 @@ resource "scaleway_rdb_acl" "main" {
     description = "home ip"
   }
 }
+
+resource "scaleway_k8s_cluster" "main" {
+  name    = "tactics-trainer-cluster"
+  version = "1.22"
+  cni     = "calico"
+  tags    = ["tactics-trainer"]
+  auto_upgrade {
+    enable                        = true
+    maintenance_window_day        = "wednesday"
+    maintenance_window_start_hour = "4"
+  }
+}
