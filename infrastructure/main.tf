@@ -13,6 +13,61 @@ provider "scaleway" {
   project_id = "0bc19c59-3a7b-44bb-b7a2-53d44c07cf9c"
 }
 
+resource "null_resource" "kubeconfig" {
+  depends_on = [
+    scaleway_k8s_pool.main
+  ]
+  triggers = {
+    host                   = scaleway_k8s_cluster.main.kubeconfig[0].host
+    token                  = scaleway_k8s_cluster.main.kubeconfig[0].token
+    cluster_ca_certificate = scaleway_k8s_cluster.main.kubeconfig[0].cluster_ca_certificate
+  }
+}
+
+provider "kubernetes" {
+  host  = null_resource.kubeconfig.triggers.host
+  token = null_resource.kubeconfig.triggers.token
+  cluster_ca_certificate = base64decode(
+    null_resource.kubeconfig.triggers.cluster_ca_certificate
+  )
+}
+
+resource "kubernetes_namespace" "application" {
+  depends_on = [
+    scaleway_k8s_pool.main
+  ]
+  metadata {
+    name = "application"
+  }
+}
+
+resource "kubernetes_namespace" "monitoring" {
+  depends_on = [
+    scaleway_k8s_pool.main
+  ]
+  metadata {
+    name = "monitoring"
+  }
+}
+
+resource "kubernetes_namespace" "cert-manager" {
+  depends_on = [
+    scaleway_k8s_pool.main
+  ]
+  metadata {
+    name = "cert-manager"
+  }
+}
+
+resource "kubernetes_namespace" "argo" {
+  depends_on = [
+    scaleway_k8s_pool.main
+  ]
+  metadata {
+    name = "argo"
+  }
+}
+
 resource "scaleway_rdb_instance" "main" {
   name              = "tactics-trainer-db"
   node_type         = "db-dev-s"
