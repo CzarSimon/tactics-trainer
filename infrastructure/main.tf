@@ -56,3 +56,14 @@ resource "scaleway_k8s_cluster" "main" {
     maintenance_window_start_hour = "4"
   }
 }
+
+resource "scaleway_k8s_pool" "main" {
+  cluster_id  = scaleway_k8s_cluster.main.id
+  name        = "main-pool"
+  node_type   = "DEV1-M"
+  size        = 1
+  min_size    = 1
+  max_size    = 2
+  autoscaling = true
+  autohealing = true
+}
