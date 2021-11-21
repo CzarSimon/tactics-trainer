@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/CzarSimon/httputil/environ"
@@ -18,7 +19,6 @@ type config struct {
 	region     scw.Region
 	clusterID  string
 	instanceID string
-	aclIgnore  string
 }
 
 type aclUpdate struct {
@@ -62,9 +62,10 @@ func getAclUpdate(c *scw.Client, cfg config) aclUpdate {
 		update.toAdd = append(update.toAdd, newACL)
 	}
 
+	k8sACLSuffix := fmt.Sprintf("cluster/%s", cfg.clusterID)
 	for cidr, r := range ruleCIDRs {
 		_, ok := nodeCIDRs[cidr]
-		if ok || r.Description == cfg.aclIgnore {
+		if ok || !strings.Contains(r.Description, k8sACLSuffix) {
 			continue
 		}
 
@@ -84,7 +85,7 @@ func newACLRequest(cidr string, node *k8s.Node) *rdb.ACLRuleRequest {
 		IP: scw.IPNet{
 			IPNet: *ipnet,
 		},
-		Description: fmt.Sprintf("allow ingress for node/%s", node.ID),
+		Description: fmt.Sprintf("allow ingress from node/%s in cluster/%s", node.ID, node.ClusterID),
 	}
 }
 
@@ -185,7 +186,6 @@ func getConfig() config {
 		region:     region,
 		clusterID:  environ.MustGet("K8S_CLUSTER_ID"),
 		instanceID: environ.MustGet("RDB_INSTANCE_ID"),
-		aclIgnore:  environ.Get("ACL_IGNORE", ""),
 	}
 }
 

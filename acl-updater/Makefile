@@ -6,4 +6,4 @@ test:
 
 
 run-local:
-	SCALEWAY_REGION='fr-par' ACL_IGNORE='bastion host ip' go run main.go
+	SCALEWAY_REGION='fr-par' go run main.go

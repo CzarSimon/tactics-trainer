@@ -24,6 +24,7 @@ resource "scaleway_rdb_instance" "main" {
   tags              = ["tactics-trainer"]
   settings = {
     "max_connections" = "100"
+    "slow_query_log"  = "ON"
   }
 }
 
@@ -101,4 +102,7 @@ resource "scaleway_instance_server" "bastion_host" {
   ip_id             = scaleway_instance_ip.bastion_host_ip.id
   security_group_id = scaleway_instance_security_group.bastion_host_sg.id
   tags              = ["tactics-trainer", "bastion-host"]
+  user_data = {
+    cloud-init = file("${path.module}/cloud-init.yml")
+  }
 }
