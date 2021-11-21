@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tacticstrainer-io-certificate
+  namespace: application
+spec:
+  dnsNames:
+    - tacticstrainer.io
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  secretName: tacticstrainer-io-certificate
