@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: acl-updater
+  namespace: infrastructure
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: acl-updater
+              image: ghcr.io/czarsimon/tactics-trainer/acl-updater:1.0.0
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: SCALEWAY_REGION
+                  value: "fr-par"
+                - name: K8S_CLUSTER_ID
+                  value: "3e4dcb12-1fb1-4ca1-b524-dfa0fe79a91b"
+                - name: RDB_INSTANCE_ID
+                  value: "9ddb7ec0-dff5-4c7a-a9e4-551cc15224e4"
+                - name: SCW_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: scaleway-api-credentials
+                      key: accessKey
+                - name: SCW_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: scaleway-api-credentials
+                      key: secretKey
+          restartPolicy: OnFailure
