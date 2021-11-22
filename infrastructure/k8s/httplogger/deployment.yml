@@ -16,6 +16,7 @@ spec:
         prometheus.io/path: "/metrics"
         prometheus.io/port: "8080"
         prometheus.io/scrape: "true"
+        container.seccomp.security.alpha.kubernetes.io/httplogger: runtime/default
     spec:
       containers:
         - name: httplogger
@@ -51,3 +52,13 @@ spec:
             timeoutSeconds: 2
             successThreshold: 1
             failureThreshold: 3
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            runAsUser: 10001
+            runAsGroup: 10001
