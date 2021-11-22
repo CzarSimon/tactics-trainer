@@ -12,6 +12,7 @@ export DB_PORT='13306'
 export DB_NAME='iamserver'
 export DB_USERNAME='iamserver'
 export DB_PASSWORD='7535807ef23504ca84c7200671611ebc'
+export DB_ENABLE_TLS='false'
 # export DB_FILENAME='./resources/testing/test.db'
 export KEY_ENCRYPTION_KEYS_PATH='./resources/testing/key-encryption-keys.txt'
 

@@ -135,7 +135,7 @@ func setupAuthService() (*service.AuthenticationService, jwt.Verifier) {
 	return &service.AuthenticationService{
 		UserRepo:      userRepo,
 		Cipher:        cipher,
-		Hasher:        crypto.DefaultScryptHasher(),
+		Hasher:        crypto.DefaultArgon2Hasher(),
 		Issuer:        jwt.NewIssuer(jwtCreds),
 		TokenLifetime: time.Hour * 24 * 7,
 	}, jwt.NewVerifier(jwtCreds, time.Minute)

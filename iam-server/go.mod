@@ -3,7 +3,7 @@ module github.com/CzarSimon/tactics-trainer/iam-server
 go 1.17
 
 require (
-	github.com/CzarSimon/httputil v0.0.0-20211025070343-88cb3d2b3307
+	github.com/CzarSimon/httputil v0.0.0-20211122204940-3aa76b92aec7
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.9
@@ -37,8 +37,8 @@ require (
 	github.com/ugorji/go/codec v1.2.6 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/sys v0.0.0-20211025201205-69cdffdb9359 // indirect
+	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871 // indirect
+	golang.org/x/sys v0.0.0-20211117180635-dee7805ff2e1 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/gorp.v1 v1.7.2 // indirect

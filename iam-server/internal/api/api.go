@@ -34,7 +34,7 @@ func Start(cfg config.Config) {
 	authSvc := &service.AuthenticationService{
 		UserRepo:      repository.NewUserRepository(db),
 		Cipher:        cipher,
-		Hasher:        crypto.DefaultScryptHasher(),
+		Hasher:        crypto.DefaultArgon2Hasher(),
 		Issuer:        jwt.NewIssuer(cfg.JwtCredentials),
 		TokenLifetime: cfg.TokenLifetime,
 	}

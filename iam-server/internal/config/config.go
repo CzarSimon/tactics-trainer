@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -48,13 +49,14 @@ func getDBConfig() dbutil.Config {
 		}
 	}
 
+	tlsConfig := fmt.Sprintf("tls=%s", environ.Get("DB_ENABLE_TLS", "true"))
 	return dbutil.MysqlConfig{
 		Host:             environ.MustGet("DB_HOST"),
 		Port:             environ.Get("DB_PORT", "3306"),
 		Database:         environ.Get("DB_NAME", "iam-server"),
 		User:             environ.MustGet("DB_USERNAME"),
 		Password:         environ.MustGet("DB_PASSWORD"),
-		ConnectionParams: "parseTime=true",
+		ConnectionParams: fmt.Sprintf("parseTime=true&%s", tlsConfig),
 	}
 }
 
