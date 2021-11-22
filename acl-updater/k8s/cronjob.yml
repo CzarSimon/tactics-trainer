@@ -5,10 +5,13 @@ metadata:
   namespace: infrastructure
 spec:
   schedule: "*/1 * * * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:
         spec:
+          restartPolicy: OnFailure
           containers:
             - name: acl-updater
               image: ghcr.io/czarsimon/tactics-trainer/acl-updater:1.0.0
@@ -37,7 +40,7 @@ spec:
                 limits:
                   memory: 100Mi
                   cpu: 100m
-               securityContext:
+              securityContext:
                 seccompProfile:
                   type: RuntimeDefault
                 allowPrivilegeEscalation: false
@@ -47,5 +50,3 @@ spec:
                 readOnlyRootFilesystem: true
                 runAsUser: 10001
                 runAsGroup: 10001
-
-          restartPolicy: OnFailure
