@@ -37,7 +37,9 @@ spec:
                 limits:
                   memory: 100Mi
                   cpu: 100m
-              securityContext:
+               securityContext:
+                seccompProfile:
+                  type: RuntimeDefault
                 allowPrivilegeEscalation: false
                 capabilities:
                   drop: ["ALL"]
@@ -45,4 +47,5 @@ spec:
                 readOnlyRootFilesystem: true
                 runAsUser: 10001
                 runAsGroup: 10001
+
           restartPolicy: OnFailure
