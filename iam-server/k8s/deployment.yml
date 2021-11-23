@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iam-server
+  namespace: application
+  labels:
+    app: iam-server
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: iam-server
+  template:
+    metadata:
+      labels:
+        app: iam-server
+      annotations:
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+        container.seccomp.security.alpha.kubernetes.io/iam-server: runtime/default
+    spec:
+      containers:
+        - name: iam-server
+          image: ghcr.io/czarsimon/tactics-trainer/iam-server:0.4.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
+            limits:
+              memory: 1Gi
+              cpu: 500m
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DB_TYPE
+              value: "mysql"
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_PORT
+              value: "41722"
+            - name: DB_NAME
+              value: "iamserver"
+            - name: DB_USERNAME
+              value: "iamserver"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database
+                  key: iamserver.password
+            - name: DB_ENABLE_TLS
+              value: "true"
+            - name: MIGRATIONS_PATH
+              value: "/etc/iam-server/migrations/mysql"
+            - name: JWT_ISSUER
+              value: "tactics-trainer/iam-server"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt
+                  key: secret
+            - name: KEY_ENCRYPTION_KEYS_PATH
+              value: "/etc/iam-server/key-encryption-keys.txt"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          volumeMounts:
+            - name: key-encryption-keys
+              mountPath: "/etc/iam-server/key-encryption-keys.txt"
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            runAsUser: 10001
+            runAsGroup: 10001
+      volumes:
+        - name: key-encryption-keys
+          secret:
+            secretName: iam-server-key-encryption-keys
