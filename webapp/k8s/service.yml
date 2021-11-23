@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+  namespace: application
+  labels:
+    app: webapp
+    tier: frontend
+spec:
+  selector:
+    app: webapp
+  ports:
+    - name: http
+      protocol: 'TCP'
+      port: 8080
