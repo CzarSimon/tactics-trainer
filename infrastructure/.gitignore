@@ -4,3 +4,4 @@
 terraform.tfstate
 terraform.tfstate.backup
 cloud-init.yml
+k8s/secrets

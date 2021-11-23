@@ -52,8 +52,8 @@ spec:
                 secretKeyRef:
                   name: database
                   key: iamserver.password
-            - name: DB_ENABLE_TLS
-              value: "true"
+            - name: DB_SSL_MODE
+              value: "skip-verify"
             - name: MIGRATIONS_PATH
               value: "/etc/iam-server/migrations/mysql"
             - name: JWT_ISSUER

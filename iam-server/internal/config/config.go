@@ -49,7 +49,7 @@ func getDBConfig() dbutil.Config {
 		}
 	}
 
-	tlsConfig := fmt.Sprintf("tls=%s", environ.Get("DB_ENABLE_TLS", "true"))
+	tlsConfig := fmt.Sprintf("tls=%s", environ.Get("DB_SSL_MODE", "true"))
 	return dbutil.MysqlConfig{
 		Host:             environ.MustGet("DB_HOST"),
 		Port:             environ.Get("DB_PORT", "3306"),
