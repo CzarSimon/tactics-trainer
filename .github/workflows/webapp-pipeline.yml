@@ -63,6 +63,8 @@ jobs:
           scan-ref: "webapp"
           hide-progress: false
           ignore-unfixed: true
+        env:
+          TRIVY_IGNOREFILE: "webapp/.trivyignore"
 
   build-image:
     name: build-image
