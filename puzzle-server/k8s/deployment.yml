@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: puzzle-server
+  namespace: application
+  labels:
+    app: puzzle-server
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: puzzle-server
+  template:
+    metadata:
+      labels:
+        app: puzzle-server
+      annotations:
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+        container.seccomp.security.alpha.kubernetes.io/puzzle-server: runtime/default
+    spec:
+      containers:
+        - name: puzzle-server
+          image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.7.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 100m
+            limits:
+              memory: 200Gi
+              cpu: 500m
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DB_TYPE
+              value: "mysql"
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_PORT
+              value: "41722"
+            - name: DB_NAME
+              value: "puzzleserver"
+            - name: DB_USERNAME
+              value: "puzzleserver"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database
+                  key: puzzleserver.password
+            - name: DB_SSL_MODE
+              value: "skip-verify"
+            - name: MIGRATIONS_PATH
+              value: "/etc/puzzle-server/migrations/mysql"
+            - name: JWT_ISSUER
+              value: "tactics-trainer/iam-server"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt
+                  key: secret
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            runAsUser: 10001
+            runAsGroup: 10001
