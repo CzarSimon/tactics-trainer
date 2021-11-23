@@ -64,7 +64,7 @@ spec:
                   name: jwt
                   key: secret
             - name: KEY_ENCRYPTION_KEYS_PATH
-              value: "/etc/iam-server/key-encryption-keys.txt"
+              value: "/etc/iam-server/keys/key-encryption-keys.txt"
           livenessProbe:
             httpGet:
               path: /health
@@ -85,7 +85,8 @@ spec:
             failureThreshold: 3
           volumeMounts:
             - name: key-encryption-keys
-              mountPath: "/etc/iam-server/key-encryption-keys.txt"
+              mountPath: "/etc/iam-server/keys"
+              readOnly: true
           securityContext:
             seccompProfile:
               type: RuntimeDefault
