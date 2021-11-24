@@ -51,11 +51,15 @@ export function PuzzleView({ puzzle, onSolved }: Props) {
 
   return (
     <div className={styles.PuzzleView}>
-      {!done && <Title className={styles.Title}>{color} to move</Title>}
-      {done && <Result className={styles.Success} status="success" title="Puzzle solved!! 🎉" />}
-      <Chessboard position={fen} orientation={color} onDrop={handleMove} draggable={draggable} />
-      <div className={styles.PuzzleDetails}>
-        <PuzzleDetails puzzle={puzzle} />
+      <div className={styles.Chessboard}>
+        <Chessboard position={fen} orientation={color} onDrop={handleMove} draggable={draggable} width={750} />
+      </div>
+      <div className={styles.PuzzleInfo}>
+        {!done && <Title className={styles.Title}>{color} to move</Title>}
+        {done && <Result className={styles.Success} status="success" title="Puzzle solved!! 🎉" />}
+        <div className={styles.PuzzleDetails}>
+          <PuzzleDetails puzzle={puzzle} />
+        </div>
       </div>
     </div>
   );

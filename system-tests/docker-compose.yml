@@ -19,7 +19,7 @@ services:
       - data-network
 
   puzzle-server:
-    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.6.0
+    image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.7.0
     depends_on:
       - "mysql"
     environment:
@@ -29,6 +29,7 @@ services:
       DB_NAME: puzzleserver
       DB_USERNAME: puzzleserver
       DB_PASSWORD: 0f9a2abc26c46b4794a84b984105410b
+      DB_SSL_MODE: "false"
       MIGRATIONS_PATH: /etc/puzzle-server/migrations/mysql
       JWT_SECRET: 084415a2891cd35485f690dc19bbcedb22a9432bc962932726f89be77bf56bd7
     networks:
@@ -36,7 +37,7 @@ services:
       - data-network
 
   iam-server:
-    image: ghcr.io/czarsimon/tactics-trainer/iam-server:0.3.0
+    image: ghcr.io/czarsimon/tactics-trainer/iam-server:0.5.0
     depends_on:
       - "mysql"
     environment:
@@ -46,6 +47,7 @@ services:
       DB_NAME: iamserver
       DB_USERNAME: iamserver
       DB_PASSWORD: 7535807ef23504ca84c7200671611ebc
+      DB_SSL_MODE: "false"
       MIGRATIONS_PATH: /etc/iam-server/migrations/mysql
       JWT_SECRET: 084415a2891cd35485f690dc19bbcedb22a9432bc962932726f89be77bf56bd7
     volumes:
