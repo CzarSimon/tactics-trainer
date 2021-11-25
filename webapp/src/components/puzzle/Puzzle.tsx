@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import Chessboard from 'chessboardjsx';
 import { ChessInstance } from 'chess.js';
 import { Typography, Result } from 'antd';
-import { Chess, Color, Puzzle } from '../../types';
+import log from '@czarsimon/remotelogger';
+import { Chess, Color, Puzzle, Move, Optional, PromotionPiece } from '../../types';
 import { PuzzleDetails } from './PuzzleDetails';
+import { PromotionDialog } from './PromotionDialog';
 import { usePuzzleState } from '../../hooks';
+import { PUZZLE_SOLVED } from '../../constants';
+import { enablePromotion, encodeMove } from '../../util/chessutil';
 
 import styles from './PuzzleView.module.css';
-import { PUZZLE_SOLVED } from '../../constants';
 
 const { Title } = Typography;
 const COMPUTER_MOVE_DELAY_MS = 200;
@@ -17,14 +20,10 @@ interface Props {
   onSolved?: () => void;
 }
 
-interface Move {
-  sourceSquare: string;
-  targetSquare: string;
-}
-
 export function PuzzleView({ puzzle, onSolved }: Props) {
   const color = getInitalTurn(puzzle.fen);
   const [draggable, setDraggable] = useState<boolean>(true);
+  const [pendingMove, setPendingMove] = useState<Optional<Move>>(undefined);
   const { fen, move, computerMove, done } = usePuzzleState(puzzle);
 
   useEffect(() => {
@@ -37,8 +36,28 @@ export function PuzzleView({ puzzle, onSolved }: Props) {
     };
   }, [computerMove]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleMove = ({ sourceSquare, targetSquare }: Move) => {
-    const moveStr = `${sourceSquare}${targetSquare}`;
+  const handleMove = (m: Move) => {
+    if (enablePromotion(m)) {
+      setPendingMove(m);
+      return;
+    }
+
+    const moveStr = encodeMove(m);
+    executeMove(moveStr);
+  };
+
+  const handlePromotion = (piece: PromotionPiece) => {
+    if (!pendingMove) {
+      log.error(`attempted promotion to piece=${piece} with undefined pending move`);
+      return;
+    }
+
+    const moveStr = encodeMove(pendingMove, piece);
+    executeMove(moveStr);
+    setPendingMove(undefined);
+  };
+
+  const executeMove = (moveStr: string) => {
     const result = move(moveStr);
     if (result === PUZZLE_SOLVED && onSolved) {
       onSolved();
@@ -51,6 +70,7 @@ export function PuzzleView({ puzzle, onSolved }: Props) {
 
   return (
     <div className={styles.PuzzleView}>
+      {pendingMove && <PromotionDialog onCancel={() => setPendingMove(undefined)} onSelect={handlePromotion} />}
       <div className={styles.Chessboard}>
         <Chessboard position={fen} orientation={color} onDrop={handleMove} draggable={draggable} width={750} />
       </div>

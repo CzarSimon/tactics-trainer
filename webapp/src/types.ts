@@ -71,6 +71,14 @@ export interface Cycle {
 // Chess types
 export type Color = 'black' | 'white';
 
+export interface Move {
+  sourceSquare: string;
+  targetSquare: string;
+  piece: string;
+}
+
+export type PromotionPiece = 'q' | 'r' | 'b' | 'n';
+
 // IAM types
 export interface User {
   id: string;
