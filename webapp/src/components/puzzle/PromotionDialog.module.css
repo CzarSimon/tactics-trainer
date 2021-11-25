@@ -1,0 +1,10 @@
+.Content {
+  display: flex;
+  justify-content: center;
+}
+
+.Button {
+  margin: 20px;
+  width: 60px;
+  height: 60px;
+}
