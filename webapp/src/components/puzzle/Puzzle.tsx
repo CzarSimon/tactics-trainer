@@ -70,7 +70,9 @@ export function PuzzleView({ puzzle, onSolved }: Props) {
 
   return (
     <div className={styles.PuzzleView}>
-      {pendingMove && <PromotionDialog onCancel={() => setPendingMove(undefined)} onSelect={handlePromotion} />}
+      {pendingMove && (
+        <PromotionDialog orientation={color} onCancel={() => setPendingMove(undefined)} onSelect={handlePromotion} />
+      )}
       <div className={styles.Chessboard}>
         <Chessboard position={fen} orientation={color} onDrop={handleMove} draggable={draggable} width={750} />
       </div>
