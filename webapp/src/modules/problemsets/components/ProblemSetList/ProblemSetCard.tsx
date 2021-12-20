@@ -1,8 +1,6 @@
 import React from 'react';
-import { Card } from 'antd';
+import { Card, Col } from 'antd';
 import { ProblemSet } from '../../../../types';
-
-import styles from './ProblemSetCard.module.css';
 
 interface Props {
   problemSet: ProblemSet;
@@ -13,8 +11,8 @@ export function ProblemSetCard({ problemSet, select }: Props) {
   const { id, name, ratingInterval, themes } = problemSet;
 
   return (
-    <div className={styles.ProblemSetCard}>
-      <Card title={name} hoverable onClick={() => select(id)} style={{ height: '200px' }}>
+    <Col xs={{ span: 24 }} lg={{ span: 6 }}>
+      <Card title={name} hoverable onClick={() => select(id)}>
         <p>
           <b>Rating interval: </b>
           {ratingInterval}
@@ -26,6 +24,6 @@ export function ProblemSetCard({ problemSet, select }: Props) {
           </p>
         )}
       </Card>
-    </div>
+    </Col>
   );
 }

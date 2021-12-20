@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Spin, Button } from 'antd';
+import { Spin, Button, Row } from 'antd';
 import { Optional, ProblemSet } from '../../../../types';
 import { ProblemSetCard } from './ProblemSetCard';
 
@@ -28,10 +28,15 @@ export function ProblemSetsList({ problemSets, onCreateNew }: Props) {
           Create new problem set
         </Button>
       </div>
+
       <div className={styles.ListContent}>
         {!problemSets && <Spin size="large" />}
-        {problemSets && problemSets.map((s) => <ProblemSetCard key={s.id} problemSet={s} select={selectProblemSet} />)}
+        <Row style={{ width: '100%' }} gutter={[32, 32]}>
+          {problemSets &&
+            problemSets.map((s) => <ProblemSetCard key={s.id} problemSet={s} select={selectProblemSet} />)}
+        </Row>
       </div>
+
       {selectedId && <ProblemSetModal id={selectedId} onClose={unselectProblemSet} />}
     </div>
   );
