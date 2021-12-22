@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Spin } from 'antd';
-import { PuzzleView } from '../../../components/puzzle/Puzzle';
+import { Spin } from 'antd';
+import { PuzzleView } from '../../../components/puzzle/PuzzleView';
 import { usePuzzle } from '../../../hooks';
 import { Cycle } from '../../../types';
 import { cycleIsCompleted } from '../../../util';
@@ -8,6 +8,7 @@ import { CompletedMessage } from './CompletedMessage';
 
 import styles from './CycleView.module.css';
 import { useHistory } from 'react-router';
+import { CloseButton } from '../../../components/closeButton/CloseButton';
 
 interface Props {
   cycle: Cycle;
@@ -28,9 +29,7 @@ export function CycleView({ cycle, onSolvedPuzzle }: Props) {
 
   return (
     <div className={styles.CycleView}>
-      <Button shape="circle" size="large" onClick={onClose} className={styles.CloseButton}>
-        X
-      </Button>
+      <CloseButton onClose={onClose} />
       {cycleIsCompleted(cycle) ? (
         <CompletedMessage cycle={cycle} />
       ) : (

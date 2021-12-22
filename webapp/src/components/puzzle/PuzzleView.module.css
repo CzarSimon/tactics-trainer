@@ -1,7 +1,6 @@
 .PuzzleView {
   display: flex;
   flex-direction: row;
-  margin-top: 40px;
 }
 
 .Chessboard {

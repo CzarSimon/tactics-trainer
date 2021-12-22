@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: webapp
-          image: ghcr.io/czarsimon/tactics-trainer/webapp:0.6.0
+          image: ghcr.io/czarsimon/tactics-trainer/webapp:0.7.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

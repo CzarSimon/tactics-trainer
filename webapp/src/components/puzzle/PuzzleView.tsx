@@ -74,7 +74,13 @@ export function PuzzleView({ puzzle, onSolved }: Props) {
         <PromotionDialog orientation={color} onCancel={() => setPendingMove(undefined)} onSelect={handlePromotion} />
       )}
       <div className={styles.Chessboard}>
-        <Chessboard position={fen} orientation={color} onDrop={handleMove} draggable={draggable} width={750} />
+        <Chessboard
+          position={fen}
+          orientation={color}
+          onDrop={handleMove}
+          draggable={draggable}
+          width={getBoardWidth()}
+        />
       </div>
       <div className={styles.PuzzleInfo}>
         {!done && <Title className={styles.Title}>{color} to move</Title>}
@@ -90,4 +96,16 @@ export function PuzzleView({ puzzle, onSolved }: Props) {
 function getInitalTurn(fen: string): Color {
   const chess: ChessInstance = new Chess(fen);
   return chess.turn() === chess.BLACK ? 'white' : 'black';
+}
+
+function getBoardWidth(): number {
+  const height = window.innerHeight;
+  const width = window.innerWidth;
+  const margin = 48;
+
+  if (width > height) {
+    return height - margin * 2;
+  }
+
+  return width - margin * 2;
 }

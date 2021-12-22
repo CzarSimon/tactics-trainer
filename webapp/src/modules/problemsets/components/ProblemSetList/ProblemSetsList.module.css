@@ -1,5 +1,5 @@
 .ProblemSetsList {
-  margin: 40px;
+  margin: 32px;
   width: 100vw;
   display: flex;
   flex-direction: column;
@@ -8,6 +8,7 @@
 .ListTitleRow {
   display: flex;
   justify-content: space-between;
+  margin: 16px;
 }
 
 .ListContent {

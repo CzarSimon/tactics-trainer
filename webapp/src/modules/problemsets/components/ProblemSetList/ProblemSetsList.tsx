@@ -31,7 +31,7 @@ export function ProblemSetsList({ problemSets, onCreateNew }: Props) {
 
       <div className={styles.ListContent}>
         {!problemSets && <Spin size="large" />}
-        <Row style={{ width: '100%' }} gutter={[32, 32]}>
+        <Row style={{ width: '100%', margin: '0' }} gutter={[32, 32]}>
           {problemSets &&
             problemSets.map((s) => <ProblemSetCard key={s.id} problemSet={s} select={selectProblemSet} />)}
         </Row>
