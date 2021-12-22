@@ -15,10 +15,10 @@ import styles from './PromotionDialog.module.css';
 interface Props {
   onCancel: () => void;
   onSelect: (piece: PromotionPiece) => void;
-  orientation: Color;
+  color: Color;
 }
 
-export function PromotionDialog({ onCancel, onSelect, orientation }: Props) {
+export function PromotionDialog({ onCancel, onSelect, color }: Props) {
   const [visible, setVisible] = useState<boolean>(true);
 
   const cancel = () => {
@@ -26,10 +26,10 @@ export function PromotionDialog({ onCancel, onSelect, orientation }: Props) {
     setVisible(false);
   };
 
-  const queen = orientation === 'black' ? <BlackQueen /> : <WhiteQueen />;
-  const rook = orientation === 'black' ? <BlackRook /> : <WhiteRook />;
-  const bishop = orientation === 'black' ? <BlackBishop /> : <WhiteBishop />;
-  const knight = orientation === 'black' ? <BlackKnight /> : <WhiteKnight />;
+  const queen = color === 'black' ? <BlackQueen /> : <WhiteQueen />;
+  const rook = color === 'black' ? <BlackRook /> : <WhiteRook />;
+  const bishop = color === 'black' ? <BlackBishop /> : <WhiteBishop />;
+  const knight = color === 'black' ? <BlackKnight /> : <WhiteKnight />;
 
   return (
     <Modal visible={visible} onCancel={cancel} footer={null} closable={false}>

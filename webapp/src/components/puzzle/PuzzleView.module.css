@@ -1,35 +1,9 @@
 .PuzzleView {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 
-.Chessboard {
+.MobilePuzzleView {
   display: flex;
   flex-direction: column;
-  align-self: flex-start;
-}
-
-.PuzzleInfo {
-  margin-left: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  align-self: flex-start;
-}
-
-.Title {
-  height: 200px;
-  display: flex;
-  align-items: center;
-  margin-bottom: 0px !important;
-}
-
-.Success {
-  height: 200px;
-}
-
-.PuzzleDetails {
-  margin-top: 30px;
-  margin-bottom: 30px;
-  width: 400px;
 }

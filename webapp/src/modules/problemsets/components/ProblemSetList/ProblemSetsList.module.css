@@ -16,3 +16,7 @@
   margin-top: 20px;
   flex-wrap: wrap;
 }
+
+.NewButton {
+  font-weight: 900;
+}

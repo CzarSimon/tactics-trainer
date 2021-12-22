@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Spin, Button, Row } from 'antd';
 import { Optional, ProblemSet } from '../../../../types';
 import { ProblemSetCard } from './ProblemSetCard';
+import { ProblemSetModal } from './ProblemSetModal';
+import { ProfileAvatar } from '../../../profileAvatar';
 
 import styles from './ProblemSetsList.module.css';
-import { ProblemSetModal } from './ProblemSetModal';
 
 interface Props {
   problemSets: Optional<ProblemSet[]>;
@@ -22,10 +23,11 @@ export function ProblemSetsList({ problemSets, onCreateNew }: Props) {
 
   return (
     <div className={styles.ProblemSetsList}>
+      <ProfileAvatar />
       <div className={styles.ListTitleRow}>
         <h1>Problem Sets</h1>
-        <Button type="primary" shape="round" size="large" onClick={onCreateNew}>
-          Create new problem set
+        <Button type="primary" shape="circle" size="large" onClick={onCreateNew} className={styles.NewButton}>
+          +
         </Button>
       </div>
 

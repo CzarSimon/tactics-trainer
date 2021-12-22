@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import Chessboard from 'chessboardjsx';
 import { ChessInstance } from 'chess.js';
-import { Typography, Result } from 'antd';
 import log from '@czarsimon/remotelogger';
 import { Chess, Color, Puzzle, Move, Optional, PromotionPiece } from '../../types';
-import { PuzzleDetails } from './PuzzleDetails';
 import { PromotionDialog } from './PromotionDialog';
+import { Board } from './Board';
+import { PuzzleInfo } from './PuzzleInfo';
 import { usePuzzleState } from '../../hooks';
 import { PUZZLE_SOLVED } from '../../constants';
 import { enablePromotion, encodeMove } from '../../util/chessutil';
 
 import styles from './PuzzleView.module.css';
+import { portraitMode } from '../../util';
 
-const { Title } = Typography;
 const COMPUTER_MOVE_DELAY_MS = 200;
 
 interface Props {
@@ -69,26 +68,12 @@ export function PuzzleView({ puzzle, onSolved }: Props) {
   }
 
   return (
-    <div className={styles.PuzzleView}>
+    <div className={portraitMode() ? styles.MobilePuzzleView : styles.PuzzleView}>
       {pendingMove && (
-        <PromotionDialog orientation={color} onCancel={() => setPendingMove(undefined)} onSelect={handlePromotion} />
+        <PromotionDialog color={color} onCancel={() => setPendingMove(undefined)} onSelect={handlePromotion} />
       )}
-      <div className={styles.Chessboard}>
-        <Chessboard
-          position={fen}
-          orientation={color}
-          onDrop={handleMove}
-          draggable={draggable}
-          width={getBoardWidth()}
-        />
-      </div>
-      <div className={styles.PuzzleInfo}>
-        {!done && <Title className={styles.Title}>{color} to move</Title>}
-        {done && <Result className={styles.Success} status="success" title="Puzzle solved!! 🎉" />}
-        <div className={styles.PuzzleDetails}>
-          <PuzzleDetails puzzle={puzzle} />
-        </div>
-      </div>
+      <PuzzleInfo puzzle={puzzle} color={color} done={done} />
+      <Board fen={fen} color={color} draggable={draggable} handleMove={handleMove} />
     </div>
   );
 }
@@ -96,16 +81,4 @@ export function PuzzleView({ puzzle, onSolved }: Props) {
 function getInitalTurn(fen: string): Color {
   const chess: ChessInstance = new Chess(fen);
   return chess.turn() === chess.BLACK ? 'white' : 'black';
-}
-
-function getBoardWidth(): number {
-  const height = window.innerHeight;
-  const width = window.innerWidth;
-  const margin = 48;
-
-  if (width > height) {
-    return height - margin * 2;
-  }
-
-  return width - margin * 2;
 }
