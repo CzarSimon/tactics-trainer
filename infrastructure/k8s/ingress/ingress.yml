@@ -19,7 +19,8 @@ spec:
             backend:
               service:
                 name: grafana
-                port: 80
+                port:
+                  number: 80
     - host: tacticstrainer.io
       http:
         paths:
