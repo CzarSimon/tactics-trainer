@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: puzzle-server
-          image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.7.0
+          image: ghcr.io/czarsimon/tactics-trainer/puzzle-server:0.8.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
