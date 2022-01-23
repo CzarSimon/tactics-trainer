@@ -19,13 +19,17 @@ type ProblemSetService struct {
 	CycleRepo      repository.CycleRepository
 }
 
-func (s *ProblemSetService) ListProblemSets(ctx context.Context, userID string) ([]models.ProblemSet, error) {
+func (s *ProblemSetService) ListProblemSets(ctx context.Context, userID string, includeArchived bool) ([]models.ProblemSet, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_service_list_problem_sets")
 	defer span.Finish()
 
 	sets, err := s.ProblemSetRepo.FindByUserID(ctx, userID)
 	if err != nil {
 		return nil, err
+	}
+
+	if !includeArchived {
+		sets = filterArchivedSets(sets)
 	}
 
 	return sets, nil
@@ -68,6 +72,24 @@ func (s *ProblemSetService) GetProblemSet(ctx context.Context, id, userID string
 	}
 
 	return set, nil
+}
+
+func (s *ProblemSetService) ArchiveProblemSet(ctx context.Context, id, userID string) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_service_archive_problem_set")
+	defer span.Finish()
+
+	set, err := s.GetProblemSet(ctx, id, userID)
+	if err != nil {
+		return err
+	}
+
+	set.Archived = true
+	err = s.ProblemSetRepo.Update(ctx, set)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *ProblemSetService) CreateProblemSetCycle(ctx context.Context, id, userID string) (models.Cycle, error) {
@@ -152,4 +174,15 @@ func assertProblemSetAccess(set models.ProblemSet, userID string) error {
 	}
 
 	return nil
+}
+
+func filterArchivedSets(sets []models.ProblemSet) []models.ProblemSet {
+	filteredSets := make([]models.ProblemSet, 0)
+	for _, set := range sets {
+		if !set.Archived {
+			filteredSets = append(filteredSets, set)
+		}
+	}
+
+	return filteredSets
 }

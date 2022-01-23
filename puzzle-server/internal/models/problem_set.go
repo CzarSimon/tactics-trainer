@@ -25,10 +25,11 @@ type ProblemSet struct {
 
 func (p ProblemSet) String() string {
 	return fmt.Sprintf(
-		"ProblemSet(id=%s, name=%s, ratingInterval=%s, userId=%s)",
+		"ProblemSet(id=%s, name=%s, ratingInterval=%s, archived=%t, userId=%s)",
 		p.ID,
 		p.Name,
 		p.RatingInterval,
+		p.Archived,
 		p.UserID,
 	)
 }

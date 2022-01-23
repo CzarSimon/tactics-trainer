@@ -30,7 +30,7 @@ func AttachController(svc *service.ProblemSetService, rbac auth.RBAC, r gin.IRou
 	g.GET("", secure(scope.ListProblemSets), controller.listProblemSets)
 	g.POST("", secure(scope.CreateProblemSet), controller.createProblemSet)
 	g.GET("/:setId", secure(scope.ReadProblemSet), controller.getProblemSet)
-	g.DELETE("/:setId", secure(scope.DeleteProblemSet), notImplemented)
+	g.DELETE("/:setId", secure(scope.DeleteProblemSet), controller.archiveProblemSet)
 	g.GET("/:setId/cycles", secure(scope.ListProblemSetCycles), controller.listProblemSetCycles)
 	g.POST("/:setId/cycles", secure(scope.CreateProblemSetCycle), controller.createProblemSetCycle)
 }
@@ -39,6 +39,7 @@ func (h *controller) listProblemSets(c *gin.Context) {
 	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_list_problem_sets")
 	defer span.Finish()
 
+	includeArchived := parseFlag(c, "includeArchived")
 	principal, err := auth.MustGetPrincipal(c)
 	if err != nil {
 		span.LogFields(log.Error(err))
@@ -46,7 +47,7 @@ func (h *controller) listProblemSets(c *gin.Context) {
 		return
 	}
 
-	sets, err := h.svc.ListProblemSets(ctx, principal.ID)
+	sets, err := h.svc.ListProblemSets(ctx, principal.ID, includeArchived)
 	if err != nil {
 		span.LogFields(log.Error(err))
 		c.Error(err)
@@ -106,6 +107,28 @@ func (h *controller) getProblemSet(c *gin.Context) {
 	c.JSON(http.StatusOK, set)
 }
 
+func (h *controller) archiveProblemSet(c *gin.Context) {
+	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_archive_problem_set")
+	defer span.Finish()
+
+	id := c.Param("setId")
+	principal, err := auth.MustGetPrincipal(c)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	err = h.svc.ArchiveProblemSet(ctx, id, principal.ID)
+	if err != nil {
+		span.LogFields(log.Error(err))
+		c.Error(err)
+		return
+	}
+
+	httputil.SendOK(c)
+}
+
 func (h *controller) createProblemSetCycle(c *gin.Context) {
 	span, ctx := opentracing.StartSpanFromContext(c.Request.Context(), "problem_set_controller_create_problem_set_cycle")
 	defer span.Finish()
@@ -140,7 +163,7 @@ func (h *controller) listProblemSetCycles(c *gin.Context) {
 	}
 
 	id := c.Param("setId")
-	onlyActive := parseOnlyActiveFlag(c)
+	onlyActive := parseFlag(c, "onlyActive")
 	cycles, err := h.svc.ListProblemSetCycles(ctx, id, principal.ID, onlyActive)
 	if err != nil {
 		span.LogFields(log.Error(err))
@@ -168,8 +191,8 @@ func parseCreateProblemSetRequest(c *gin.Context) (models.CreateProblemSetReques
 	return body, nil
 }
 
-func parseOnlyActiveFlag(c *gin.Context) bool {
-	val, ok := c.GetQuery("onlyActive")
+func parseFlag(c *gin.Context, name string) bool {
+	val, ok := c.GetQuery(name)
 	if !ok {
 		return false
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/CzarSimon/httputil/dbutil"
+	"github.com/CzarSimon/httputil/timeutil"
 	"github.com/CzarSimon/tactics-trainer/puzzle-server/internal/models"
 	"github.com/opentracing/opentracing-go"
 )
@@ -15,7 +16,7 @@ type ProblemSetRepository interface {
 	Save(ctx context.Context, p models.ProblemSet) error
 	Find(ctx context.Context, id string) (models.ProblemSet, bool, error)
 	FindByUserID(ctx context.Context, userID string) ([]models.ProblemSet, error)
-	// Update(ctx context.Context, p models.ProblemSet) error
+	Update(ctx context.Context, p models.ProblemSet) error
 }
 
 func NewProblemSetRepository(db *sql.DB) ProblemSetRepository {
@@ -201,4 +202,31 @@ func (r *problemSetRepo) FindByUserID(ctx context.Context, userID string) ([]mod
 	}
 
 	return sets, nil
+}
+
+const updateProblemSetQuery = `
+	UPDATE
+		problem_set
+	SET    
+		name = ?, 
+		description = ?, 
+		themes = ?,
+		rating_interval = ?,
+		archived = ?,
+		updated_at = ?
+	WHERE 
+		id = ?
+`
+
+func (r *problemSetRepo) Update(ctx context.Context, p models.ProblemSet) error {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_repo_update")
+	defer span.Finish()
+
+	themeStr := encodeThemes(p.Themes)
+	_, err := r.db.ExecContext(ctx, updateProblemSetQuery, p.Name, p.Description, themeStr, p.RatingInterval, p.Archived, timeutil.Now(), p.ID)
+	if err != nil {
+		return fmt.Errorf("failed to update %s: %w", p, err)
+	}
+
+	return nil
 }

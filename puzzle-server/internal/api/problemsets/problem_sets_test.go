@@ -152,6 +152,7 @@ func TestListProblemSets(t *testing.T) {
 			Themes:         []string{},
 			RatingInterval: "1500 - 1700",
 			UserID:         user1ID,
+			Archived:       true,
 			PuzzleIDs:      []string{"puzzle-2"},
 		},
 		{
@@ -173,10 +174,27 @@ func TestListProblemSets(t *testing.T) {
 	attachAuthHeader(req, user1ID, role.User)
 	res := testutil.PerformRequest(router, req)
 	assert.Equal(http.StatusOK, res.Code)
-	var user1Sets []models.ProblemSet
-	err := json.NewDecoder(res.Result().Body).Decode(&user1Sets)
+	var user1ActiveSets []models.ProblemSet
+	err := json.NewDecoder(res.Result().Body).Decode(&user1ActiveSets)
 	assert.NoError(err)
-	assert.Len(user1Sets, 2)
+	assert.Len(user1ActiveSets, 1)
+
+	req = testutil.CreateRequest(http.MethodGet, "/v1/problem-sets?includeArchived=false", nil)
+	attachAuthHeader(req, user1ID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	err = json.NewDecoder(res.Result().Body).Decode(&user1ActiveSets)
+	assert.NoError(err)
+	assert.Len(user1ActiveSets, 1)
+
+	req = testutil.CreateRequest(http.MethodGet, "/v1/problem-sets?includeArchived=true", nil)
+	attachAuthHeader(req, user1ID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	var user1AllSets []models.ProblemSet
+	err = json.NewDecoder(res.Result().Body).Decode(&user1AllSets)
+	assert.NoError(err)
+	assert.Len(user1AllSets, 2)
 
 	req = testutil.CreateRequest(http.MethodGet, "/v1/problem-sets", nil)
 	attachAuthHeader(req, user2ID, role.User)
@@ -411,6 +429,49 @@ func TestListProblemSetCycles(t *testing.T) {
 	attachAuthHeader(req, "other-user-id", role.User)
 	res = testutil.PerformRequest(router, req)
 	assert.Equal(http.StatusForbidden, res.Code)
+}
+
+func TestArchiveProblemSet(t *testing.T) {
+	assert := assert.New(t)
+	ctx := context.Background()
+	svc, rbac := setupEnv(ctx)
+	router := setupRouter(svc, rbac)
+
+	userID := id.New()
+	set := models.ProblemSet{
+		ID:             id.New(),
+		Name:           "ps-name",
+		Themes:         []string{"passedPawn", "endgame"},
+		RatingInterval: "1300 - 1500",
+		UserID:         userID,
+		PuzzleIDs:      []string{"puzzle-0", "puzzle-1"},
+	}
+
+	err := svc.ProblemSetRepo.Save(ctx, set)
+	assert.NoError(err)
+
+	req := testutil.CreateRequest(http.MethodGet, "/v1/problem-sets/"+set.ID, nil)
+	attachAuthHeader(req, userID, role.User)
+	res := testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	var body models.ProblemSet
+	err = json.NewDecoder(res.Result().Body).Decode(&body)
+	assert.NoError(err)
+	assert.Equal(set, body)
+	assert.False(body.Archived)
+
+	req = testutil.CreateRequest(http.MethodDelete, "/v1/problem-sets/"+set.ID, nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+
+	req = testutil.CreateRequest(http.MethodGet, "/v1/problem-sets/"+set.ID, nil)
+	attachAuthHeader(req, userID, role.User)
+	res = testutil.PerformRequest(router, req)
+	assert.Equal(http.StatusOK, res.Code)
+	err = json.NewDecoder(res.Result().Body).Decode(&body)
+	assert.NoError(err)
+	assert.True(body.Archived)
 }
 
 func TestCreateProblemSetCycle_UnauthorizedAndForbidden(t *testing.T) {
