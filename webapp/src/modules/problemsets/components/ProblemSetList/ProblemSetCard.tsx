@@ -12,7 +12,7 @@ export function ProblemSetCard({ problemSet, select }: Props) {
 
   return (
     <Col xs={{ span: 24 }} lg={{ span: 6 }}>
-      <Card title={name} hoverable onClick={() => select(id)}>
+      <Card title={name} hoverable onClick={() => select(id)} style={{ borderRadius: '8px' }}>
         <p>
           <b>Rating interval: </b>
           {ratingInterval}

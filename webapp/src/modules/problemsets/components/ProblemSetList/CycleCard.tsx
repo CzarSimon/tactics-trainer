@@ -24,7 +24,12 @@ export function CycleCard({ cycle }: Props) {
   };
 
   return (
-    <Card hoverable={!completed} onClick={onClick} className={styles.CycleCard}>
+    <Card
+      hoverable={!completed}
+      onClick={onClick}
+      className={styles.CycleCard}
+      style={{ borderRadius: '8px', marginBottom: '16px' }}
+    >
       <h4>Cycle {number}</h4>
       <div className={styles.CycleInfo}>
         <p>{createdAt}</p>

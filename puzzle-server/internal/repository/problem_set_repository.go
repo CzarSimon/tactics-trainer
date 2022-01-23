@@ -15,6 +15,7 @@ type ProblemSetRepository interface {
 	Save(ctx context.Context, p models.ProblemSet) error
 	Find(ctx context.Context, id string) (models.ProblemSet, bool, error)
 	FindByUserID(ctx context.Context, userID string) ([]models.ProblemSet, error)
+	// Update(ctx context.Context, p models.ProblemSet) error
 }
 
 func NewProblemSetRepository(db *sql.DB) ProblemSetRepository {
@@ -55,13 +56,13 @@ func (r *problemSetRepo) Save(ctx context.Context, p models.ProblemSet) error {
 }
 
 const saveProblemSetQuery = `
-	INSERT INTO problem_set(id, name, description, themes, rating_interval, user_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	INSERT INTO problem_set(id, name, description, themes, rating_interval, user_id, archived, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 func saveProblemSet(ctx context.Context, tx *sql.Tx, p models.ProblemSet) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "save_problem_set")
 	defer span.Finish()
 
-	_, err := tx.ExecContext(ctx, saveProblemSetQuery, p.ID, p.Name, p.Description, encodeThemes(p.Themes), p.RatingInterval, p.UserID, p.CreatedAt, p.UpdatedAt)
+	_, err := tx.ExecContext(ctx, saveProblemSetQuery, p.ID, p.Name, p.Description, encodeThemes(p.Themes), p.RatingInterval, p.UserID, p.Archived, p.CreatedAt, p.UpdatedAt)
 	if err != nil {
 		return fmt.Errorf("failed to save %s: %w", p, err)
 	}
@@ -109,11 +110,12 @@ func (r *problemSetRepo) Find(ctx context.Context, id string) (models.ProblemSet
 }
 
 const findProblemSetQuery = `
-	SELECT id, name, description, themes, rating_interval, user_id, created_at, updated_at FROM problem_set WHERE id = ?`
+	SELECT id, name, description, themes, rating_interval, user_id, archived, created_at, updated_at FROM problem_set WHERE id = ?`
 
 func findProblemSet(ctx context.Context, tx *sql.Tx, id string) (models.ProblemSet, bool, error) {
 	var p models.ProblemSet
 	var themeStr string
+	var archived sql.NullBool
 	err := tx.QueryRowContext(ctx, findProblemSetQuery, id).Scan(
 		&p.ID,
 		&p.Name,
@@ -121,6 +123,7 @@ func findProblemSet(ctx context.Context, tx *sql.Tx, id string) (models.ProblemS
 		&themeStr,
 		&p.RatingInterval,
 		&p.UserID,
+		&archived,
 		&p.CreatedAt,
 		&p.UpdatedAt,
 	)
@@ -131,6 +134,7 @@ func findProblemSet(ctx context.Context, tx *sql.Tx, id string) (models.ProblemS
 	}
 
 	p.Themes = decodeThemes(themeStr)
+	p.Archived = archived.Bool
 	return p, true, nil
 }
 
@@ -158,7 +162,7 @@ func findProblemSetPuzzleIDs(ctx context.Context, tx *sql.Tx, problemSetId strin
 }
 
 const findProblemSetsByUserIDQuery = `
-	SELECT id, name, description, themes, rating_interval, user_id, created_at, updated_at FROM problem_set WHERE user_id = ? ORDER BY created_at ASC`
+	SELECT id, name, description, themes, rating_interval, user_id, archived, created_at, updated_at FROM problem_set WHERE user_id = ? ORDER BY created_at ASC`
 
 func (r *problemSetRepo) FindByUserID(ctx context.Context, userID string) ([]models.ProblemSet, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "problem_set_repo_find_by_user_id")
@@ -173,6 +177,7 @@ func (r *problemSetRepo) FindByUserID(ctx context.Context, userID string) ([]mod
 	sets := make([]models.ProblemSet, 0)
 	var s models.ProblemSet
 	var themeStr string
+	var archived sql.NullBool
 	for rows.Next() {
 		err := rows.Scan(
 			&s.ID,
@@ -181,6 +186,7 @@ func (r *problemSetRepo) FindByUserID(ctx context.Context, userID string) ([]mod
 			&themeStr,
 			&s.RatingInterval,
 			&s.UserID,
+			&archived,
 			&s.CreatedAt,
 			&s.UpdatedAt,
 		)
@@ -190,6 +196,7 @@ func (r *problemSetRepo) FindByUserID(ctx context.Context, userID string) ([]mod
 
 		s.Themes = decodeThemes(themeStr)
 		s.PuzzleIDs = make([]string, 0)
+		s.Archived = archived.Bool
 		sets = append(sets, s)
 	}
 

@@ -59,6 +59,7 @@ func Test_problemSetRepo_Save(t *testing.T) {
 		CreatedAt:      timeutil.Now(),
 		UpdatedAt:      timeutil.Now(),
 		UserID:         "user-0",
+		Archived:       false,
 		PuzzleIDs: []string{
 			"puzzle-0",
 			"puzzle-1",
@@ -110,6 +111,7 @@ func Test_problemSetRepo_Find(t *testing.T) {
 		CreatedAt:      timeutil.Now(),
 		UpdatedAt:      timeutil.Now(),
 		UserID:         "user-0",
+		Archived:       true,
 		PuzzleIDs: []string{
 			"puzzle-0",
 			"puzzle-1",
@@ -171,6 +173,7 @@ func Test_problemSetRepo_FindByUserID(t *testing.T) {
 			RatingInterval: "1300 - 1500",
 			UserID:         "user-1",
 			PuzzleIDs:      []string{"puzzle-2"},
+			Archived:       true,
 		},
 	}
 
@@ -182,12 +185,14 @@ func Test_problemSetRepo_FindByUserID(t *testing.T) {
 	found, err := repo.FindByUserID(ctx, "user-0")
 	assert.NoError(err)
 	assert.Len(found, 2)
+	assert.False(found[0].Archived)
 
 	found, err = repo.FindByUserID(ctx, "user-1")
 	assert.NoError(err)
 	assert.Len(found, 1)
 	assert.Equal(sets[2].ID, found[0].ID)
 	assert.Len(found[0].PuzzleIDs, 0)
+	assert.True(found[0].Archived)
 
 	found, err = repo.FindByUserID(ctx, "other-user")
 	assert.NoError(err)

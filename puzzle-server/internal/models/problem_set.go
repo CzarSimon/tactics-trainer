@@ -17,6 +17,7 @@ type ProblemSet struct {
 	Themes         []string  `json:"themes"`
 	RatingInterval string    `json:"ratingInterval"`
 	UserID         string    `json:"userId"`
+	Archived       bool      `json:"archived"`
 	PuzzleIDs      []string  `json:"puzzleIds"`
 	CreatedAt      time.Time `json:"createdAt"`
 	UpdatedAt      time.Time `json:"updatedAt"`
@@ -41,6 +42,7 @@ func NewProblemSet(req CreateProblemSetRequest, userID string, puzzleIDs []strin
 		Themes:         req.Filter.Themes,
 		RatingInterval: req.Filter.RatingInterval(),
 		UserID:         userID,
+		Archived:       false,
 		PuzzleIDs:      puzzleIDs,
 		CreatedAt:      now,
 		UpdatedAt:      now,
