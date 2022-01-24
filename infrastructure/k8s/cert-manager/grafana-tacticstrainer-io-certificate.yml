@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-tacticstrainer-io-certificate
+  namespace: application
+spec:
+  dnsNames:
+    - grafana.tacticstrainer.io
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  secretName: grafana-tacticstrainer-io-certificate

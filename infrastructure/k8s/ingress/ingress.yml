@@ -10,6 +10,9 @@ spec:
     - hosts:
         - tacticstrainer.io
       secretName: tacticstrainer-io-certificate
+    - hosts:
+        - grafana.tacticstrainer.io
+      secretName: grafana-tacticstrainer-io-certificate
   rules:
     - host: grafana.tacticstrainer.io
       http:
