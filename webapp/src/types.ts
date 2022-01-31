@@ -17,6 +17,12 @@ export interface ErrorInfo {
   details: string;
 }
 
+export interface ApiStatus {
+  status: string;
+}
+
+export type EmptyFn<T = void> = () => T;
+
 // Puzzle
 export interface Puzzle {
   id: string;
@@ -39,6 +45,7 @@ export interface ProblemSet {
   themes: string[];
   ratingInterval: string;
   userId: string;
+  archived: boolean;
   puzzleIds: string[];
   createdAt: string;
   updatedAt: string;

@@ -12,6 +12,7 @@ import {
   getCycle,
   updateCycle,
   createProblemSetCycle,
+  archiveProblemSet,
 } from '../api/puzzleApi';
 import {
   Chess,
@@ -118,6 +119,19 @@ export function useCreateNewProblemSet(): CreateProblemSetFn {
   };
 
   return createNewProblemSet;
+}
+
+type ArchiveProblemSetFn = (id: string) => Promise<void>;
+
+export function useArchiveProblemSet(): ArchiveProblemSetFn {
+  const queryClient = useQueryClient();
+
+  const archive = async (id: string): Promise<void> => {
+    await archiveProblemSet(id);
+    queryClient.invalidateQueries('problem-sets');
+  };
+
+  return archive;
 }
 
 export function usePuzzleState({ fen, moves }: Puzzle): UsePuzzleStateResult {

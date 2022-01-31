@@ -51,6 +51,16 @@ export async function createProblemSet(req: CreateProblemSetRequest): Promise<Pr
   return body;
 }
 
+export async function archiveProblemSet(id: string): Promise<void> {
+  const { body, error, metadata } = await httpclient.delete<ProblemSet>({
+    url: `${PUZZLE_SERVER_URL}/v1/problem-sets/${id}`,
+  });
+
+  if (!body) {
+    throw wrapAndLogError(`failed to archive problemSet(id=${id})`, error, metadata);
+  }
+}
+
 export async function listProblemSetCycles(id: string): Promise<Cycle[]> {
   const { body, error, metadata } = await httpclient.get<Cycle[]>({
     url: `${PUZZLE_SERVER_URL}/v1/problem-sets/${id}/cycles`,

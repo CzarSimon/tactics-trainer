@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Divider, Modal } from 'antd';
-import { useProblemSet } from '../../../../hooks';
+import { useArchiveProblemSet, useProblemSet } from '../../../../hooks';
 import { CycleList } from './CycleList';
+import { DropdownMenu } from '../common/DropdownMenu';
+
+import styles from './ProblemSetModal.module.css';
 
 interface Props {
   id: string;
@@ -10,6 +13,7 @@ interface Props {
 
 export function ProblemSetModal({ id, onClose }: Props) {
   const problemSet = useProblemSet(id);
+  const archiveProblemSet = useArchiveProblemSet();
   const [open, setOpen] = useState(true);
   if (!problemSet) {
     return null;
@@ -20,10 +24,18 @@ export function ProblemSetModal({ id, onClose }: Props) {
     onClose();
   };
 
+  const archive = () => {
+    archiveProblemSet(id);
+    close();
+  };
+
   const { name, description, ratingInterval, puzzleIds, createdAt } = problemSet;
   return (
-    <Modal visible={open} onCancel={close} footer={null}>
-      <h1>{name}</h1>
+    <Modal visible={open} onCancel={close} footer={null} closable={false}>
+      <div className={styles.Title}>
+        <h1>{name}</h1>
+        <DropdownMenu onClose={close} onArchive={archive} />
+      </div>
       <p>{description}</p>
       <p>
         <b>Rating interval: </b>
