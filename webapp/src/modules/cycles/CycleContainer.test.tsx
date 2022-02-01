@@ -80,7 +80,7 @@ test('fetches cycle, puzzle and renders puzzle', async () => {
     expect(screen.getByText(theme)).toBeInTheDocument();
   }
 
-  const closeButton = screen.getByRole('button', { name: /^X$/i });
+  const closeButton = screen.getByRole('button', { name: /close-button/i });
   expect(closeButton).toBeInTheDocument();
   userEvent.click(closeButton);
 });

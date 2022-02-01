@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 
 import styles from './CloseButton.module.css';
 
@@ -10,9 +11,7 @@ interface Props {
 export function CloseButton({ onClose }: Props) {
   return (
     <div className={styles.CloseButton}>
-      <Button shape="circle" size="large" onClick={onClose}>
-        X
-      </Button>
+      <Button aria-label="close-button" shape="circle" size="large" onClick={onClose} icon={<CloseOutlined />} />
     </div>
   );
 }
