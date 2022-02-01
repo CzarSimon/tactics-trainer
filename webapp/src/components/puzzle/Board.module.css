@@ -3,3 +3,10 @@
   flex-direction: column;
   align-self: flex-start;
 }
+
+.ChessboardWithErrorHighlighting {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-start;
+  box-shadow: 0px 0px 8px 4px rgba(255, 0, 0, 0.7);
+}

@@ -9,17 +9,18 @@ interface Props {
   fen: string;
   color: Color;
   draggable: boolean;
+  wrongMove: boolean;
   handleMove: (move: Move) => void;
 }
 
-export function Board({ fen, color, draggable, handleMove }: Props) {
+export function Board({ fen, color, draggable, wrongMove, handleMove }: Props) {
   return (
-    <div className={styles.Chessboard}>
+    <div className={wrongMove ? styles.ChessboardWithErrorHighlighting : styles.Chessboard}>
       <Chessboard
         position={fen}
         orientation={color}
         onDrop={handleMove}
-        draggable={draggable}
+        draggable={draggable && !wrongMove}
         width={getBoardWidth()}
       />
     </div>
