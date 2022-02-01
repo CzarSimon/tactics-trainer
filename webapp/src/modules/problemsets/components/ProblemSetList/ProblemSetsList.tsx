@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Spin, Button, Row } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { Optional, ProblemSet } from '../../../../types';
 import { ProblemSetCard } from './ProblemSetCard';
 import { ProblemSetModal } from './ProblemSetModal';
@@ -26,9 +27,15 @@ export function ProblemSetsList({ problemSets, onCreateNew }: Props) {
       <ProfileAvatar />
       <div className={styles.ListTitleRow}>
         <h1>Problem Sets</h1>
-        <Button type="primary" shape="circle" size="large" onClick={onCreateNew} className={styles.NewButton}>
-          +
-        </Button>
+        <Button
+          aria-label="new-problem-set-button"
+          type="primary"
+          shape="circle"
+          size="large"
+          onClick={onCreateNew}
+          className={styles.NewButton}
+          icon={<PlusOutlined />}
+        />
       </div>
 
       <div className={styles.ListContent}>

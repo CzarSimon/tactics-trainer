@@ -14,6 +14,7 @@ const problemSet1: ProblemSet = {
   themes: [],
   ratingInterval: '1500 - 1600',
   userId: 'user-1',
+  archived: false,
   puzzleIds: [],
   createdAt: ' 2021-11-04T09:54:34Z',
   updatedAt: ' 2021-11-04T09:54:34Z',
@@ -26,6 +27,7 @@ const problemSet2: ProblemSet = {
   themes: ['endgame', 'long'],
   ratingInterval: '1800 - 1900',
   userId: 'user-1',
+  archived: false,
   puzzleIds: [],
   createdAt: '2021-11-04T09:54:34Z',
   updatedAt: '2021-11-04T09:54:34Z',
@@ -85,7 +87,7 @@ test('check that problem sets load and can be interacted with', async () => {
 
   render(<ProblemSetsContainer />);
   expect(screen.getByRole('heading', { name: /^problem sets$/i })).toBeInTheDocument();
-  const newSetButton = screen.getByRole('button', { name: /^\+$/i });
+  const newSetButton = screen.getByRole('button', { name: /new-problem-set-button/i });
   expect(newSetButton).toBeInTheDocument();
   for (const ps of [problemSet1, problemSet2]) {
     await waitFor(
