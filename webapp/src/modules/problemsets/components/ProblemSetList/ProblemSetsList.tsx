@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Optional, ProblemSet } from '../../../../types';
 import { ProblemSetCard } from './ProblemSetCard';
 import { ProblemSetModal } from './ProblemSetModal';
-import { ProfileAvatar } from '../../../profileAvatar';
+import { PageHeader } from '../../../../components/PageHeader';
 
 import styles from './ProblemSetsList.module.css';
 
@@ -24,19 +24,20 @@ export function ProblemSetsList({ problemSets, onCreateNew }: Props) {
 
   return (
     <div className={styles.ProblemSetsList}>
-      <ProfileAvatar />
-      <div className={styles.ListTitleRow}>
-        <h1>Problem Sets</h1>
-        <Button
-          aria-label="new-problem-set-button"
-          type="primary"
-          shape="circle"
-          size="large"
-          onClick={onCreateNew}
-          className={styles.NewButton}
-          icon={<PlusOutlined />}
-        />
-      </div>
+      <PageHeader
+        title="Problem Sets"
+        extra={
+          <Button
+            aria-label="new-problem-set-button"
+            type="primary"
+            shape="circle"
+            size="large"
+            onClick={onCreateNew}
+            className={styles.NewButton}
+            icon={<PlusOutlined />}
+          />
+        }
+      />
 
       <div className={styles.ListContent}>
         {!problemSets && <Spin size="large" />}

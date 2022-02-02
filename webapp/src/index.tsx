@@ -1,11 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './state/auth/AuthProvider';
 import { ErrorProvider } from './state/error/ErrorProvider';
+import { MenuProvider } from './state/menu/MenuProvider';
+
+import './index.css';
 
 const queryClient = new QueryClient();
 
@@ -13,7 +15,9 @@ ReactDOM.render(
   <QueryClientProvider client={queryClient}>
     <ErrorProvider>
       <AuthProvider>
-        <App />
+        <MenuProvider>
+          <App />
+        </MenuProvider>
       </AuthProvider>
     </ErrorProvider>
   </QueryClientProvider>,

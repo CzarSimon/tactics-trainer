@@ -1,0 +1,16 @@
+.PageHeader {
+  display: flex;
+  justify-content: space-between;
+  margin: 16px;
+}
+
+.Title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.Title h1 {
+  margin: 0;
+  margin-left: 8px;
+}
