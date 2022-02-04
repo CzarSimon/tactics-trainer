@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { AboutPageContainer } from '../modules/aboutpage';
 import { LoginContainer } from '../modules/login';
 import { SignupContainer } from '../modules/signup';
 
@@ -12,6 +13,9 @@ export function UnuthenticatedRoutes() {
         </Route>
         <Route path="/login">
           <LoginContainer />
+        </Route>
+        <Route path="/about">
+          <AboutPageContainer />
         </Route>
         <Route path="/">
           <SignupContainer />

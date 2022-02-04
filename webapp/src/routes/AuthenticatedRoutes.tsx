@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { AboutPage } from '../modules/aboutpage';
+import { AboutPageContainer } from '../modules/aboutpage';
 import { CycleContainer } from '../modules/cycles';
 import { SideMenu } from '../modules/menu';
 import { NewProblemSetContainer, ProblemSetsContainer } from '../modules/problemsets';
@@ -17,7 +17,7 @@ export function AuthenticatedRoutes() {
           <NewProblemSetContainer />
         </Route>
         <Route path="/about">
-          <AboutPage />
+          <AboutPageContainer />
         </Route>
         <Route path="/">
           <ProblemSetsContainer />

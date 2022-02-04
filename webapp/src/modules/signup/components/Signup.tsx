@@ -31,7 +31,11 @@ export function Signup({ submit }: Props) {
           </Button>
         </Form.Item>
       </Form>
-      <Link to="/login">Log in</Link>
+      <div className={styles.Links}>
+        <Link to="/login">Log in</Link>
+        <p></p>
+        <Link to="/about">About</Link>
+      </div>
     </div>
   );
 }

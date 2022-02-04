@@ -12,12 +12,13 @@ export function useAuth(): UseAuthResult {
   const history = useHistory();
   const { setError } = useError();
 
-  const handleAuthResponse = (res?: AuthenticationResponse) => {
+  const handleAuthResponse = (res?: AuthenticationResponse, path?: string) => {
     if (res) {
       storeAuthInfo(res);
       setTimeout(() => {
         authenticate(res.user);
-        history.push('/');
+        const redirectPath = path || '/';
+        history.push(redirectPath);
       }, 100);
     }
   };
@@ -31,7 +32,7 @@ export function useAuth(): UseAuthResult {
       });
       return;
     }
-    handleAuthResponse(data);
+    handleAuthResponse(data, '/');
   };
 
   const signup = async (req: AuthenticationRequest) => {
@@ -43,7 +44,7 @@ export function useAuth(): UseAuthResult {
       });
       return;
     }
-    handleAuthResponse(data);
+    handleAuthResponse(data, '/about');
   };
 
   const onLogout = () => {

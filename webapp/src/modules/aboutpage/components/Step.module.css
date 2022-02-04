@@ -1,0 +1,23 @@
+.LandscapeStep {
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  align-items: center;
+  width: 600px;
+}
+
+.PortraitStep {
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  align-items: center;
+  width: 100%;
+}
+
+.Step p {
+  text-align: center;
+}
+
+.CTAButton {
+  margin-top: 32px;
+}
